@@ -1,7 +1,7 @@
 <script lang="ts">
 </script>
 
-<main class="min-h-[100dvh] bg-[var(--bg)] text-[var(--ink)] relative">
+<main class="min-h-[100dvh] overflow-hidden bg-[var(--bg)] text-[var(--ink)] relative">
 	<style>
 		.grid-wrap { display: flex; flex-wrap: wrap; }
 		.grid-section { flex: 1 1 50%; transition: flex 0.45s ease; min-height: 50vh; }
@@ -10,7 +10,7 @@
 	</style>
 
 	<!-- Top marquee -->
-	<div class="overflow-hidden border-b border-[var(--line)] bg-[var(--bg)] h-8 shrink-0" aria-hidden="true">
+	<div class="absolute top-0 left-0 right-0 overflow-hidden bg-[var(--bg)] h-8 z-10" aria-hidden="true">
 		<div class="inline-block font-mono text-[10px] uppercase tracking-[0.2em] h-full leading-8 whitespace-nowrap animate-scroll-left" style="color: var(--ink-dim); animation: scroll-left 20s linear infinite;">
 			FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN — FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN —
 		</div>
@@ -35,7 +35,7 @@
 		</div>
 	</div>
 
-	<div class="grid-wrap min-h-[100dvh]">
+	<div class="grid-wrap min-h-[100dvh] z-0">
 		<a href="#work" class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-12 hover:bg-[var(--surface)]">
 			<h2 class="font-hand text-4xl md:text-6xl tracking-tighter">WORK</h2>
 		</a>
@@ -51,7 +51,7 @@
 	</div>
 
 	<!-- Bottom marquee -->
-	<div class="overflow-hidden border-t border-[var(--line)] bg-[var(--bg)] h-8 shrink-0" aria-hidden="true">
+	<div class="absolute bottom-0 left-0 right-0 overflow-hidden bg-[var(--bg)] h-8 z-10" aria-hidden="true">
 		<div class="inline-block font-mono text-[10px] uppercase tracking-[0.2em] h-full leading-8 whitespace-nowrap animate-scroll-left" style="color: var(--ink-dim); animation: scroll-left 20s linear infinite;">
 			FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN — FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN —
 		</div>
