@@ -1,10 +1,18 @@
 <script lang="ts">
 	import '../app.css';
+	import MarqueeHorizontal from '$lib/components/MarqueeHorizontal.svelte';
+	import MarqueeVertical from '$lib/components/MarqueeVertical.svelte';
 
 	let { children } = $props();
 </script>
 
-{@render children()}
+<div class="relative">
+	<MarqueeHorizontal position="top" />
+	<MarqueeHorizontal position="bottom" />
+	<MarqueeVertical side="left" />
+	<MarqueeVertical side="right" />
+	{@render children()}
+</div>
 
 <style>
 	:global(::view-transition-old(root)),
