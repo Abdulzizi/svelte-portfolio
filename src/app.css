@@ -1,0 +1,102 @@
+@import "tailwindcss";
+@import "@fontsource/caveat/latin-500.css";
+@import "@fontsource/caveat/latin-700.css";
+@import "@fontsource/kalam/latin-400.css";
+@import "@fontsource/kalam/latin-700.css";
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-600.css";
+@import "@fontsource/jetbrains-mono/latin-400.css";
+@import "@fontsource/jetbrains-mono/latin-600.css";
+
+:root {
+  --font-hand: "Caveat", cursive;
+  --font-ink: "Kalam", "Caveat", cursive;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --grid-size: 28px;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1410;
+  --surface: #161c15;
+  --ink: #e9efe6;
+  --ink-dim: #a8b5a0;
+  --line: rgba(233, 239, 230, 0.12);
+  --accent: #7bd88f;
+  --accent-soft: rgba(123, 216, 143, 0.14);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f2f4ec;
+  --surface: #e9ece0;
+  --ink: #23281f;
+  --ink-dim: #5a6355;
+  --line: rgba(35, 40, 31, 0.12);
+  --accent: #2e7d46;
+  --accent-soft: rgba(46, 125, 70, 0.12);
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background-color: var(--bg);
+  /* caveman: single-scale grid, no minor/major lines; upgrade to dual background-size when needed. */
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* caveman: static feTurbulence tile instead of animated canvas dust; upgrade to canvas when motion budget allows. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 300ms ease-out,
+    transform 300ms ease-out;
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
