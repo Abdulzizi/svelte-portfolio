@@ -25,8 +25,8 @@
 		<a href="#about" id="about" class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-6 lg:p-12 hover:bg-[var(--surface)]">
 			<h2 class="font-hand tracking-tighter" style="font-size: clamp(2rem, 6vw, 4.5rem); line-height: 1;">ABOUT</h2>
 		</a>
-		<a href="#community" id="community" class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-6 lg:p-12 hover:bg-[var(--surface)]">
-			<h2 class="font-hand tracking-tighter" style="font-size: clamp(2rem, 6vw, 4.5rem); line-height: 1;">COMMUNITY</h2>
+		<a href="#blog" id="blog" class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-6 lg:p-12 hover:bg-[var(--surface)]">
+			<h2 class="font-hand tracking-tighter" style="font-size: clamp(2rem, 6vw, 4.5rem); line-height: 1;">BLOG</h2>
 		</a>
 	</div>
 </main>
