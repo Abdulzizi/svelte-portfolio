@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { side = 'left', text = 'FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN —', speed = 50 }: { side?: 'left' | 'right'; text?: string; speed?: number } = $props();
+	let { side = 'left', text = 'FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN —', speed = 150 }: { side?: 'left' | 'right'; text?: string; speed?: number } = $props();
 
 	let track = $state<HTMLElement>();
 	let itemHeight = 0;
@@ -33,7 +33,8 @@
 		const name = `marquee-v-${Math.random().toString(36).slice(2)}`;
 		track.style.animation = `${name} ${duration}s linear infinite`;
 		const sheet = document.styleSheets[0];
-		const keyframes = `@keyframes ${name} { from { transform: translateY(0); } to { transform: translateY(-${itemHeight * clones}px); } }`;
+		// translate only ONE item height, not full track
+		const keyframes = `@keyframes ${name} { from { transform: translateY(0); } to { transform: translateY(-${itemHeight}px); } }`;
 		try {
 			sheet.insertRule(keyframes, sheet.cssRules.length);
 		} catch {}
@@ -49,7 +50,7 @@
 <style>
 	.track {
 		display: flex;
-		flex-direction: column;
+		flex-direction: row; /* stack clones vertically in container space */
 		will-change: transform;
 		color: var(--ink-dim);
 	}

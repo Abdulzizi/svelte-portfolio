@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { position = 'top', text = 'FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN —', speed = 50 }: { position?: 'top' | 'bottom'; text?: string; speed?: number } = $props();
+	let { position = 'top', text = 'FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN —', speed = 150 }: { position?: 'top' | 'bottom'; text?: string; speed?: number } = $props();
 
 	let track = $state<HTMLElement>();
 	let width = 0;
@@ -7,8 +7,6 @@
 
 	function setup() {
 		if (!track) return;
-		const style = getComputedStyle(track);
-		const gap = parseFloat(style.columnGap || style.gap || '0');
 		const child = track.firstElementChild as HTMLElement;
 		if (!child) return;
 
@@ -34,7 +32,8 @@
 		const name = `marquee-${Math.random().toString(36).slice(2)}`;
 		track.style.animation = `${name} ${duration}s linear infinite`;
 		const sheet = document.styleSheets[0];
-		const keyframes = `@keyframes ${name} { from { transform: translateX(0); } to { transform: translateX(-${width * clones}px); } }`;
+		// translate only ONE item width, not full track
+		const keyframes = `@keyframes ${name} { from { transform: translateX(0); } to { transform: translateX(-${width}px); } }`;
 		try {
 			sheet.insertRule(keyframes, sheet.cssRules.length);
 		} catch {}
