@@ -18,13 +18,13 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0f1410;
-  --surface: #161c15;
-  --ink: #e9efe6;
-  --ink-dim: #a8b5a0;
-  --line: rgba(233, 239, 230, 0.12);
-  --accent: #7bd88f;
-  --accent-soft: rgba(123, 216, 143, 0.14);
+  --bg: #0a0a08;
+  --surface: #11110e;
+  --ink: #f2f0e4;
+  --ink-dim: #9a9580;
+  --line: rgba(242, 240, 228, 0.15);
+  --accent: #f2d54e;
+  --accent-soft: rgba(242, 213, 78, 0.12);
 }
 
 [data-theme="light"] {
