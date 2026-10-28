@@ -29,11 +29,10 @@
 
 	function start() {
 		if (!track || itemHeight === 0) return;
-		const duration = itemHeight * clones / speed;
+		const duration = itemHeight / speed;
 		const name = `marquee-v-${Math.random().toString(36).slice(2)}`;
 		track.style.animation = `${name} ${duration}s linear infinite`;
 		const sheet = document.styleSheets[0];
-		// translate only ONE item height, not full track
 		const keyframes = `@keyframes ${name} { from { transform: translateY(0); } to { transform: translateY(-${itemHeight}px); } }`;
 		try {
 			sheet.insertRule(keyframes, sheet.cssRules.length);
@@ -50,28 +49,23 @@
 <style>
 	.track {
 		display: flex;
-		flex-direction: row; /* stack clones vertically in container space */
+		flex-direction: row; /* in vertical-rl, inline axis = vertical, so row stacks vertically */
 		will-change: transform;
 		color: var(--ink-dim);
+		writing-mode: vertical-rl;
 	}
-	/* static rotation wrapper preserves orientation while track animates */
-	.rotated { transform: rotate(180deg); }
 </style>
 
 {#if side === 'left'}
 	<div class="absolute left-0 top-8 bottom-8 w-6 lg:w-8 overflow-hidden border-r border-[var(--line)] bg-[var(--bg)] pointer-events-none z-10" aria-hidden="true">
-		<div class="rotated" style="writing-mode: vertical-rl;">
-			<div class="track" bind:this={track}>
-				<span class="font-mono text-[8px] lg:text-[9px] uppercase tracking-[0.2em] whitespace-nowrap leading-6">{text}</span>
-			</div>
+		<div class="track" bind:this={track}>
+			<span class="font-mono text-[8px] lg:text-[9px] uppercase tracking-[0.2em] whitespace-nowrap leading-6">{text}</span>
 		</div>
 	</div>
 {:else}
 	<div class="absolute right-0 top-8 bottom-8 w-6 lg:w-8 overflow-hidden border-l border-[var(--line)] bg-[var(--bg)] pointer-events-none z-10" aria-hidden="true">
-		<div style="writing-mode: vertical-rl;">
-			<div class="track" bind:this={track}>
-				<span class="font-mono text-[8px] lg:text-[9px] uppercase tracking-[0.2em] whitespace-nowrap leading-6">{text}</span>
-			</div>
+		<div class="track" bind:this={track}>
+			<span class="font-mono text-[8px] lg:text-[9px] uppercase tracking-[0.2em] whitespace-nowrap leading-6">{text}</span>
 		</div>
 	</div>
 {/if}
