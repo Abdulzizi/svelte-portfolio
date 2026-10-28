@@ -1,5 +1,4 @@
 <script lang="ts">
-	import About from '$lib/components/About.svelte';
 </script>
 
 <main class="min-h-[100dvh] bg-[var(--bg)] text-[var(--ink)]">
@@ -17,15 +16,11 @@
 		<a href="#connect" class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-12 hover:bg-[var(--surface)]">
 			<h2 class="font-hand text-4xl md:text-6xl tracking-tighter">CONNECT</h2>
 		</a>
-		<div id="about" class="grid-section relative border-[1px] border-[var(--line)] p-12 md:min-h-[50vh]">
-			<h2 class="font-hand text-4xl md:text-6xl tracking-tighter mb-8">ABOUT</h2>
-			<About />
-		</div>
-		<div id="work" class="grid-section relative border-[1px] border-[var(--line)] p-12 md:min-h-[50vh]">
-			<h2 class="font-hand text-4xl md:text-6xl tracking-tighter mb-8">COMMUNITY</h2>
-			<p class="font-sans text-base leading-7" style="color: var(--ink-dim);">
-				Building things for people. Sharing code, ideas, and rough sketches.
-			</p>
-		</div>
+		<a href="#about" class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-12 hover:bg-[var(--surface)]">
+			<h2 class="font-hand text-4xl md:text-6xl tracking-tighter">ABOUT</h2>
+		</a>
+		<a href="#work" id="work" class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-12 hover:bg-[var(--surface)]">
+			<h2 class="font-hand text-4xl md:text-6xl tracking-tighter">COMUNITY</h2>
+		</a>
 	</div>
 </main>
