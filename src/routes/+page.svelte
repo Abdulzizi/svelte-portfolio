@@ -9,6 +9,17 @@
 		.grid-section:hover { flex: 1.6 1 60%; z-index: 10; }
 	</style>
 
+	<!-- Top marquee -->
+	<div class="overflow-hidden border-b border-[var(--line)] bg-[var(--bg)] h-8 shrink-0" aria-hidden="true">
+		<div class="inline-block font-mono text-[10px] uppercase tracking-[0.2em] h-full leading-8 whitespace-nowrap animate-scroll-left" style="color: var(--ink-dim); animation: scroll-left 20s linear infinite;">
+			FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN — FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN —
+		</div>
+	</div>
+
+	<style>
+		@keyframes scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+	</style>
+
 	<div class="grid-wrap min-h-[100dvh]">
 		<a href="#work" class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-12 hover:bg-[var(--surface)]">
 			<h2 class="font-hand text-4xl md:text-6xl tracking-tighter">WORK</h2>
@@ -22,5 +33,12 @@
 		<a href="#work" id="work" class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-12 hover:bg-[var(--surface)]">
 			<h2 class="font-hand text-4xl md:text-6xl tracking-tighter">COMUNITY</h2>
 		</a>
+	</div>
+
+	<!-- Bottom marquee -->
+	<div class="overflow-hidden border-t border-[var(--line)] bg-[var(--bg)] h-8 shrink-0" aria-hidden="true">
+		<div class="inline-block font-mono text-[10px] uppercase tracking-[0.2em] h-full leading-8 whitespace-nowrap animate-scroll-left" style="color: var(--ink-dim); animation: scroll-left 20s linear infinite;">
+			FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN — FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN —
+		</div>
 	</div>
 </main>
