@@ -3,6 +3,7 @@ node_modules
 build
 .env
 .env.*
+!.env.example
 CLAUDE.md
 DESIGN.md
 AGENTS.md

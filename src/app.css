@@ -18,6 +18,8 @@
   --line: rgba(242, 240, 228, 0.15);
   --accent: #4ade80;
   --accent-soft: rgba(74, 222, 128, 0.12);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.12);
 }
 
 [data-theme="light"] {
@@ -29,6 +31,8 @@
   --line: rgba(35, 40, 31, 0.12);
   --accent: #2e7d46;
   --accent-soft: rgba(46, 125, 70, 0.12);
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.12);
 }
 
 html {
