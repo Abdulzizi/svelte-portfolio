@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { tick } from 'svelte';
+	import SlideArrow from '$lib/components/SlideArrow.svelte';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
@@ -156,16 +157,10 @@
 		</div>
 	</div>
 
-	<button
-		type="button"
-		class="arrow"
-		aria-label={index === 0 ? 'Show links' : 'Show message form'}
+	<SlideArrow
+		label={index === 0 ? 'Show links' : 'Show message form'}
 		onclick={() => (index = index === 0 ? 1 : 0)}
-	>
-		<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-			<path d="M9 5l7 7-7 7" />
-		</svg>
-	</button>
+	/>
 </main>
 
 <style>
@@ -173,7 +168,6 @@
 	.page { padding: 4.5rem 2.25rem 4rem; min-height: 100dvh; }
 	.back { position: absolute; top: 2.75rem; left: 2.25rem; z-index: 2; }
 	.track { display: flex; flex-direction: column; gap: 4rem; }
-	.arrow { display: none; }
 
 	/* Entrance: content fades up on load. transform/opacity only. */
 	.back { animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -209,19 +203,9 @@
 			transition: transform 0.5s ease;
 		}
 		.slide { flex: 0 0 50%; display: flex; align-items: center; padding: 0 2rem; overflow-y: auto; }
-		.arrow {
-			display: flex; align-items: center; justify-content: center;
-			position: absolute; right: 2.5rem; top: 50%; margin-top: -1.5rem;
-			width: 3rem; height: 3rem; border: 1px solid var(--line); color: var(--ink);
-			transition: transform 0.5s ease, opacity 0.2s ease;
-		}
-		.arrow:hover { opacity: 0.7; }
-		.arrow:hover svg { transform: translateX(3px); }
-		.arrow svg { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
-		.flipped .arrow { transform: rotate(180deg); }
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.track, .arrow { transition: none; }
+		.track { transition: none; }
 	}
 </style>

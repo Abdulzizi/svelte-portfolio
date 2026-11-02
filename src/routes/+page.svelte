@@ -7,9 +7,9 @@
 	<h1 class="sr-only">Abdul Jawad Azizi</h1>
 
 	<div class="grid-wrap min-h-[100dvh] z-0">
-		<!-- caveman: href="#x" id="x" are placeholders, only /connect is a real route. Upgrade: real routes (/work etc.) when pages exist. -->
+		<!-- caveman: href="#x" id="x" are placeholders for work/blog; /connect and /about are real routes. Upgrade: real routes (/work etc.) when pages exist. -->
 		{#each ['work', 'connect', 'about', 'blog'] as p, i}
-			<a href={p === 'connect' ? '/connect' : `#${p}`} id={p} class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-6 lg:p-12" style="--d: {i * 70}ms">
+			<a href={p === 'connect' ? '/connect' : p === 'about' ? '/about' : `#${p}`} id={p} class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-6 lg:p-12" style="--d: {i * 70}ms">
 				<h2 class="grid-title font-hand font-extrabold tracking-tight">{p}</h2>
 			</a>
 		{/each}
