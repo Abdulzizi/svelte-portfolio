@@ -171,7 +171,7 @@
 <style>
 	/* Base (small / short screens): stacked, normal page scroll, clear of the 32px/24px marquee bars. */
 	.page { padding: 4.5rem 2.25rem 4rem; min-height: 100dvh; }
-	.back { position: absolute; top: 2.75rem; left: 2.25rem; }
+	.back { position: absolute; top: 2.75rem; left: 2.25rem; z-index: 2; }
 	.track { display: flex; flex-direction: column; gap: 4rem; }
 	.arrow { display: none; }
 
