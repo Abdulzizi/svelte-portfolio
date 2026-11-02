@@ -1,15 +1,14 @@
 <script lang="ts">
 	import '../app.css';
-	import MarqueeHorizontal from '$lib/components/MarqueeHorizontal.svelte';
-	import MarqueeVertical from '$lib/components/MarqueeVertical.svelte';
+	import Marquee from '$lib/components/Marquee.svelte';
 
 	let { children } = $props();
 </script>
 
 <div class="relative">
-	<MarqueeHorizontal position="top" />
-	<MarqueeHorizontal position="bottom" />
-	<MarqueeVertical side="left" />
-	<MarqueeVertical side="right" />
+	<Marquee axis="x" position="top" />
+	<Marquee axis="x" position="bottom" />
+	<Marquee axis="y" position="left" />
+	<Marquee axis="y" position="right" />
 	{@render children()}
 </div>

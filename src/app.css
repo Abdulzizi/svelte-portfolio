@@ -6,12 +6,11 @@
 @import "@fontsource/jetbrains-mono/latin-400.css";
 @import "@fontsource/jetbrains-mono/latin-600.css";
 
-:root {
-  --font-display: "Syne", sans-serif;
+/* Tailwind v4 generates font-* utilities only from @theme. */
+@theme {
   --font-hand: "Syne", sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --grid-size: 28px;
 }
 
 [data-theme="dark"] {
@@ -21,8 +20,8 @@
   --ink: #f2f0e4;
   --ink-dim: #9a9580;
   --line: rgba(242, 240, 228, 0.15);
-  --accent: #f2d54e;
-  --accent-soft: rgba(242, 213, 78, 0.12);
+  --accent: #4ade80;
+  --accent-soft: rgba(74, 222, 128, 0.12);
 }
 
 [data-theme="light"] {
@@ -42,11 +41,6 @@ html {
 
 body {
   background-color: var(--bg);
-  /* caveman: single-scale grid, no minor/major lines; upgrade to dual background-size when needed. */
-  background-image:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: var(--grid-size) var(--grid-size);
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
