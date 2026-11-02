@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { position = 'top', text = 'FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN —', speed = 150 }: { position?: 'top' | 'bottom'; text?: string; speed?: number } = $props();
+	let { position = 'top', text = ' FULL STACK DEVELOPER — DATA SCIENCE — CLEAN INTERFACES — TYPE DESIGN — CLEAN ARCHITECHTURE - ROBUST SYSTEM — ', speed = 150 }: { position?: 'top' | 'bottom'; text?: string; speed?: number } = $props();
 
 	let track = $state<HTMLElement>();
 	let width = 0;
@@ -28,29 +28,34 @@
 
 	function start() {
 		if (!track || width === 0) return;
-		const duration = width * clones / speed;
-		const name = `marquee-${Math.random().toString(36).slice(2)}`;
-		track.style.animation = `${name} ${duration}s linear infinite`;
-		const sheet = document.styleSheets[0];
-		// translate only ONE item width, not full track
-		const keyframes = `@keyframes ${name} { from { transform: translateX(0); } to { transform: translateX(-${width}px); } }`;
-		try {
-			sheet.insertRule(keyframes, sheet.cssRules.length);
-		} catch {}
+		const duration = width / speed;
+		track.style.setProperty('--marquee-dist', `-${width}px`);
+		track.style.setProperty('--marquee-dur', `${duration}s`);
 	}
 
 	$effect(() => {
 		setup();
+		document.fonts?.ready.then(setup);
 		window.addEventListener('resize', setup);
 		return () => window.removeEventListener('resize', setup);
 	});
 </script>
 
 <style>
+	@keyframes marquee-h {
+		from { transform: translateX(0); }
+		to { transform: translateX(var(--marquee-dist)); }
+	}
 	.track {
 		display: flex;
 		will-change: transform;
 		color: var(--ink-dim);
+		animation: marquee-h var(--marquee-dur, 10s) linear infinite;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.track {
+			animation: none !important;
+		}
 	}
 </style>
 

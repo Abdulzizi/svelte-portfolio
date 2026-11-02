@@ -1,16 +1,14 @@
 @import "tailwindcss";
-@import "@fontsource/caveat/latin-500.css";
-@import "@fontsource/caveat/latin-700.css";
-@import "@fontsource/kalam/latin-400.css";
-@import "@fontsource/kalam/latin-700.css";
+@import "@fontsource/syne/latin-700.css";
+@import "@fontsource/syne/latin-800.css";
 @import "@fontsource/inter/latin-400.css";
 @import "@fontsource/inter/latin-600.css";
 @import "@fontsource/jetbrains-mono/latin-400.css";
 @import "@fontsource/jetbrains-mono/latin-600.css";
 
 :root {
-  --font-hand: "Caveat", cursive;
-  --font-ink: "Kalam", "Caveat", cursive;
+  --font-display: "Syne", sans-serif;
+  --font-hand: "Syne", sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --grid-size: 28px;
@@ -69,26 +67,6 @@ body::after {
   background: var(--accent-soft);
 }
 
-.reveal {
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity 300ms ease-out,
-    transform 300ms ease-out;
-}
-
-.reveal.is-in {
-  opacity: 1;
-  transform: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,

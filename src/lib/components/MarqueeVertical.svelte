@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { side = 'left', text = 'FULL STACK DEVELOPER — AZIZI PORTFOLIO — CLEAN INTERFACES — TYPE DESIGN —', speed = 150 }: { side?: 'left' | 'right'; text?: string; speed?: number } = $props();
+	let { side = 'left', text = ' FULL STACK DEVELOPER — DATA SCIENCE — CLEAN INTERFACES — TYPE DESIGN — CLEAN ARCHITECHTURE - ROBUST SYSTEM — ', speed = 150 }: { side?: 'left' | 'right'; text?: string; speed?: number } = $props();
 
 	let track = $state<HTMLElement>();
 	let itemHeight = 0;
@@ -30,29 +30,35 @@
 	function start() {
 		if (!track || itemHeight === 0) return;
 		const duration = itemHeight / speed;
-		const name = `marquee-v-${Math.random().toString(36).slice(2)}`;
-		track.style.animation = `${name} ${duration}s linear infinite`;
-		const sheet = document.styleSheets[0];
-		const keyframes = `@keyframes ${name} { from { transform: translateY(0); } to { transform: translateY(-${itemHeight}px); } }`;
-		try {
-			sheet.insertRule(keyframes, sheet.cssRules.length);
-		} catch {}
+		track.style.setProperty('--marquee-dist', `-${itemHeight}px`);
+		track.style.setProperty('--marquee-dur', `${duration}s`);
 	}
 
 	$effect(() => {
 		setup();
+		document.fonts?.ready.then(setup);
 		window.addEventListener('resize', setup);
 		return () => window.removeEventListener('resize', setup);
 	});
 </script>
 
 <style>
+	@keyframes marquee-v {
+		from { transform: translateY(0); }
+		to { transform: translateY(var(--marquee-dist)); }
+	}
 	.track {
 		display: flex;
 		flex-direction: row; /* in vertical-rl, inline axis = vertical, so row stacks vertically */
 		will-change: transform;
 		color: var(--ink-dim);
 		writing-mode: vertical-rl;
+		animation: marquee-v var(--marquee-dur, 10s) linear infinite;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.track {
+			animation: none !important;
+		}
 	}
 </style>
 
