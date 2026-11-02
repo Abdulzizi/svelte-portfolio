@@ -175,6 +175,15 @@
 	.track { display: flex; flex-direction: column; gap: 4rem; }
 	.arrow { display: none; }
 
+	/* Entrance: content fades up on load. transform/opacity only. */
+	.back { animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+	.slide > div { animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 80ms; }
+
+	@keyframes rise {
+		from { opacity: 0; transform: translateY(1rem); }
+		to { opacity: 1; transform: none; }
+	}
+
 	.field { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem; color: var(--ink-dim); }
 	.field input, .field textarea {
 		background: transparent; color: var(--ink); border: 1px solid var(--line);
@@ -207,6 +216,8 @@
 			transition: transform 0.5s ease, opacity 0.2s ease;
 		}
 		.arrow:hover { opacity: 0.7; }
+		.arrow:hover svg { transform: translateX(3px); }
+		.arrow svg { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
 		.flipped .arrow { transform: rotate(180deg); }
 	}
 
