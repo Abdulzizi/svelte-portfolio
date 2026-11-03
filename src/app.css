@@ -61,6 +61,11 @@ body::after {
   background: var(--accent-soft);
 }
 
+/* Shared icon hover-nudge: a parent :hover shifts the icon by its own --tx/--ty.
+   Used by the slide arrow and the résumé link so the motion stays one rule. */
+.icon-nudge { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+:hover > .icon-nudge { transform: translate(var(--tx, 0), var(--ty, 0)); }
+
 
 @media (prefers-reduced-motion: reduce) {
   *,

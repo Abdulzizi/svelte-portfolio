@@ -9,7 +9,7 @@
 
 <button type="button" class="arrow" aria-label={label} {onclick}>
 	<!-- Phosphor caret-right (MIT). -->
-	<svg viewBox="0 0 256 256" width="22" height="22" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	<svg class="icon-nudge" viewBox="0 0 256 256" width="22" height="22" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 		<polyline points="96 48 176 128 96 208" />
 	</svg>
 </button>
@@ -23,15 +23,14 @@
 			position: absolute; right: 2.5rem; top: 50%; margin-top: -1.5rem;
 			width: 3rem; height: 3rem; border: 1px solid var(--line); color: var(--ink);
 			transition: opacity 0.2s ease;
+			--tx: 3px;
 		}
 		.arrow:hover { opacity: 0.7; }
-		.arrow:hover svg { transform: translateX(3px); }
-		.arrow svg { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
 	}
 
 	:where(.arrow):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 	@media (prefers-reduced-motion: reduce) {
-		.arrow, .arrow svg { transition: none; }
+		.arrow { transition: none; }
 	}
 </style>

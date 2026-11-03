@@ -49,6 +49,7 @@
 
 	// Bare arrow: wrapping advance. For count=2 this is identical to a 0<->1 toggle.
 	function onArrow() {
+		if (count < 1) return;
 		index = (index + 1) % count;
 	}
 </script>

@@ -56,7 +56,7 @@
 						<a class="resume font-hand font-extrabold" href="/abdul-jawad-azizi-cv.pdf" target="_blank" rel="noopener noreferrer">
 							Résumé
 							<!-- Phosphor arrow-up-right (MIT): opens externally. -->
-							<svg viewBox="0 0 256 256" width="18" height="18" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<svg class="icon-nudge" viewBox="0 0 256 256" width="18" height="18" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 								<line x1="64" y1="192" x2="192" y2="64" />
 								<polyline points="96 64 192 64 192 160" />
 							</svg>
@@ -114,10 +114,9 @@
 		display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 2rem;
 		border: 1px solid var(--ink); padding: 0.5rem 1.1rem;
 		transition: background-color 0.2s ease, color 0.2s ease;
+		--tx: 2px; --ty: -2px;
 	}
-	.resume svg { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
 	.resume:hover { background: var(--ink); color: var(--bg); }
-	.resume:hover svg { transform: translate(2px, -2px); }
 
 	/* One viewport: giant ghost word behind the content, swaps per slide (about-only). */
 	@media (min-width: 1024px) and (min-height: 640px) {
@@ -141,6 +140,6 @@
 	:where(a):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 	@media (prefers-reduced-motion: reduce) {
-		.ghost-word, .resume svg { animation: none; transition: none; }
+		.ghost-word { animation: none; }
 	}
 </style>
