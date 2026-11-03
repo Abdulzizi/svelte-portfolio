@@ -32,7 +32,8 @@
 			<div class="track">
 				<section class="slide" aria-label="Message" inert={wide && index !== 0}>
 					<div class="mx-auto w-full max-w-md">
-						<h1 id="msg-heading" tabindex="-1" class="font-hand text-3xl font-extrabold leading-none">Connect</h1>
+						<span class="idx font-mono">01</span>
+						<h1 id="msg-heading" tabindex="-1" class="font-hand text-3xl font-extrabold leading-none">Let's <span class="text-[var(--accent)]">connect</span></h1>
 						<p class="mt-3 text-[var(--ink-dim)]">Send a message and I will reply by email.</p>
 
 						<form
@@ -112,7 +113,8 @@
 
 				<section class="slide" aria-label="Links" inert={wide && index !== 1}>
 					<div class="mx-auto w-full max-w-md">
-						<h2 id="links-heading" tabindex="-1" class="font-hand text-3xl font-extrabold leading-none">Elsewhere</h2>
+						<span class="idx font-mono">02</span>
+						<h2 id="links-heading" tabindex="-1" class="font-hand text-3xl font-extrabold leading-none">Find me <span class="text-[var(--accent)]">elsewhere</span></h2>
 						<ul class="mt-6 flex flex-col">
 							{#each links as l}
 								<li class="border-b border-[var(--line)] first:border-t">
@@ -121,8 +123,8 @@
 										class="link flex items-baseline justify-between gap-4 py-3"
 										{...l.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
 									>
-										<span class="font-hand font-extrabold">{l.label}</span>
-										<span class="truncate text-[var(--ink-dim)]">{l.text}</span>
+										<span class="link-label font-hand font-extrabold">{l.label}</span>
+										<span class="link-value truncate text-[var(--ink-dim)]">{l.text}</span>
 									</a>
 								</li>
 							{/each}
@@ -135,6 +137,7 @@
 </SlidePage>
 
 <style>
+	.idx { display: block; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 0.5rem; }
 	.field { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem; color: var(--ink-dim); }
 	.field input, .field textarea {
 		background: transparent; color: var(--ink); border: 1px solid var(--line);
@@ -146,6 +149,8 @@
 	.send:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
 	.send:disabled { opacity: 0.5; }
 	.link { transition: opacity 0.2s ease; }
-	.link:hover { opacity: 0.7; }
+	.link:hover .link-value { opacity: 0.7; }
+	.link:hover .link-label { color: var(--accent); }
+	.link-label, .link-value { transition: color 0.2s ease, opacity 0.2s ease; }
 	:where(a, button, input, textarea):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
