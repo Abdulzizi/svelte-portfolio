@@ -16,7 +16,9 @@
 		{ group: 'Frontend', items: ['Vue.js', 'Next.js', 'React'] },
 		{ group: 'Backend', items: ['Laravel', 'Node.js', 'Express', 'REST', 'Microservices'] },
 		{ group: 'Data', items: ['PostgreSQL', 'MySQL', 'MongoDB'] },
-		{ group: 'DevOps', items: ['Docker', 'GitHub Actions', 'Deployer 8', 'Cloudflare', 'CI/CD'] }
+		{ group: 'DevOps', items: ['Docker', 'GitHub Actions', 'Deployer 8', 'Cloudflare', 'CI/CD'] },
+		{ group: 'Cloud', items: ['AWS', 'Azure', 'GCP', 'Vercel'] },
+		{ group: 'AI Coding', items: ['Claude Code', 'Kiro', 'Kilo Code', 'Codex', 'Gemini CLI', 'Cursor'] }
 	];
 </script>
 
