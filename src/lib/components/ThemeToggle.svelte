@@ -5,6 +5,10 @@
 
 	let theme = $state<'light' | 'dark'>('dark');
 
+	// shortcut: icon starts 'dark' during SSR/hydration, then this $effect syncs to the
+	// real theme app.html set before paint. On a light page the sun icon can flash for one
+	// frame before correcting. Cosmetic only — the theme itself never renders wrong.
+	// Upgrade: read the cookie/attribute during SSR so the first paint matches.
 	$effect(() => {
 		const t = document.documentElement.dataset.theme;
 		theme = t === 'light' ? 'light' : 'dark';
