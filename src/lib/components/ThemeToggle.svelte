@@ -55,7 +55,7 @@
 
 <style>
 	.toggle {
-		position: fixed; z-index: 40; right: 2.25rem; bottom: 1.5rem;
+		position: fixed; z-index: 40; right: 2.25rem; bottom: 2.25rem;
 		display: flex; align-items: center; justify-content: center;
 		width: 2.5rem; height: 2.5rem;
 		border: 1px solid var(--line); background: var(--bg); color: var(--ink);

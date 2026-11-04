@@ -50,7 +50,7 @@
 
 <div
 	bind:this={bar}
-	class="absolute overflow-hidden bg-[var(--bg)] pointer-events-none z-10 {barClass}"
+	class="fixed overflow-hidden bg-[var(--bg)] z-10 {barClass}"
 	aria-hidden="true"
 >
 	<div class="track" class:vertical={axis === 'y'} bind:this={track}>
