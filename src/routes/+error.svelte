@@ -27,7 +27,8 @@
 
 <style>
 	.page { padding: 4.5rem 2.25rem 4rem; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding-left: max(2.25rem, env(safe-area-inset-left)); padding-right: max(2.25rem, env(safe-area-inset-right)); padding-bottom: max(4rem, env(safe-area-inset-bottom)); }
-	.back { position: absolute; top: 2.75rem; left: 2.25rem; z-index: 2; padding: 0.25rem 0; }
+	/* Above the fixed marquee bars (z-10) and clear of the ~2rem rails. */
+	.back { position: absolute; top: 3rem; left: 2.5rem; z-index: 20; padding: 0.25rem 0; }
 	.back:focus-visible, .home:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 	.mid { max-width: 42rem; }
 	.status { font-size: clamp(3rem, 14vw, 8rem); line-height: 1; color: var(--ink-dim); letter-spacing: -0.02em; }

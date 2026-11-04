@@ -70,7 +70,8 @@
 <style>
 	/* Base (small / short screens): stacked, normal page scroll, clear of the marquee bars. */
 	.page { padding: 4.5rem 2.25rem 4rem; min-height: 100dvh; }
-	.back { position: absolute; top: 2.75rem; left: 2.25rem; z-index: 2; }
+	/* Above the fixed marquee bars (z-10) and clear of the ~2rem rails. */
+	.back { position: absolute; top: 3rem; left: 2.5rem; z-index: 20; }
 
 	/* Entrance: content fades up on load. transform/opacity only. */
 	.back { animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }

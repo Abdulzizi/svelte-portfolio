@@ -192,7 +192,8 @@
 	/* Wrapper mirrors SlidePage (/connect, /about): uniform 2.25rem gutters that
 	   clear the marquee frame, safe-area only ever ADDS to that floor. */
 	.page { padding: 4.5rem 2.25rem 4rem; min-height: 100dvh; padding-left: max(2.25rem, env(safe-area-inset-left)); padding-right: max(2.25rem, env(safe-area-inset-right)); padding-bottom: max(4rem, env(safe-area-inset-bottom)); }
-	.back { position: absolute; top: 2.75rem; left: 2.25rem; z-index: 2; padding: 0.25rem 0; animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+	/* Above the fixed marquee bars (z-10) and clear of the ~2rem rails. */
+	.back { position: absolute; top: 3rem; left: 2.5rem; z-index: 20; padding: 0.25rem 0; animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
 	.empty { margin-top: 6rem; color: var(--ink-dim); letter-spacing: 0.15em; text-transform: uppercase; }
 
 	/* Plane switcher (tabs) */

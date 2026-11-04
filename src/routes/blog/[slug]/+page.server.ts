@@ -6,7 +6,7 @@ import type { PageServerLoad } from './$types';
 // Public reading view is DB-driven: loaded per request, cannot prerender.
 export const prerender = false;
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
 	let post;
 	try {
 		post = await getPostBySlug(params.slug);
@@ -23,5 +23,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	// Defense-in-depth: body is sanitized on SAVE, but re-sanitize on OUTPUT so a
 	// row written outside the current allowlist can't render unsafe HTML via {@html}.
-	return { post: { ...post, body: post.body ? sanitizeBody(post.body) : null } };
+	// og:image must be an absolute URL for social scrapers — resolve against origin.
+	const ogImage = post.coverImage ? new URL(post.coverImage, url.origin).href : null;
+	return { post: { ...post, body: post.body ? sanitizeBody(post.body) : null }, ogImage };
 };

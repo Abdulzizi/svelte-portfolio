@@ -1,21 +1,13 @@
 <script lang="ts">
 	// /blog — editorial scroll index. Normal vertical scroll (NOT the /work deck).
 	// Hairline-separated rows: mono date, Syne title link, dimmed excerpt.
+	import { fmtDate } from '$lib/date';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	const posts = $derived(data.posts);
 	const hasPosts = $derived(posts.length > 0);
-
-	// Tiny local date formatter — no new dep. "2026 · MAR 14".
-	const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-	function fmtDate(value: Date | string | null): string {
-		if (!value) return '';
-		const d = value instanceof Date ? value : new Date(value);
-		if (Number.isNaN(d.getTime())) return '';
-		return `${d.getFullYear()} · ${MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}`;
-	}
 </script>
 
 <svelte:head>
@@ -63,11 +55,12 @@
 		padding-right: max(2.25rem, env(safe-area-inset-right));
 		padding-bottom: max(4rem, env(safe-area-inset-bottom));
 	}
+	/* Above the fixed marquee bars (z-10) and clear of the ~2rem rails. */
 	.back {
 		position: absolute;
-		top: 2.75rem;
-		left: 2.25rem;
-		z-index: 2;
+		top: 3rem;
+		left: 2.5rem;
+		z-index: 20;
 		padding: 0.25rem 0;
 	}
 	.back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
