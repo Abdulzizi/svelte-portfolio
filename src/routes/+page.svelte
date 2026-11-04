@@ -7,9 +7,9 @@
 	<h1 class="sr-only">Abdul Jawad Azizi</h1>
 
 	<div class="grid-wrap min-h-[100dvh] z-0">
-		<!-- caveman: #blog is a placeholder anchor; /work /connect /about are real routes. Upgrade: real /blog route when the page exists. -->
+		<!-- All four panels are real routes now. -->
 		{#each ['work', 'connect', 'about', 'blog'] as p, i}
-			<a href={p === 'connect' ? '/connect' : p === 'about' ? '/about' : p === 'work' ? '/work' : `#${p}`} id={p} class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-6 lg:p-12" style="--d: {i * 70}ms">
+			<a href={`/${p}`} id={p} class="grid-section relative flex items-center justify-center border-[1px] border-[var(--line)] p-6 lg:p-12" style="--d: {i * 70}ms">
 				<h2 class="grid-title font-hand font-extrabold tracking-tight">{p}</h2>
 			</a>
 		{/each}

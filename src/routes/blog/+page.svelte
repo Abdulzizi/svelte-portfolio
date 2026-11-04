@@ -1,0 +1,143 @@
+<script lang="ts">
+	// /blog — editorial scroll index. Normal vertical scroll (NOT the /work deck).
+	// Hairline-separated rows: mono date, Syne title link, dimmed excerpt.
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+
+	const posts = $derived(data.posts);
+	const hasPosts = $derived(posts.length > 0);
+
+	// Tiny local date formatter — no new dep. "2026 · MAR 14".
+	const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+	function fmtDate(value: Date | string | null): string {
+		if (!value) return '';
+		const d = value instanceof Date ? value : new Date(value);
+		if (Number.isNaN(d.getTime())) return '';
+		return `${d.getFullYear()} · ${MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}`;
+	}
+</script>
+
+<svelte:head>
+	<title>Blog | Abdul Jawad Azizi</title>
+	<meta name="description" content="Writing by Abdul Jawad Azizi — notes on building and shipping full-stack products." />
+</svelte:head>
+
+<main class="page text-[var(--ink)]">
+	<a href="/" class="back font-hand font-extrabold">Back</a>
+
+	<div class="wrap">
+		<header class="head">
+			<h1 class="font-hand font-extrabold">Writing</h1>
+			<p class="lede font-mono">Notes on building and shipping.</p>
+		</header>
+
+		{#if data.loadError}
+			<p class="state font-mono">Couldn't load posts right now.</p>
+		{:else if !hasPosts}
+			<p class="state font-mono">No posts yet.</p>
+		{:else}
+			<ul class="list">
+				{#each posts as p (p.slug)}
+					<li class="row">
+						<a class="row-link" href={`/blog/${p.slug}`}>
+							<span class="date font-mono">{fmtDate(p.publishedAt ?? p.createdAt)}</span>
+							<span class="title font-hand font-extrabold">{p.title}</span>
+							{#if p.excerpt}
+								<span class="excerpt">{p.excerpt}</span>
+							{/if}
+						</a>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</div>
+</main>
+
+<style>
+	/* Mirror /work wrapper: uniform gutters clear the marquee frame; safe-area only ADDS. */
+	.page {
+		padding: 4.5rem 2.25rem 4rem;
+		min-height: 100dvh;
+		padding-left: max(2.25rem, env(safe-area-inset-left));
+		padding-right: max(2.25rem, env(safe-area-inset-right));
+		padding-bottom: max(4rem, env(safe-area-inset-bottom));
+	}
+	.back {
+		position: absolute;
+		top: 2.75rem;
+		left: 2.25rem;
+		z-index: 2;
+		padding: 0.25rem 0;
+	}
+	.back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+	.wrap { margin: 3.5rem auto 0; width: 100%; max-width: 68rem; }
+
+	.head { margin-bottom: 2.5rem; }
+	.head h1 {
+		font-size: clamp(2.5rem, 9vw, 5rem);
+		line-height: 1;
+		text-transform: uppercase;
+		letter-spacing: -0.02em;
+	}
+	.lede {
+		margin-top: 0.75rem;
+		font-size: 0.7rem;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		color: var(--ink-dim);
+	}
+
+	.state {
+		margin-top: 2rem;
+		font-size: 0.8rem;
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+		color: var(--ink-dim);
+	}
+
+	.list { display: flex; flex-direction: column; }
+	.row { border-bottom: 1px solid var(--line); }
+	.row:first-child { border-top: 1px solid var(--line); }
+
+	.row-link {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 0.4rem;
+		padding: 1.5rem 0;
+		min-height: 44px;
+		color: inherit;
+		text-decoration: none;
+	}
+	.row-link:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+
+	.date {
+		font-size: 0.7rem;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		color: var(--ink-dim);
+	}
+	.title {
+		font-size: clamp(1.5rem, 4.5vw, 2.75rem);
+		line-height: 1.05;
+		letter-spacing: -0.01em;
+		overflow-wrap: anywhere;
+		transition: color 0.3s ease;
+	}
+	.excerpt {
+		max-width: 48rem;
+		color: var(--ink-dim);
+		line-height: 1.6;
+		overflow-wrap: anywhere;
+	}
+
+	@media (hover: hover) {
+		.row-link:hover .title { color: var(--accent); }
+	}
+	.row-link:focus-visible .title { color: var(--accent); }
+
+	@media (prefers-reduced-motion: reduce) {
+		.title { transition: none; }
+	}
+</style>

@@ -1,7 +1,5 @@
 import { pgTable, uuid, text, boolean, integer, timestamp } from 'drizzle-orm/pg-core';
 
-// blog table intentionally omitted — reserved/deferred per SPEC (no blog CRUD in v2).
-
 export const projects = pgTable('projects', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	title: text('title').notNull(),
@@ -24,7 +22,24 @@ export const sessions = pgTable('sessions', {
 	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull()
 });
 
+// Blog posts (v2.1). Same patterns as projects: body is sanitized TipTap HTML,
+// coverImage is a path into UPLOAD_DIR, published gates public visibility.
+export const posts = pgTable('posts', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	title: text('title').notNull(),
+	slug: text('slug').notNull().unique(),
+	excerpt: text('excerpt').notNull(),
+	body: text('body'),
+	coverImage: text('cover_image'),
+	published: boolean('published').notNull().default(false),
+	publishedAt: timestamp('published_at', { withTimezone: true }),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});
+
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
+export type Post = typeof posts.$inferSelect;
+export type NewPost = typeof posts.$inferInsert;

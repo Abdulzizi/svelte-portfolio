@@ -6,12 +6,19 @@
 
 	// Login page owns its own centered layout — skip the admin chrome there.
 	let showChrome = $derived($page.url.pathname !== '/admin/login');
+
+	// Active section highlight: Posts owns /admin/posts**, Projects owns the rest.
+	let onPosts = $derived($page.url.pathname.startsWith('/admin/posts'));
 </script>
 
 {#if showChrome}
 	<div class="shell">
 		<header class="bar">
 			<span class="brand font-mono">ADMIN</span>
+			<nav class="sections">
+				<a href="/admin" class="link font-mono" class:active={!onPosts}>Projects</a>
+				<a href="/admin/posts" class="link font-mono" class:active={onPosts}>Posts</a>
+			</nav>
 			<nav class="links">
 				<a href="/" class="link font-mono">View site</a>
 				<form method="POST" action="/admin?/logout">
@@ -49,6 +56,14 @@
 		display: flex;
 		align-items: center;
 		gap: 1.25rem;
+	}
+	.sections {
+		display: flex;
+		align-items: center;
+		gap: 1.25rem;
+	}
+	.link.active {
+		color: var(--accent);
 	}
 	.link {
 		font-size: 0.75rem;

@@ -67,3 +67,46 @@ test('sanitizeBody keeps safe href and adds rel', () => {
 	assert.ok(out.includes('href="https://x.com"'));
 	assert.ok(out.includes('rel="noopener noreferrer"'));
 });
+
+import { slugify, postFromFormData, postSchema } from '../src/lib/validation.ts';
+
+test('slugify lowercases, replaces spaces/underscores, strips, collapses dashes', () => {
+	assert.equal(slugify('Hello World'), 'hello-world');
+	assert.equal(slugify('  Foo_Bar  '), 'foo-bar');
+	assert.equal(slugify('A! B@ C#'), 'a-b-c');
+	assert.equal(slugify('multi   space__under'), 'multi-space-under');
+	assert.equal(slugify('--trim--'), 'trim');
+	assert.equal(slugify(''), '');
+});
+
+const validPost = {
+	title: 'My First Post',
+	slug: 'my-first-post',
+	excerpt: 'A short teaser'
+};
+
+test('postSchema accepts valid FormData', () => {
+	const r = postSchema.safeParse(postFromFormData(fd({ ...validPost, published: 'on' })));
+	assert.equal(r.success, true);
+	assert.equal(r.data.published, true);
+});
+
+test('postFromFormData derives slug from title when slug blank', () => {
+	const out = postFromFormData(fd({ title: 'My First Post', slug: '', excerpt: 'x' }));
+	assert.equal(out.slug, 'my-first-post');
+});
+
+test('postSchema rejects an invalid slug', () => {
+	const r = postSchema.safeParse(postFromFormData(fd({ ...validPost, slug: 'Not A Slug!' })));
+	// postFromFormData slugifies, so a messy slug becomes valid; feed one that
+	// slugifies to empty to force the regex failure.
+	const bad = postSchema.safeParse({ title: 'x', slug: '', excerpt: 'y' });
+	assert.equal(bad.success, false);
+	assert.ok(bad.error.flatten().fieldErrors.slug);
+	assert.equal(r.success, true);
+});
+
+test('published checkbox: "on" -> true, absent -> false', () => {
+	assert.equal(postFromFormData(fd({ ...validPost, published: 'on' })).published, true);
+	assert.equal(postFromFormData(fd(validPost)).published, false);
+});

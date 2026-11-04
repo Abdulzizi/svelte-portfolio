@@ -81,3 +81,67 @@ export function projectFormValues(form: FormData) {
 		rank: String(form.get('rank') ?? '0')
 	};
 }
+
+// --- Blog posts (v2.1) --- mirrors the project form helpers above.
+
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/**
+ * Deterministic, pure slugifier: lowercase, trim, spaces/underscores → '-',
+ * strip anything but [a-z0-9-], collapse repeated '-', trim leading/trailing '-'.
+ */
+export function slugify(input: string): string {
+	return input
+		.toLowerCase()
+		.trim()
+		.replace(/[\s_]+/g, '-')
+		.replace(/[^a-z0-9-]/g, '')
+		.replace(/-+/g, '-')
+		.replace(/^-+|-+$/g, '');
+}
+
+// body is raw TipTap HTML — validated as optional string here, then sanitized
+// server-side AFTER safeParse. coverImage File handled separately in the action.
+export const postSchema = z.object({
+	title: z.string().min(1, 'Required'),
+	slug: z.string().min(1, 'Required').regex(SLUG_RE, 'Lowercase letters, numbers, and dashes only'),
+	excerpt: z.string().min(1, 'Required').max(300, 'Keep it under 300 characters'),
+	body: z.string().optional(),
+	published: z.boolean().default(false)
+});
+
+export type PostInput = z.infer<typeof postSchema>;
+
+/**
+ * Shape raw FormData into an object ready for postSchema.safeParse. If the
+ * posted slug is blank, derive it from the title via slugify (admins may leave
+ * slug empty). Coerces the `published` checkbox ('on'/absent) to boolean.
+ */
+export function postFromFormData(form: FormData): unknown {
+	const title = typeof form.get('title') === 'string' ? (form.get('title') as string) : '';
+	const slugRaw = typeof form.get('slug') === 'string' ? (form.get('slug') as string).trim() : '';
+	const slug = slugRaw === '' ? slugify(title) : slugify(slugRaw);
+	return {
+		title,
+		slug,
+		excerpt: form.get('excerpt') ?? '',
+		body: typeof form.get('body') === 'string' ? (form.get('body') as string) : '',
+		published: form.get('published') === 'on' || form.get('published') === 'true'
+	};
+}
+
+// Same ActionData bag shape as the project forms.
+export type PostErrors = ProjectErrors;
+
+/**
+ * Raw form field values echoed back to the post form on a failed submit, kept as
+ * strings/bool so the form re-renders what the user typed.
+ */
+export function postFormValues(form: FormData) {
+	return {
+		title: String(form.get('title') ?? ''),
+		slug: String(form.get('slug') ?? ''),
+		excerpt: String(form.get('excerpt') ?? ''),
+		published: form.get('published') === 'on' || form.get('published') === 'true'
+	};
+}
