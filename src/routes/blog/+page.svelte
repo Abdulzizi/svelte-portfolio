@@ -15,7 +15,7 @@
 	<meta name="description" content="Writing by Abdul Jawad Azizi — notes on building and shipping full-stack products." />
 </svelte:head>
 
-<main class="page text-[var(--ink)]">
+<main id="main-content" class="page text-[var(--ink)]">
 	<a href="/" class="back font-hand font-extrabold">Back</a>
 
 	<div class="wrap">

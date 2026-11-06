@@ -11,7 +11,7 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
-<main class="page text-[var(--ink)]">
+<main id="main-content" class="page text-[var(--ink)]">
 	<a href="/" class="back font-hand font-extrabold">Back</a>
 	<div class="mid">
 		<p class="status font-mono">{$page.status}</p>

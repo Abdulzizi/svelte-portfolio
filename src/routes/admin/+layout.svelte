@@ -26,7 +26,7 @@
 				</form>
 			</nav>
 		</header>
-		<main class="content">
+		<main id="main-content" class="content">
 			{@render children()}
 		</main>
 	</div>

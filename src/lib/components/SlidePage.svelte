@@ -57,6 +57,7 @@
 <svelte:window {onkeydown} />
 
 <main
+	id="main-content"
 	class="page relative text-[var(--ink)]"
 	style="--i: {index}; --n: {count}; --track-timing: {trackTiming}"
 >

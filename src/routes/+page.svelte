@@ -3,7 +3,7 @@
 	<meta name="description" content="Abdul Jawad Azizi, full stack developer. Work, contact, about and blog." />
 </svelte:head>
 
-<main class="min-h-[100dvh] overflow-y-auto lg:overflow-hidden bg-transparent text-[var(--ink)] relative">
+<main id="main-content" class="min-h-[100dvh] overflow-y-auto lg:overflow-hidden bg-transparent text-[var(--ink)] relative">
 	<h1 class="sr-only">Abdul Jawad Azizi</h1>
 
 	<div class="grid-wrap min-h-[100dvh] z-0">
@@ -18,7 +18,7 @@
 
 <style>
 	.grid-wrap { display: flex; flex-wrap: wrap; }
-	.grid-section { min-width: 0; flex: 1 1 50%; transition: flex 0.45s ease, background-color 0.35s ease; min-height: 50vh; }
+	.grid-section { min-width: 0; flex: 1 1 50%; transition: background-color 0.35s ease; min-height: 50vh; }
 	/* Entrance: staggered rise+fade on load. transform/opacity only, --d per panel. */
 	.grid-section { animation: panel-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--d, 0ms); }
 	.grid-wrap:has(.grid-section:focus-visible) .grid-section:not(:focus-visible) { flex: 0.7 1 35%; opacity: 0.7; }
@@ -39,7 +39,7 @@
 	}
 
 	/* caveman: hover only on real-hover devices; touch >=1024px no sticky hover. */
-	@media (hover: hover) {
+	@media (hover: hover) and (pointer: fine) {
 		.grid-wrap:has(.grid-section:hover) .grid-section:not(:hover) { flex: 0.7 1 35%; opacity: 0.7; }
 		.grid-section:hover { flex: 1.6 1 60%; z-index: 5; background-color: var(--surface); }
 		.grid-section:hover .grid-title { color: var(--accent); }

@@ -10,8 +10,8 @@
 
 	const barClass = $derived(
 		axis === 'x'
-			? `${position === 'top' ? 'top-0' : 'bottom-0'} left-0 right-0 h-8`
-			: `${position === 'left' ? 'left-0 border-r' : 'right-0 border-l'} top-8 bottom-8 w-6 lg:w-8 border-[var(--line)]`
+			? `${position === 'top' ? 'top-0 marquee-top' : 'bottom-0 marquee-bottom'} left-0 right-0 h-8`
+			: `${position === 'left' ? 'left-0 marquee-left border-r' : 'right-0 marquee-right border-l'} top-8 bottom-8 w-6 lg:w-8 border-[var(--line)]`
 	);
 	const textClass = $derived(
 		axis === 'x'
@@ -81,6 +81,11 @@
 		writing-mode: vertical-rl;
 		animation-name: marquee-y;
 	}
+
+	.marquee-top { padding-top: env(safe-area-inset-top); }
+	.marquee-bottom { padding-bottom: env(safe-area-inset-bottom); }
+	.marquee-left { padding-left: env(safe-area-inset-left); }
+	.marquee-right { padding-right: env(safe-area-inset-right); }
 	@media (prefers-reduced-motion: reduce) {
 		.track {
 			animation: none !important;

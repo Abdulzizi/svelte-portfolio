@@ -11,7 +11,7 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
-<main class="wrap">
+<main id="main-content" class="wrap">
 	<div class="card">
 		<span class="idx font-mono">ADMIN</span>
 		<h1 class="font-hand text-3xl font-extrabold leading-none">Sign <span class="text-[var(--accent)]">in</span></h1>

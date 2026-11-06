@@ -76,7 +76,7 @@
 
 <svelte:window {onkeydown} />
 
-<main class="page relative text-[var(--ink)]" style="--feat: {safeFeat}; --plane: {plane}; --n: {Math.max(featured.length, 1)}">
+<main id="main-content" class="page relative text-[var(--ink)]" style="--feat: {safeFeat}; --plane: {plane}; --n: {Math.max(featured.length, 1)}">
 	<a href="/" class="back font-hand font-extrabold">Back</a>
 	<h1 class="sr-only">Work</h1>
 
@@ -242,7 +242,7 @@
 	.spec dd { text-align: right; min-width: 0; overflow-wrap: anywhere; }
 	.spec .impact { color: var(--accent); }
 	.prose { max-width: 42rem; }
-	.shot { display: block; width: 100%; max-width: 32rem; height: auto; border: 1px solid var(--line); margin-bottom: 1rem; }
+	.shot { display: block; width: 100%; max-width: 32rem; aspect-ratio: 16 / 9; height: auto; object-fit: cover; border: 1px solid var(--line); margin-bottom: 1rem; }
 	.problem { color: var(--ink-dim); line-height: 1.5; }
 	.result { margin-top: 0.5rem; display: flex; gap: 0.6rem; line-height: 1.5; }
 	.arrow { color: var(--accent); flex: 0 0 auto; }

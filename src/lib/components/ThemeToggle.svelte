@@ -55,9 +55,11 @@
 
 <style>
 	.toggle {
-		position: fixed; z-index: 40; right: 2.25rem; bottom: 2.25rem;
+		position: fixed; z-index: 40;
+		right: max(2.25rem, env(safe-area-inset-right));
+		bottom: max(2.25rem, env(safe-area-inset-bottom));
 		display: flex; align-items: center; justify-content: center;
-		width: 2.5rem; height: 2.5rem;
+		width: 2.75rem; height: 2.75rem;
 		border: 1px solid var(--line); background: var(--bg); color: var(--ink);
 		transition: color 0.2s ease, border-color 0.2s ease;
 	}
@@ -65,7 +67,10 @@
 	.toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 	@media (min-width: 1024px) and (min-height: 640px) {
-		.toggle { right: 2.75rem; bottom: 2.75rem; }
+		.toggle {
+			right: max(2.75rem, env(safe-area-inset-right));
+			bottom: max(2.75rem, env(safe-area-inset-bottom));
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {

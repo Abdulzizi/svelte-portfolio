@@ -20,7 +20,7 @@
 	{/if}
 </svelte:head>
 
-<main class="page text-[var(--ink)]">
+<main id="main-content" class="page text-[var(--ink)]">
 	<a href="/blog" class="back font-hand font-extrabold">Back</a>
 
 	<article class="wrap">
