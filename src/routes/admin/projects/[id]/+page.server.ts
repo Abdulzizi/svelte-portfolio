@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, params, locals }) => {
+	save: async ({ request, params, locals }) => {
 		if (!locals.admin) throw redirect(303, '/admin/login');
 
 		const form = await request.formData();
@@ -42,7 +42,7 @@ export const actions: Actions = {
 		const { body: _body, ...scalars } = parsed.data;
 		await updateProject(params.id, { ...scalars, body, imagePath: img.path });
 		await deleteImage(img.replaced);
-		throw redirect(303, '/admin');
+		throw redirect(303, '/admin/projects');
 	},
 
 	delete: async ({ params, locals }) => {
@@ -50,6 +50,6 @@ export const actions: Actions = {
 		const row = await getProject(params.id);
 		await deleteProject(params.id);
 		if (row) await deleteImage(row.imagePath);
-		throw redirect(303, '/admin');
+		throw redirect(303, '/admin/projects');
 	}
 };

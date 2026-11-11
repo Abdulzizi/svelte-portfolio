@@ -15,6 +15,13 @@
       "when": 1793773169929,
       "tag": "0001_friendly_hawkeye",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794387618722,
+      "tag": "0002_romantic_brother_voodoo",
+      "breakpoints": true
     }
   ]
 }

@@ -36,6 +36,6 @@ export const actions: Actions = {
 
 		const { body: _body, ...scalars } = parsed.data;
 		await createProject({ ...scalars, body, imagePath: img.path });
-		throw redirect(303, '/admin');
+		throw redirect(303, '/admin/projects');
 	}
 };

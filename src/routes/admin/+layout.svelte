@@ -7,8 +7,14 @@
 	// Login page owns its own centered layout — skip the admin chrome there.
 	let showChrome = $derived($page.url.pathname !== '/admin/login');
 
-	// Active section highlight: Posts owns /admin/posts**, Projects owns the rest.
-	let onPosts = $derived($page.url.pathname.startsWith('/admin/posts'));
+	const sections = [
+		{ href: '/admin', label: 'Dashboard' },
+		{ href: '/admin/projects', label: 'Projects' },
+		{ href: '/admin/posts', label: 'Posts' },
+		{ href: '/admin/inbox', label: 'Inbox' }
+	];
+	const isActive = (href: string, path: string) =>
+		href === '/admin' ? path === '/admin' : path === href || path.startsWith(href + '/');
 </script>
 
 {#if showChrome}
@@ -16,8 +22,16 @@
 		<header class="bar">
 			<span class="brand font-mono">ADMIN</span>
 			<nav class="sections">
-				<a href="/admin" class="link font-mono" class:active={!onPosts}>Projects</a>
-				<a href="/admin/posts" class="link font-mono" class:active={onPosts}>Posts</a>
+				{#each sections as sec (sec.href)}
+					<a
+						href={sec.href}
+						class="link nav font-mono"
+						class:active={isActive(sec.href, $page.url.pathname)}
+						aria-current={isActive(sec.href, $page.url.pathname) ? 'page' : undefined}
+					>
+						{sec.label}
+					</a>
+				{/each}
 			</nav>
 			<nav class="links">
 				<a href="/" class="link font-mono">View site</a>
@@ -44,6 +58,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 0.75rem 1.5rem;
 		padding: 0.75rem 1.25rem;
 		border-bottom: 1px solid var(--line);
 	}
@@ -59,11 +75,18 @@
 	}
 	.sections {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
-		gap: 1.25rem;
+		gap: 0.5rem 1.75rem;
+	}
+	.nav {
+		font-size: 0.8125rem;
+		padding-bottom: 0.25rem;
+		border-bottom: 1px solid transparent;
 	}
 	.link.active {
 		color: var(--accent);
+		border-bottom-color: var(--accent);
 	}
 	.link {
 		font-size: 0.75rem;

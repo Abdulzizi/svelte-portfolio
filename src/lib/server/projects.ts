@@ -1,4 +1,4 @@
-import { asc, desc, eq } from 'drizzle-orm';
+import { asc, desc, eq, sql } from 'drizzle-orm';
 import { db } from './db';
 import { projects, type NewProject, type Project } from './db/schema';
 
@@ -54,4 +54,35 @@ export async function updateProject(
 
 export async function deleteProject(id: string): Promise<void> {
 	await db.delete(projects).where(eq(projects.id, id));
+}
+
+export async function projectCounts(): Promise<{ total: number; featured: number }> {
+	const [row] = await db
+		.select({
+			total: sql<number>`count(*)::int`,
+			featured: sql<number>`(count(*) filter (where ${projects.featured}))::int`
+		})
+		.from(projects);
+	return row;
+}
+
+export function listRecentProjects(limit: number) {
+	return db
+		.select({ id: projects.id, title: projects.title, updatedAt: projects.updatedAt })
+		.from(projects)
+		.orderBy(desc(projects.updatedAt))
+		.limit(limit);
+}
+
+export async function reorderProjects(ids: string[]): Promise<boolean> {
+	return db.transaction(async (tx) => {
+		const existing = await tx.select({ id: projects.id }).from(projects);
+		const known = new Set(existing.map((r) => r.id));
+		if (ids.length !== known.size || new Set(ids).size !== ids.length) return false;
+		if (!ids.every((id) => known.has(id))) return false;
+		for (let i = 0; i < ids.length; i++) {
+			await tx.update(projects).set({ rank: i }).where(eq(projects.id, ids[i]));
+		}
+		return true;
+	});
 }

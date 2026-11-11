@@ -37,8 +37,19 @@ export const posts = pgTable('posts', {
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
 
+export const messages = pgTable('messages', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	name: text('name').notNull(),
+	email: text('email').notNull(),
+	body: text('body').notNull(),
+	read: boolean('read').notNull().default(false),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type NewMessage = typeof messages.$inferInsert;

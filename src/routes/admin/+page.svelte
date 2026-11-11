@@ -1,95 +1,93 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { fmtDate } from '$lib/date';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	// Per-row delete confirmation: first click arms, second click submits.
-	let arming = $state<string | null>(null);
+	const tiles = $derived([
+		{ label: 'Projects', value: data.stats.projects },
+		{ label: 'Featured', value: data.stats.featured },
+		{ label: 'Posts published', value: data.stats.published },
+		{ label: 'Drafts', value: data.stats.drafts },
+		{ label: 'Unread messages', value: data.stats.unread }
+	]);
 </script>
 
 <svelte:head>
-	<title>Projects | Admin</title>
+	<title>Dashboard | Admin</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
 <div class="head">
 	<h1 class="font-hand text-3xl font-extrabold leading-none">
-		Pro<span class="text-[var(--accent)]">jects</span>
+		Dash<span class="text-[var(--accent)]">board</span>
 	</h1>
-	<a href="/admin/projects/new" class="new font-hand font-extrabold">New project</a>
+	<div class="quick">
+		<a href="/admin/posts/new" class="new font-hand font-extrabold">New post</a>
+		<a href="/admin/projects/new" class="new font-hand font-extrabold">New project</a>
+	</div>
 </div>
 
-{#if data.projects.length === 0}
-	<p class="empty font-mono">No projects yet. Create the first one.</p>
-{:else}
-	<ul class="rows">
-		<li class="row headrow font-mono">
-			<span>Title</span>
-			<span>Year</span>
-			<span>Stack</span>
-			<span>Rank</span>
-			<span class="col-feat">Featured</span>
-			<span class="col-act">Actions</span>
+<ul class="tiles">
+	{#each tiles as t (t.label)}
+		<li class="tile">
+			<span class="num font-hand font-extrabold">{t.value}</span>
+			<span class="label font-mono">{t.label}</span>
 		</li>
-		{#each data.projects as p (p.id)}
-			<li class="row">
-				<a href={`/admin/projects/${p.id}`} class="title">{p.title}</a>
-				<span class="meta font-mono">{p.year}</span>
-				<span class="meta font-mono stack">{p.stack.join(' · ')}</span>
-				<span class="meta font-mono">{p.rank}</span>
-				<span class="col-feat">
-					{#if p.featured}
-						<span class="dot" aria-label="Featured" title="Featured"></span>
-					{:else}
-						<span class="dot off" aria-label="Not featured" title="Not featured"></span>
-					{/if}
-				</span>
-				<span class="col-act actions">
-					<a href={`/admin/projects/${p.id}`} class="act font-mono">Edit</a>
-					<form
-						method="POST"
-						action="?/delete"
-						use:enhance={() => {
-							return async ({ update }) => {
-								arming = null;
-								await update();
-							};
-						}}
-					>
-						<input type="hidden" name="id" value={p.id} />
-						{#if arming === p.id}
-							<button type="submit" class="act danger font-mono">Confirm</button>
-							<button
-								type="button"
-								class="act font-mono"
-								onclick={() => (arming = null)}
-							>
-								Cancel
-							</button>
-						{:else}
-							<button
-								type="button"
-								class="act font-mono"
-								onclick={() => (arming = p.id)}
-							>
-								Delete
-							</button>
-						{/if}
+	{/each}
+</ul>
+
+<section class="section">
+	<h2 class="sect font-mono">Recent edits</h2>
+	{#if data.recent.length === 0}
+		<p class="empty font-mono">Nothing yet.</p>
+	{:else}
+		<ul class="rows">
+			{#each data.recent as r (r.type + r.id)}
+				<li class="row">
+					<span class="type font-mono">{r.type}</span>
+					<a href={r.href} class="title">{r.title}</a>
+					<span class="meta font-mono">{fmtDate(r.updatedAt)}</span>
+				</li>
+			{/each}
+		</ul>
+	{/if}
+</section>
+
+<section class="section">
+	<h2 class="sect font-mono">Drafts waiting</h2>
+	{#if data.drafts.length === 0}
+		<p class="empty font-mono">No drafts.</p>
+	{:else}
+		<ul class="rows">
+			{#each data.drafts as d (d.id)}
+				<li class="row">
+					<a href={`/admin/posts/${d.id}`} class="title">{d.title}</a>
+					<a href={`/admin/posts/${d.id}`} class="act font-mono">Edit</a>
+					<form method="POST" action="?/publish" use:enhance>
+						<input type="hidden" name="id" value={d.id} />
+						<button type="submit" class="pub font-mono">Publish</button>
 					</form>
-				</span>
-			</li>
-		{/each}
-	</ul>
-{/if}
+				</li>
+			{/each}
+		</ul>
+	{/if}
+</section>
 
 <style>
 	.head {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: baseline;
 		justify-content: space-between;
 		gap: 1rem;
 		margin-bottom: 2rem;
+	}
+	.quick {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
 	}
 	.new {
 		border: 1px solid var(--accent);
@@ -101,6 +99,42 @@
 	.new:hover {
 		background: var(--accent);
 		color: var(--bg);
+	}
+	.tiles {
+		list-style: none;
+		margin: 0 0 2.5rem;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+		border-top: 1px solid var(--line);
+		border-left: 1px solid var(--line);
+	}
+	.tile {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 1rem;
+		border-right: 1px solid var(--line);
+		border-bottom: 1px solid var(--line);
+	}
+	.num {
+		font-size: 2rem;
+		line-height: 1;
+	}
+	.label,
+	.sect,
+	.type {
+		font-size: 0.625rem;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		color: var(--ink-dim);
+	}
+	.section {
+		margin-bottom: 2.5rem;
+	}
+	.sect {
+		margin: 0 0 0.75rem;
+		font-weight: 400;
 	}
 	.empty {
 		font-size: 0.8125rem;
@@ -114,20 +148,19 @@
 		border-top: 1px solid var(--line);
 	}
 	.row {
-		display: grid;
-		grid-template-columns: minmax(8rem, 2fr) 4rem minmax(6rem, 2fr) 3rem 5rem auto;
+		display: flex;
 		align-items: center;
-		gap: 0.75rem;
+		flex-wrap: wrap;
+		gap: 0.75rem 1rem;
 		padding: 0.75rem 0.25rem;
 		border-bottom: 1px solid var(--line);
 	}
-	.headrow {
-		font-size: 0.625rem;
-		letter-spacing: 0.2em;
-		text-transform: uppercase;
-		color: var(--ink-dim);
+	.type {
+		width: 4.5rem;
 	}
 	.title {
+		flex: 1;
+		min-width: 8rem;
 		color: var(--ink);
 		font-weight: 600;
 		transition: color 0.2s ease;
@@ -140,35 +173,8 @@
 		letter-spacing: 0.1em;
 		color: var(--ink-dim);
 	}
-	.stack {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.col-feat,
-	.col-act {
-		display: flex;
-		align-items: center;
-	}
-	.dot {
-		width: 0.6rem;
-		height: 0.6rem;
-		border-radius: 50%;
-		background: var(--accent);
-		display: inline-block;
-	}
-	.dot.off {
-		background: transparent;
-		border: 1px solid var(--line);
-	}
-	.actions {
-		gap: 0.75rem;
-	}
-	.actions form {
-		display: inline-flex;
-		gap: 0.75rem;
-	}
-	.act {
+	.act,
+	.pub {
 		font-size: 0.6875rem;
 		letter-spacing: 0.15em;
 		text-transform: uppercase;
@@ -182,28 +188,17 @@
 	.act:hover {
 		color: var(--ink);
 	}
-	.act.danger {
-		color: var(--danger);
+	.pub {
+		border: 1px solid var(--accent);
+		color: var(--accent);
+		padding: 0.25rem 0.75rem;
+		transition: background-color 0.2s ease, color 0.2s ease;
 	}
-	@media (max-width: 720px) {
-		.row {
-			grid-template-columns: 1fr auto;
-			grid-auto-rows: min-content;
-		}
-		.headrow {
-			display: none;
-		}
-		.meta,
-		.col-feat {
-			grid-column: 1;
-		}
-		.col-act {
-			grid-column: 2;
-			grid-row: 1 / span 2;
-			align-items: start;
-		}
+	.pub:hover {
+		background: var(--accent);
+		color: var(--bg);
 	}
-	:where(a, button, input):focus-visible {
+	:where(a, button):focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 2px;
 	}

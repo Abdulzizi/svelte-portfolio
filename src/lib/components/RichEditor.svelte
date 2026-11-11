@@ -38,10 +38,11 @@
 			const { Editor } = await import('@tiptap/core');
 			const StarterKit = (await import('@tiptap/starter-kit')).default;
 			const Link = (await import('@tiptap/extension-link')).default;
+			const Image = (await import('@tiptap/extension-image')).default;
 			if (destroyed) return;
 			editor = new Editor({
 				element,
-				extensions: [StarterKit, Link.configure({ openOnClick: false })],
+				extensions: [StarterKit, Link.configure({ openOnClick: false }), Image],
 				content: value,
 				onUpdate: ({ editor: ed }) => {
 					html = ed.getHTML();
@@ -63,6 +64,37 @@
 		if (!editor) return;
 		fn(editor.chain().focus()).run();
 		syncActive();
+	}
+
+	const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+	let fileInput: HTMLInputElement;
+	let uploading = $state(false);
+	let imageError = $state('');
+
+	async function onImagePicked(e: Event) {
+		const input = e.currentTarget as HTMLInputElement;
+		const file = input.files?.[0];
+		input.value = '';
+		if (!file || !editor) return;
+		imageError = '';
+		if (file.size > MAX_IMAGE_BYTES) {
+			imageError = 'Image must be 4 MB or smaller.';
+			return;
+		}
+		const alt = window.prompt('Alt text (describe the image):') ?? '';
+		uploading = true;
+		try {
+			const body = new FormData();
+			body.set('image', file);
+			const res = await fetch('/admin/upload', { method: 'POST', body });
+			const data = await res.json().catch(() => ({}));
+			if (!res.ok || !data.url) throw new Error(data.error || 'Upload failed.');
+			editor.chain().focus().setImage({ src: data.url, alt }).run();
+		} catch (err) {
+			imageError = err instanceof Error ? err.message : 'Upload failed.';
+		} finally {
+			uploading = false;
+		}
 	}
 
 	function toggleLink() {
@@ -100,7 +132,21 @@
 			OL
 		</button>
 		<button type="button" class:on={active.link} onclick={toggleLink}>LINK</button>
+		<button type="button" disabled={uploading} onclick={() => fileInput.click()}>
+			{uploading ? 'Uploading…' : 'Image'}
+		</button>
+		<input
+			bind:this={fileInput}
+			type="file"
+			accept="image/jpeg,image/png,image/webp"
+			hidden
+			onchange={onImagePicked}
+		/>
 	</div>
+
+	{#if imageError}
+		<p class="error font-mono" role="alert">{imageError}</p>
+	{/if}
 
 	<!-- TipTap mounts into this container in the browser; empty/placeholder on SSR. -->
 	<div class="content font-sans" bind:this={element}></div>
@@ -139,6 +185,20 @@
 	.toolbar button.on {
 		color: var(--accent);
 		border-color: var(--accent);
+	}
+	.error {
+		font-size: 0.75rem;
+		color: var(--accent);
+		padding: 0.375rem 0.75rem;
+		border-bottom: 1px solid var(--line);
+	}
+	.toolbar button:disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+	.content :global(img) {
+		max-width: 100%;
+		height: auto;
 	}
 	.content {
 		min-height: 10rem;

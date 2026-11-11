@@ -22,6 +22,7 @@
 
 <div class="head">
 	<a href="/admin/posts" class="back font-mono">← Posts</a>
+	<a href={`/blog/${p.slug}`} target="_blank" rel="noopener" class="back font-mono">{p.published ? 'View' : 'Preview'} ↗</a>
 	<h1 class="font-hand text-3xl font-extrabold leading-none">{p.title}</h1>
 </div>
 

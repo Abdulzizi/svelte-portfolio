@@ -1,13 +1,51 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { SESSION_COOKIE, destroySession } from '$lib/server/auth';
-import { deleteProject, getProject, listAll, updateProject } from '$lib/server/projects';
-import { deleteImage } from '$lib/server/uploads';
+import { countUnread } from '$lib/server/messages';
+import { listAllPosts, updatePost } from '$lib/server/posts';
+import { listRecentProjects, projectCounts } from '$lib/server/projects';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
 
-export const load: PageServerLoad = async () => {
-	return { projects: await listAll() };
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export const load: PageServerLoad = async ({ locals }) => {
+	if (!locals.admin) throw redirect(303, '/admin/login');
+	const [counts, recentProjects, posts, unread] = await Promise.all([
+		projectCounts(),
+		listRecentProjects(5),
+		listAllPosts(),
+		countUnread()
+	]);
+	const recent = [
+		...recentProjects.map((p) => ({
+			type: 'Project' as const,
+			id: p.id,
+			title: p.title,
+			updatedAt: p.updatedAt,
+			href: `/admin/projects/${p.id}`
+		})),
+		...posts.map((p) => ({
+			type: 'Post' as const,
+			id: p.id,
+			title: p.title,
+			updatedAt: p.updatedAt,
+			href: `/admin/posts/${p.id}`
+		}))
+	]
+		.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+		.slice(0, 5);
+	return {
+		stats: {
+			projects: counts.total,
+			featured: counts.featured,
+			published: posts.filter((p) => p.published).length,
+			drafts: posts.filter((p) => !p.published).length,
+			unread
+		},
+		recent,
+		drafts: posts.filter((p) => !p.published).map((p) => ({ id: p.id, title: p.title }))
+	};
 };
 
 export const actions: Actions = {
@@ -20,29 +58,15 @@ export const actions: Actions = {
 		throw redirect(303, '/admin/login');
 	},
 
-	delete: async ({ request, locals }) => {
+	publish: async ({ request, locals }) => {
 		if (!locals.admin) throw redirect(303, '/admin/login');
 		const form = await request.formData();
 		const id = form.get('id');
-		if (typeof id !== 'string' || id.length === 0) {
-			return fail(400, { error: 'Missing project id.' });
+		if (typeof id !== 'string' || !UUID.test(id)) {
+			return fail(400, { error: 'Missing post id.' });
 		}
-		const row = await getProject(id);
-		await deleteProject(id);
-		if (row) await deleteImage(row.imagePath);
-		return { ok: true };
-	},
-
-	toggleFeatured: async ({ request, locals }) => {
-		if (!locals.admin) throw redirect(303, '/admin/login');
-		const form = await request.formData();
-		const id = form.get('id');
-		if (typeof id !== 'string' || id.length === 0) {
-			return fail(400, { error: 'Missing project id.' });
-		}
-		const current = await getProject(id);
-		if (!current) return fail(404, { error: 'Not found.' });
-		await updateProject(id, { featured: !current.featured });
+		const row = await updatePost(id, { published: true, publishedAt: new Date() });
+		if (!row) return fail(404, { error: 'Not found.' });
 		return { ok: true };
 	}
 };

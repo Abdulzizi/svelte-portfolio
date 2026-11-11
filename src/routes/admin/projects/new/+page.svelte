@@ -17,7 +17,7 @@
 </svelte:head>
 
 <div class="head">
-	<a href="/admin" class="back font-mono">← Projects</a>
+	<a href="/admin/projects" class="back font-mono">← Projects</a>
 	<h1 class="font-hand text-3xl font-extrabold leading-none">
 		New <span class="text-[var(--accent)]">project</span>
 	</h1>
@@ -115,7 +115,7 @@
 		<button type="submit" class="save font-hand font-extrabold" disabled={submitting}>
 			{submitting ? 'Saving' : 'Create project'}
 		</button>
-		<a href="/admin" class="cancel font-mono">Cancel</a>
+		<a href="/admin/projects" class="cancel font-mono">Cancel</a>
 	</div>
 </form>
 

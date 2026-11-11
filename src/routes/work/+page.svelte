@@ -251,6 +251,7 @@ import { reveal } from '$lib/actions/reveal';
 	.body :global(a) { color: var(--accent); text-decoration: underline; }
 	.body :global(h2), .body :global(h3) { color: var(--ink); font-family: var(--font-hand); font-weight: 800; margin: 0.75rem 0 0.25rem; }
 	.body :global(ul), .body :global(ol) { margin: 0.5rem 0 0.5rem 1.25rem; }
+	.body :global(img) { display: block; max-width: 100%; height: auto; border: 1px solid var(--line); margin: 1rem 0; }
 
 	@media (min-width: 768px) {
 		.sheet-inner { grid-template-columns: 26rem 1fr; gap: 3rem; align-items: start; }

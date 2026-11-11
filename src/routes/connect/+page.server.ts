@@ -1,6 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { validate } from '$lib/contact';
+import { createMessage } from '$lib/server/messages';
 import type { Actions } from './$types';
 
 // Form actions need a server runtime; `/` stays prerendered via +layout.ts.
@@ -18,9 +19,18 @@ export const actions: Actions = {
 		if (r.honeypot) return { success: true };
 		if (!r.ok) return fail(400, { errors: r.errors, values: r.values });
 
+		let saved = false;
+		try {
+			await createMessage({ name: r.values.name, email: r.values.email, body: r.values.message });
+			saved = true;
+		} catch {
+			console.error('contact: save failed');
+		}
+
 		const key = env.RESEND_API_KEY;
 		if (!key) {
 			console.error('contact: RESEND_API_KEY not set');
+			if (saved) return { success: true };
 			return fail(500, { error: 'Sending is not set up yet. Email me directly instead.', values: r.values });
 		}
 
@@ -39,10 +49,12 @@ export const actions: Actions = {
 			});
 			if (!res.ok) {
 				console.error('contact: resend status', res.status);
+				if (saved) return { success: true };
 				return fail(500, { error: 'Could not send. Try again or email me directly.', values: r.values });
 			}
 		} catch {
 			console.error('contact: resend request failed');
+			if (saved) return { success: true };
 			return fail(500, { error: 'Could not send. Try again or email me directly.', values: r.values });
 		}
 

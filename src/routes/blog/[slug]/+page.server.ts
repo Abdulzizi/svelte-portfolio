@@ -7,7 +7,7 @@ import type { PageServerLoad } from './$types';
 // Public reading view is DB-driven: loaded per request, cannot prerender.
 export const prerender = false;
 
-export const load: PageServerLoad = async ({ params, url }) => {
+export const load: PageServerLoad = async ({ params, url, locals, setHeaders }) => {
 	let post;
 	try {
 		post = await getPostBySlug(params.slug);
@@ -18,8 +18,11 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	}
 
 	// Missing OR unpublished → 404 publicly (drafts must never leak).
-	if (!post || !post.published) {
+	if (!post || (!post.published && !locals.admin)) {
 		throw error(404, 'Post not found');
+	}
+	if (!post.published) {
+		setHeaders({ 'cache-control': 'private, no-store' });
 	}
 
 	// Defense-in-depth: body is sanitized on SAVE, but re-sanitize on OUTPUT so a
@@ -27,5 +30,5 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	// og:image must be an absolute URL for social scrapers — resolve against origin.
 	const ogImage = post.coverImage ? new URL(post.coverImage, url.origin).href : null;
 	const body = post.body ? sanitizeBody(post.body) : null;
-	return { post: { ...post, body }, ogImage, minutes: readingTime(body ?? post.excerpt) };
+	return { post: { ...post, body }, ogImage, minutes: readingTime(body ?? post.excerpt), draft: !post.published };
 };

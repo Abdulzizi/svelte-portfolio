@@ -54,6 +54,9 @@
 	{#if ogImage}
 		<meta property="og:image" content={ogImage} />
 	{/if}
+	{#if data.draft}
+		<meta name="robots" content="noindex" />
+	{/if}
 </svelte:head>
 
 {#if progress}
@@ -64,6 +67,9 @@
 	<a href="/blog" class="back font-hand font-extrabold">Back</a>
 
 	<article class="wrap" bind:this={article}>
+		{#if data.draft}
+			<div class="draft font-mono">Draft preview — not published</div>
+		{/if}
 		<header class="masthead">
 			<span class="kicker font-mono">Writing</span>
 			<span class="date font-mono">{fmtDate(post.publishedAt ?? post.createdAt)}</span>
@@ -107,6 +113,16 @@
 	.back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 	.wrap { margin: 3.5rem auto 0; width: 100%; max-width: var(--reader-wrap, 44rem); }
+
+	.draft {
+		font-size: 0.7rem;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		color: var(--accent);
+		border: 1px solid var(--accent);
+		padding: 0.5rem 0.75rem;
+		margin-bottom: 1.5rem;
+	}
 
 	/* Subtle entrance on the masthead only — transform/opacity, gated below. */
 	.masthead {
@@ -185,6 +201,7 @@
 	.body :global(b) { font-weight: 700; }
 	.body :global(em),
 	.body :global(i) { font-style: italic; }
+	.body :global(img) { display: block; max-width: 100%; height: auto; border: 1px solid var(--line); margin: 1.75rem 0; }
 	.body :global(blockquote) {
 		margin: 1.6rem 0;
 		padding-left: 1.1rem;
