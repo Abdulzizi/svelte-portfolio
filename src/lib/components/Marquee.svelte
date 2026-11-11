@@ -51,6 +51,8 @@
 <div
 	bind:this={bar}
 	class="fixed overflow-hidden bg-[var(--bg)] z-10 {barClass}"
+	style="view-transition-name: marquee-{position}"
+	data-chrome
 	aria-hidden="true"
 >
 	<div class="track" class:vertical={axis === 'y'} bind:this={track}>

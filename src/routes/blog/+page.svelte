@@ -2,6 +2,7 @@
 	// /blog — editorial scroll index. Normal vertical scroll (NOT the /work deck).
 	// Hairline-separated rows: mono date, Syne title link, dimmed excerpt.
 	import { fmtDate } from '$lib/date';
+	import { reveal } from '$lib/actions/reveal';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -29,12 +30,12 @@
 		{:else if !hasPosts}
 			<p class="state font-mono">No posts yet.</p>
 		{:else}
-			<ul class="list">
+			<ul class="list" data-reveal-children use:reveal={{ stagger: 0.06 }}>
 				{#each posts as p (p.slug)}
 					<li class="row">
 						<a class="row-link" href={`/blog/${p.slug}`}>
 							<span class="date font-mono">{fmtDate(p.publishedAt ?? p.createdAt)}</span>
-							<span class="title font-hand font-extrabold">{p.title}</span>
+							<span class="title font-hand font-extrabold" style="view-transition-name: post-{p.slug}">{p.title}</span>
 							{#if p.excerpt}
 								<span class="excerpt">{p.excerpt}</span>
 							{/if}
@@ -116,7 +117,21 @@
 		line-height: 1.05;
 		letter-spacing: -0.01em;
 		overflow-wrap: anywhere;
-		transition: color 0.3s ease;
+		transition: color 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+		position: relative;
+		justify-self: start;
+	}
+	.title::after {
+		content: "";
+		position: absolute;
+		left: 0;
+		bottom: -0.1em;
+		height: 2px;
+		width: 100%;
+		background: var(--accent);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 	}
 	.excerpt {
 		max-width: 48rem;
@@ -126,11 +141,13 @@
 	}
 
 	@media (hover: hover) and (pointer: fine) {
-		.row-link:hover .title { color: var(--accent); }
+		.row-link:hover .title { color: var(--accent); transform: translateX(0.35rem); }
+		.row-link:hover .title::after { transform: scaleX(1); }
 	}
-	.row-link:focus-visible .title { color: var(--accent); }
+	.row-link:focus-visible .title { color: var(--accent); transform: translateX(0.35rem); }
+	.row-link:focus-visible .title::after { transform: scaleX(1); }
 
 	@media (prefers-reduced-motion: reduce) {
-		.title { transition: none; }
+		.title, .title::after { transition: none; }
 	}
 </style>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { reveal } from '$lib/actions/reveal';
 	import SlidePage from '$lib/components/SlidePage.svelte';
 	import type { ActionData } from './$types';
 
@@ -115,7 +116,7 @@
 					<div class="mx-auto w-full max-w-md">
 						<span class="idx font-mono">02</span>
 						<h2 id="links-heading" tabindex="-1" class="font-hand text-3xl font-extrabold leading-none">Find me <span class="text-[var(--accent)]">elsewhere</span></h2>
-						<ul class="mt-6 flex flex-col">
+						<ul class="mt-6 flex flex-col" data-reveal-stacked-children use:reveal>
 							{#each links as l}
 								<li class="border-b border-[var(--line)] first:border-t">
 									<a
@@ -145,7 +146,8 @@
 	}
 	.field [aria-invalid='true'] { border-color: var(--danger); }
 	.err { color: var(--danger); }
-	.send { border: 1px solid var(--ink); padding: 0.5rem 1.5rem; transition: background-color 0.2s ease, color 0.2s ease; }
+	.send { border: 1px solid var(--ink); padding: 0.5rem 1.5rem; transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease; }
+	.send:active:not(:disabled) { transform: scale(0.97); }
 	.send:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
 	.send:disabled { opacity: 0.5; }
 	.link { transition: opacity 0.2s ease; }

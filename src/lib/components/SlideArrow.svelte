@@ -22,10 +22,11 @@
 			display: flex; align-items: center; justify-content: center;
 			position: absolute; right: 2.5rem; top: 50%; margin-top: -1.5rem;
 			width: 3rem; height: 3rem; border: 1px solid var(--line); color: var(--ink);
-			transition: opacity 0.2s ease;
+			transition: opacity 0.2s ease, transform 0.15s ease;
 			--tx: 3px;
 		}
 		.arrow:hover { opacity: 0.7; }
+		.arrow:active { transform: scale(0.94); }
 	}
 
 	:where(.arrow):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

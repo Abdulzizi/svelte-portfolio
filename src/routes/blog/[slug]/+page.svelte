@@ -1,12 +1,48 @@
 <script lang="ts">
 	// /blog/[slug] — the reading view. A centred, measured reading column is the point.
+	import { tick } from 'svelte';
 	import { fmtDate } from '$lib/date';
+	import { reveal } from '$lib/actions/reveal';
+	import { loadGsap } from '$lib/motion';
+	import ReaderControls from '$lib/components/ReaderControls.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	const post = $derived(data.post);
 	const ogImage = $derived(data.ogImage);
+
+	let article = $state<HTMLElement>();
+	let bar = $state<HTMLElement>();
+	let progress = $state(false);
+
+	$effect(() => {
+		let alive = true;
+		let kill = () => {};
+		loadGsap().then(async (m) => {
+			if (!m || !alive) return;
+			progress = true;
+			await tick();
+			if (!alive || !bar || !article) return;
+			const tween = m.gsap.fromTo(
+				bar,
+				{ scaleX: 0 },
+				{
+					scaleX: 1,
+					ease: 'none',
+					scrollTrigger: { trigger: article, start: 'top top', end: 'bottom bottom', scrub: true }
+				}
+			);
+			kill = () => {
+				tween.scrollTrigger?.kill();
+				tween.kill();
+			};
+		});
+		return () => {
+			alive = false;
+			kill();
+		};
+	});
 </script>
 
 <svelte:head>
@@ -20,20 +56,27 @@
 	{/if}
 </svelte:head>
 
+{#if progress}
+	<div class="progress" bind:this={bar} aria-hidden="true"></div>
+{/if}
+
 <main id="main-content" class="page text-[var(--ink)]">
 	<a href="/blog" class="back font-hand font-extrabold">Back</a>
 
-	<article class="wrap">
+	<article class="wrap" bind:this={article}>
 		<header class="masthead">
 			<span class="kicker font-mono">Writing</span>
 			<span class="date font-mono">{fmtDate(post.publishedAt ?? post.createdAt)}</span>
-			<h1 class="headline font-hand font-extrabold">{post.title}</h1>
+			<span class="date font-mono">{data.minutes} min read</span>
+			<h1 class="headline font-hand font-extrabold" style="view-transition-name: post-{post.slug}">{post.title}</h1>
 			{#if post.coverImage}
-				<img class="cover" src={post.coverImage} alt={`${post.title} cover`} />
+				<img class="cover" data-reveal use:reveal src={post.coverImage} alt={`${post.title} cover`} />
 			{/if}
 		</header>
 
-		<div class="body">
+		<ReaderControls target={article} />
+
+		<div class="body" data-reveal-children use:reveal>
 			{#if post.body}
 				<!-- Sanitized server-side on save AND again on output (+page.server.ts). -->
 				{@html post.body}
@@ -63,7 +106,7 @@
 	}
 	.back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-	.wrap { margin: 3.5rem auto 0; width: 100%; max-width: 44rem; }
+	.wrap { margin: 3.5rem auto 0; width: 100%; max-width: var(--reader-wrap, 44rem); }
 
 	/* Subtle entrance on the masthead only — transform/opacity, gated below. */
 	.masthead {
@@ -102,15 +145,15 @@
 
 	/* The reading column: measured, generous, no horizontal overflow at 320px. */
 	.body {
-		max-width: 38rem;
-		font-family: var(--font-sans);
-		font-size: 1.0625rem;
-		line-height: 1.7;
+		max-width: var(--reader-measure, 38rem);
+		font-family: var(--reader-font, var(--font-sans));
+		font-size: var(--reader-size, 1.0625rem);
+		line-height: var(--reader-leading, 1.7);
 		color: var(--ink);
 		overflow-wrap: anywhere;
 	}
 	@media (min-width: 640px) {
-		.body { font-size: 1.125rem; }
+		.body { font-size: var(--reader-size, 1.125rem); }
 	}
 
 	.lead { color: var(--ink-dim); font-style: italic; }
@@ -133,7 +176,10 @@
 	.body :global(ul) { list-style: disc; }
 	.body :global(ol) { list-style: decimal; }
 	.body :global(li) { margin: 0.35rem 0; }
-	.body :global(a) { color: var(--accent); text-decoration: underline; text-underline-offset: 0.15em; }
+	.body :global(a) { color: var(--accent); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 0.15em; transition: text-decoration-color 0.25s ease, text-underline-offset 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
+	@media (hover: hover) and (pointer: fine) {
+		.body :global(a:hover) { text-decoration-color: var(--accent); text-underline-offset: 0.25em; }
+	}
 	.body :global(a:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
 	.body :global(strong),
 	.body :global(b) { font-weight: 700; }
@@ -146,6 +192,24 @@
 		color: var(--ink-dim);
 		font-style: italic;
 	}
+
+	.progress {
+		position: fixed;
+		top: 2rem;
+		left: 0;
+		right: 0;
+		height: 2px;
+		z-index: 15;
+		background: var(--accent);
+		transform: scaleX(0);
+		transform-origin: left;
+		pointer-events: none;
+	}
+
+	:global([data-zen]) .back { display: none; }
+	:global([data-zen]) .page { padding-top: 2rem; }
+	:global([data-zen]) .wrap { margin-top: 1.5rem; }
+	:global([data-zen]) .progress { top: 0; }
 
 	@keyframes rise {
 		from { opacity: 0; transform: translateY(0.75rem); }

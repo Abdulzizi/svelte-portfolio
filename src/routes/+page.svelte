@@ -18,7 +18,7 @@
 
 <style>
 	.grid-wrap { display: flex; flex-wrap: wrap; }
-	.grid-section { min-width: 0; flex: 1 1 50%; transition: background-color 0.35s ease; min-height: 50vh; }
+	.grid-section { min-width: 0; flex: 1 1 50%; transition: flex 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease, background-color 0.35s ease; min-height: 50vh; }
 	/* Entrance: staggered rise+fade on load. transform/opacity only, --d per panel. */
 	.grid-section { animation: panel-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--d, 0ms); }
 	.grid-wrap:has(.grid-section:focus-visible) .grid-section:not(:focus-visible) { flex: 0.7 1 35%; opacity: 0.7; }

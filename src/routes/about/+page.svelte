@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { reveal } from '$lib/actions/reveal';
 	import SlidePage from '$lib/components/SlidePage.svelte';
 
 	let index = $state(0);
@@ -71,7 +72,7 @@
 					<div class="mx-auto w-full max-w-lg">
 						<span class="idx font-mono">02</span>
 						<h2 id="work-heading" tabindex="-1" class="font-hand text-4xl font-extrabold leading-none sm:text-5xl">Where I <span class="text-[var(--accent)]">ship</span></h2>
-						<ul class="mt-7 flex flex-col">
+						<ul class="mt-7 flex flex-col" data-reveal-stacked-children use:reveal>
 							{#each roles as r}
 								<li class="role border-b border-[var(--line)] py-4 first:border-t">
 									<div class="flex items-baseline justify-between gap-4">
@@ -90,7 +91,7 @@
 					<div class="mx-auto w-full max-w-lg">
 						<span class="idx font-mono">03</span>
 						<h2 id="stack-heading" tabindex="-1" class="font-hand text-4xl font-extrabold leading-none sm:text-5xl">The <span class="text-[var(--accent)]">stack</span></h2>
-						<dl class="mt-7 grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+						<dl class="mt-7 grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2" data-reveal-stacked-children use:reveal>
 							{#each stack as s}
 								<div>
 									<dt class="font-mono text-xs uppercase tracking-wider text-[var(--ink-dim)]">{s.group}</dt>

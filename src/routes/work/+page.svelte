@@ -8,6 +8,7 @@
 	//  One viewport, no scroll on lg+ tall; stacks + scrolls below.
 	import { tick } from 'svelte';
 	import { useWide } from '$lib/wide.svelte';
+import { reveal } from '$lib/actions/reveal';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -97,7 +98,7 @@
 			<!-- PLANE 0 — FEATURED RAIL -->
 			{#if hasFeatured}
 				<section id="plane-featured" class="plane rail" tabindex="-1" aria-label="Featured work" inert={wide && plane !== 0}>
-					<div class="rail-track">
+					<div class="rail-track" data-reveal-stacked-children use:reveal>
 						{#each featured as p, i (p.id)}
 							{@const isOpen = openId === p.id}
 							<article class="card" class:active={i === safeFeat} class:open={isOpen} inert={wide && i !== safeFeat}>
@@ -139,7 +140,7 @@
 							<button type="button" class="jump font-mono" onclick={() => switchPlane(0)}>↑ Featured</button>
 						{/if}
 					</div>
-					<ul class="rest-list">
+					<ul class="rest-list" data-reveal-stacked-children use:reveal>
 						{#each rest as p (p.id)}
 							{@const isOpen = openId === p.id}
 							<li class="rest-row" class:open={isOpen}>
@@ -279,8 +280,9 @@
 		display: inline-flex; align-items: center; justify-content: center;
 		width: 44px; height: 44px; background: none; border: 1px solid var(--line);
 		color: var(--ink-dim); cursor: pointer; font-size: 1rem;
-		transition: color 0.2s ease, border-color 0.2s ease;
+		transition: color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 	}
+	.nav-btn:active:not(:disabled) { transform: scale(0.97); }
 	.nav-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
 	.nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 	.nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

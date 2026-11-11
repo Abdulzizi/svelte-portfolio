@@ -70,6 +70,17 @@ src/lib/components/RichEditor.svelte   TipTap wrapper (admin only)
 - [ ] **7. Seed real data.** Replace dummy rows: Freecause / Telkom Akses / Venturo as real projects, set featured + rank. Remove placeholder rows.
 - [x] **9. Vercel migration.** adapter-node → adapter-vercel; `uploads.ts` writes to Supabase Storage (4 MB cap, Vercel body limit 4.5 MB); pg Pool `max: 1` per instance. Live upload verification needs Supabase env.
 - [ ] **8. Docs reconcile.** Verify SPEC/DESIGN/AGENTS/CLAUDE match what shipped; trim this plan.
+- [ ] **Seed posts/projects (step 7) so /blog and /work show content.**
+
+## v3 polish (2026-11-11)
+Shipped in the working tree, not yet committed.
+- [x] **Motion foundation.** `gsap` 3.15.1 (exact) lazy-loaded in `src/lib/motion.ts`; `motion` class on `<html>` from the `app.html` inline script unless reduced motion.
+- [x] **View transitions.** Native View Transitions via `onNavigate` in `+layout.svelte`; marquees and theme toggle pinned; `/blog` title morphs into the post headline.
+- [x] **Scroll reveals.** `use:reveal` action (`src/lib/actions/reveal.ts`) on `/blog`, post page, and stacked `/work`, `/about`, `/connect`.
+- [x] **Hover / micro-motion.** Home panel `flex` transition, blog row title underline, post link underline, theme toggle spin, `:active` press scale.
+- [x] **Reading progress.** 2px accent bar on `/blog/[slug]`, GSAP ScrollTrigger scrub.
+- [x] **Zen reader.** `ReaderControls.svelte` on `/blog/[slug]`: Zen, size, width, font, leading; saved in `aj-reader`; reading time from `src/lib/reading-time.ts` with tests.
+- [x] **Docs.** SPEC, DESIGN, AGENTS and this file updated to match.
 
 ## Deploy notes (Vercel)
 - Supabase: create a **public** Storage bucket `images`; copy project URL + service role key.

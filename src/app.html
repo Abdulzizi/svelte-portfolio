@@ -8,6 +8,7 @@
 				var s = localStorage.getItem('aj-theme');
 				var t = (s === 'light' || s === 'dark') ? s : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
 				document.documentElement.dataset.theme = t;
+				if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
 			} catch (e) {
 				document.documentElement.dataset.theme = 'dark';
 			}

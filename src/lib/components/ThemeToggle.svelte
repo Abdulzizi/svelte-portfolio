@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { cubicOut } from 'svelte/easing';
 	// Flips data-theme and persists to localStorage under the key app.html reads on load.
 	// SSR/prerender: start from the attribute the inline script already set, so no flash.
 	const KEY = 'aj-theme';
@@ -14,6 +15,15 @@
 		theme = t === 'light' ? 'light' : 'dark';
 	});
 
+	function spin(node: Element) {
+		const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+		return {
+			duration: reduce ? 0 : 250,
+			easing: cubicOut,
+			css: (t: number) => `opacity: ${t}; transform: rotate(${(1 - t) * -90}deg) scale(${0.6 + 0.4 * t})`
+		};
+	}
+
 	function toggle() {
 		theme = theme === 'dark' ? 'light' : 'dark';
 		document.documentElement.dataset.theme = theme;
@@ -28,13 +38,14 @@
 <button
 	type="button"
 	class="toggle font-mono"
+	data-chrome
 	onclick={toggle}
 	aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
 	aria-pressed={theme === 'light'}
 >
 	{#if theme === 'dark'}
 		<!-- Phosphor sun (MIT): tap for light. -->
-		<svg viewBox="0 0 256 256" width="18" height="18" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+		<svg in:spin viewBox="0 0 256 256" width="18" height="18" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 			<circle cx="128" cy="128" r="56" />
 			<line x1="128" y1="28" x2="128" y2="12" />
 			<line x1="128" y1="244" x2="128" y2="228" />
@@ -47,7 +58,7 @@
 		</svg>
 	{:else}
 		<!-- Phosphor moon (MIT): tap for dark. -->
-		<svg viewBox="0 0 256 256" width="18" height="18" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+		<svg in:spin viewBox="0 0 256 256" width="18" height="18" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 			<path d="M216 112A88 88 0 1 1 144 40a72 72 0 0 0 72 72Z" />
 		</svg>
 	{/if}
@@ -61,7 +72,8 @@
 		display: flex; align-items: center; justify-content: center;
 		width: 2.75rem; height: 2.75rem;
 		border: 1px solid var(--line); background: var(--bg); color: var(--ink);
-		transition: color 0.2s ease, border-color 0.2s ease;
+		transition: color 0.2s ease, border-color 0.2s ease, opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+		view-transition-name: theme-toggle;
 	}
 	.toggle:hover { color: var(--accent); border-color: var(--accent); }
 	.toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
