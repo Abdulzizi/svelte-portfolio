@@ -125,7 +125,7 @@
 		overflow-wrap: anywhere;
 	}
 
-	@media (hover: hover) {
+	@media (hover: hover) and (pointer: fine) {
 		.row-link:hover .title { color: var(--accent); }
 	}
 	.row-link:focus-visible .title { color: var(--accent); }

@@ -227,7 +227,7 @@
 
 	.title { font-size: clamp(1.9rem, 7vw, 5rem); line-height: 1; text-transform: uppercase; letter-spacing: -0.02em; transition: color 0.35s ease; overflow-wrap: anywhere; }
 	.card.open .title { color: var(--accent); }
-	@media (hover: hover) { .bar:hover .title { color: var(--accent); } }
+	@media (hover: hover) and (pointer: fine) { .bar:hover .title { color: var(--accent); } }
 
 	/* Spec sheet (F) */
 	.sheet { overflow: hidden; }
@@ -267,7 +267,7 @@
 	}
 	.rest-bar:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
 	.rest-title { font-size: clamp(1.4rem, 4vw, 2.5rem); text-transform: uppercase; letter-spacing: -0.01em; transition: color 0.35s ease; }
-	@media (hover: hover) { .rest-bar:hover .rest-title { color: var(--accent); } }
+	@media (hover: hover) and (pointer: fine) { .rest-bar:hover .rest-title { color: var(--accent); } }
 	.rest-row.open .rest-title { color: var(--accent); }
 	.rest-year { flex: 0 0 auto; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--ink-dim); }
 

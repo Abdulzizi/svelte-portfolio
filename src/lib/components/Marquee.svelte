@@ -71,7 +71,6 @@
 	}
 	.track {
 		display: flex;
-		will-change: transform;
 		color: var(--ink-dim);
 		animation: marquee-x var(--marquee-dur, 10s) linear infinite;
 	}
