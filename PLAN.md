@@ -78,7 +78,7 @@ src/lib/components/RichEditor.svelte   TipTap wrapper (admin only)
 - Set env vars in Vercel: `DATABASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `SESSION_TTL_DAYS`, `RESEND_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_BUCKET`.
 - Optional: set the function region near the Supabase region.
 - Keepalive cron: `vercel.json` schedules daily `/api/keepalive` (DB ping), authed by `CRON_SECRET`.
-- Firewall rate limit (5 POST/60s per IP on `/admin/login` and `/connect`) is NOT applied: Vercel API returned 403 on firewall update.
+- Firewall rate limit: Vercel WAF rule "Rate limit login and contact", POST `/admin/login` and `/connect`, 5 per 60s per IP, then deny. Applied via `vercel api` (the MCP token lacks firewall write).
 
 ## Open items / to confirm during build
 - Supabase `DATABASE_URL` availability: build against it live, or local Postgres then swap at deploy. (If not ready at step 2, develop on local Postgres.)
