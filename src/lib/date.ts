@@ -6,5 +6,5 @@ export function fmtDate(value: Date | string | null): string {
 	if (!value) return '';
 	const d = value instanceof Date ? value : new Date(value);
 	if (Number.isNaN(d.getTime())) return '';
-	return `${d.getFullYear()} · ${MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}`;
+	return `${d.getUTCFullYear()} · ${MONTHS[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, '0')}`;
 }
