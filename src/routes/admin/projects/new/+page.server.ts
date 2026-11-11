@@ -3,7 +3,7 @@ import { projectFormValues, projectFromFormData, projectSchema } from '$lib/vali
 import type { ProjectErrors } from '$lib/validation';
 import { createProject } from '$lib/server/projects';
 import { sanitizeBody } from '$lib/server/sanitize';
-import { saveImage } from '$lib/server/uploads';
+import { resolveImage } from '$lib/server/uploads';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
@@ -28,20 +28,14 @@ export const actions: Actions = {
 		const clean = sanitizeBody(parsed.data.body ?? '');
 		const body = clean.trim() === '' ? null : clean;
 
-		// Image: handled outside zod. Save only a real upload.
-		let imagePath: string | null = null;
-		const image = form.get('image');
-		if (image instanceof File && image.size > 0) {
-			try {
-				imagePath = await saveImage(image);
-			} catch (err) {
-				const errors: ProjectErrors = { image: [err instanceof Error ? err.message : 'Upload failed'] };
-				return fail(400, { errors, values: projectFormValues(form) });
-			}
+		const img = await resolveImage(form, null);
+		if ('error' in img) {
+			const errors: ProjectErrors = { image: [img.error] };
+			return fail(400, { errors, values: projectFormValues(form) });
 		}
 
 		const { body: _body, ...scalars } = parsed.data;
-		await createProject({ ...scalars, body, imagePath });
+		await createProject({ ...scalars, body, imagePath: img.path });
 		throw redirect(303, '/admin');
 	}
 };

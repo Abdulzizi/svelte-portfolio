@@ -3,7 +3,7 @@ import { postFormValues, postFromFormData, postSchema } from '$lib/validation';
 import type { PostErrors } from '$lib/validation';
 import { createPost, slugExists } from '$lib/server/posts';
 import { sanitizeBody } from '$lib/server/sanitize';
-import { saveImage } from '$lib/server/uploads';
+import { resolveImage } from '$lib/server/uploads';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
@@ -33,18 +33,10 @@ export const actions: Actions = {
 		const clean = sanitizeBody(parsed.data.body ?? '');
 		const body = clean.trim() === '' ? null : clean;
 
-		// Cover image: handled outside zod. Save only a real upload.
-		let coverImage: string | null = null;
-		const image = form.get('image');
-		if (image instanceof File && image.size > 0) {
-			try {
-				coverImage = await saveImage(image);
-			} catch (err) {
-				const errors: PostErrors = {
-					image: [err instanceof Error ? err.message : 'Upload failed']
-				};
-				return fail(400, { errors, values: postFormValues(form) });
-			}
+		const img = await resolveImage(form, null);
+		if ('error' in img) {
+			const errors: PostErrors = { image: [img.error] };
+			return fail(400, { errors, values: postFormValues(form) });
 		}
 
 		// First publish stamps publishedAt; drafts leave it null.
@@ -55,7 +47,7 @@ export const actions: Actions = {
 			slug: parsed.data.slug,
 			excerpt: parsed.data.excerpt,
 			body,
-			coverImage,
+			coverImage: img.path,
 			published: parsed.data.published,
 			publishedAt
 		});

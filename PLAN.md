@@ -13,7 +13,7 @@ The owner manages `/work` content without touching code: log in at `/admin`, CRU
 - **Images:** public Supabase Storage bucket via REST `fetch`, public URL only in DB. mime + 4 MB cap validated.
 - **Validation:** zod for admin forms.
 - **`/work` layout:** featured rail (→/←) + "the rest" plane (↓), one viewport, no scroll on lg+ tall; reduced-motion = static list. Non-featured opens the same spec sheet.
-- **Blog:** data model reserved; **CRUD UI deferred** — not in v2.
+- **Blog:** public `/blog`, `/blog/[slug]` and admin posts CMS shipped.
 
 ## New dependencies (pin exact versions)
 | Dep | Why | Scope |
@@ -35,6 +35,7 @@ SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=  # server-only
 SUPABASE_BUCKET=images
 RESEND_API_KEY=          # existing
+CRON_SECRET=             # Vercel cron auth for /api/keepalive
 ```
 
 ## File map (target)
@@ -64,7 +65,7 @@ src/lib/components/RichEditor.svelte   TipTap wrapper (admin only)
 - [x] **2. DB layer.** Add drizzle + pg, `drizzle.config.ts`, `schema.ts` (projects, sessions), `db/index.ts`. Generate + run first migration against Supabase. `.env.example` updated. — CODE DONE: drizzle-orm@0.45.4, pg@8.23.1, drizzle-kit@0.31.11, @types/pg@8.23.1 (exact-pinned). Schema matches SPEC; `drizzle/0000_loose_plazm.sql` generated offline; `db:generate|migrate|push` scripts added; lazy pool via `$env/dynamic/private`. **Migration RUN against Supabase is DEFERRED** — needs `DATABASE_URL` (see open item).
 - [x] **3. Auth.** `scripts/hash-password.mjs` + `npm run hash`. `auth.ts`, `hooks.server.ts` (locals.admin + guard), `/admin/login` with action. Verify login/logout/guard by hand. — CODE DONE: @node-rs/argon2@2.2.2, zod@4.6.7 (exact). `verifyAdmin`/`createSession`/`validateSession`/`destroySession`, `SESSION_COOKIE='aj_session'`, hooks guard `/admin` (except `/admin/login`), login form matches design, cookie httpOnly+secure+sameSite=lax. **Live login verification DEFERRED** (needs DB + TLS; `secure:true` blocks http://localhost — use `secure: !dev` to test locally).
 - [x] **4. Project CRUD (no media yet).** `projects.ts`, zod schema, `/admin` list, new/edit/delete with title/role/year/stack/impact/problem/result/featured/rank. Prove full CRUD. — CODE DONE: query layer (listAll/listFeatured/listRest/get/create/update/delete), `projectSchema` + form helpers, `/admin` list (featured dot, rank, arm→confirm delete, toggleFeatured, logout), `/admin/projects/new` + `/admin/projects/[id]` forms, `+layout` guard+chrome. All dynamic, var() tokens only. **Live CRUD verification DEFERRED** (no DB).
-- [x] **5. Rich text + images.** `RichEditor.svelte` (TipTap), sanitize on save; `uploads.ts` + image field wired into new/edit. nginx `/uploads/` note in README/PLAN. — DONE: @tiptap/core|pm|starter-kit|extension-link@3.32.2, sanitize-html@2.18.1, @types/sanitize-html@2.16.2 (exact). RichEditor lazy-imports TipTap in onMount (client+admin-only; verified absent from entry/app and all public page chunks — only admin nodes 7/8 load it). `sanitizeBody` (conservative allowlist, rel=noopener) runs on every body save; `saveImage` validates mime jpeg/png/webp + 5MB cap + randomUUID names under `UPLOAD_DIR`, path-only in DB; `deleteImage` basename-guarded. Both forms multipart; edit has preview + removeImage. `uploads/` gitignored. **nginx:** serve `location /uploads/ { alias <UPLOAD_DIR>/; }` directly as static (bytes never in DB/Node). Live upload+DB verification DEFERRED (no DATABASE_URL).
+- [x] **5. Rich text + images.** `RichEditor.svelte` (TipTap), sanitize on save; `uploads.ts` + image field wired into new/edit. nginx `/uploads/` note in README/PLAN. — DONE: @tiptap/core|pm|starter-kit|extension-link@3.32.2, sanitize-html@2.17.3 (pinned: 2.18 needs ESM-only htmlparser2, which Vercel runtime cannot require), @types/sanitize-html@2.16.2 (exact). RichEditor lazy-imports TipTap in onMount (client+admin-only; verified absent from entry/app and all public page chunks — only admin nodes 7/8 load it). `sanitizeBody` (conservative allowlist, rel=noopener) runs on every body save; `saveImage` validates mime jpeg/png/webp + 5MB cap + randomUUID names under `UPLOAD_DIR`, path-only in DB; `deleteImage` basename-guarded. Both forms multipart; edit has preview + removeImage. `uploads/` gitignored. **nginx:** serve `location /uploads/ { alias <UPLOAD_DIR>/; }` directly as static (bytes never in DB/Node). Live upload+DB verification DEFERRED (no DATABASE_URL).
 - [x] **6. /work rewrite.** `+page.server.ts` loads featured + rest; `+page.svelte` becomes the two-plane deck reading DB data. Keyboard + reduced-motion parity. — CODE DONE: server load `{featured, rest}`; deck with featured rail (→/←, filmstrip slide on `--feat`), "the rest" plane (↓/↑ slide on `--plane`), shared `sheet` snippet (spec sheet identical both planes), optional image + sanitized `{@html body}`, empty state, Esc closes, reduced-motion fallback to static list. Dummy array removed — page is DB-driven now. **Live render DEFERRED** (needs seeded DB).
 - [ ] **7. Seed real data.** Replace dummy rows: Freecause / Telkom Akses / Venturo as real projects, set featured + rank. Remove placeholder rows.
 - [x] **9. Vercel migration.** adapter-node → adapter-vercel; `uploads.ts` writes to Supabase Storage (4 MB cap, Vercel body limit 4.5 MB); pg Pool `max: 1` per instance. Live upload verification needs Supabase env.
@@ -76,6 +77,8 @@ src/lib/components/RichEditor.svelte   TipTap wrapper (admin only)
 - Import the GitHub repo in Vercel (SvelteKit auto-detected).
 - Set env vars in Vercel: `DATABASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `SESSION_TTL_DAYS`, `RESEND_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_BUCKET`.
 - Optional: set the function region near the Supabase region.
+- Keepalive cron: `vercel.json` schedules daily `/api/keepalive` (DB ping), authed by `CRON_SECRET`.
+- Firewall rate limit (5 POST/60s per IP on `/admin/login` and `/connect`) is NOT applied: Vercel API returned 403 on firewall update.
 
 ## Open items / to confirm during build
 - Supabase `DATABASE_URL` availability: build against it live, or local Postgres then swap at deploy. (If not ready at step 2, develop on local Postgres.)
@@ -83,4 +86,4 @@ src/lib/components/RichEditor.svelte   TipTap wrapper (admin only)
 - Whether "the rest" plane paginates if there are many non-featured projects (defer until it hurts).
 
 ## Out of scope (do NOT build in v2)
-Blog CRUD UI, public signup / multi-user auth, color picker, WebGL, i18n, analytics, image bytes in Postgres.
+Public signup / multi-user auth, color picker, WebGL, i18n, analytics, image bytes in Postgres.

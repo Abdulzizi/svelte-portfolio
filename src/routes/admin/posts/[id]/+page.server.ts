@@ -3,7 +3,7 @@ import { postFormValues, postFromFormData, postSchema } from '$lib/validation';
 import type { PostErrors } from '$lib/validation';
 import { deletePost, getPost, slugExists, updatePost } from '$lib/server/posts';
 import { sanitizeBody } from '$lib/server/sanitize';
-import { deleteImage, saveImage } from '$lib/server/uploads';
+import { deleteImage, resolveImage } from '$lib/server/uploads';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
@@ -39,24 +39,10 @@ export const actions: Actions = {
 		const clean = sanitizeBody(parsed.data.body ?? '');
 		const body = clean.trim() === '' ? null : clean;
 
-		// Cover image: new upload replaces + deletes old; removeImage clears; else keep.
-		let coverImage: string | null = existing.coverImage;
-		const image = form.get('image');
-		if (image instanceof File && image.size > 0) {
-			let saved: string;
-			try {
-				saved = await saveImage(image);
-			} catch (err) {
-				const errors: PostErrors = {
-					image: [err instanceof Error ? err.message : 'Upload failed']
-				};
-				return fail(400, { errors, values: postFormValues(form) });
-			}
-			await deleteImage(existing.coverImage);
-			coverImage = saved;
-		} else if (form.get('removeImage') === 'on') {
-			await deleteImage(existing.coverImage);
-			coverImage = null;
+		const img = await resolveImage(form, existing.coverImage);
+		if ('error' in img) {
+			const errors: PostErrors = { image: [img.error] };
+			return fail(400, { errors, values: postFormValues(form) });
 		}
 
 		// Stamp publishedAt only on the FIRST publish; re-publishing keeps the
@@ -71,18 +57,19 @@ export const actions: Actions = {
 			slug: parsed.data.slug,
 			excerpt: parsed.data.excerpt,
 			body,
-			coverImage,
+			coverImage: img.path,
 			published: parsed.data.published,
 			publishedAt
 		});
+		await deleteImage(img.replaced);
 		throw redirect(303, '/admin/posts');
 	},
 
 	delete: async ({ params, locals }) => {
 		if (!locals.admin) throw redirect(303, '/admin/login');
 		const row = await getPost(params.id);
-		if (row) await deleteImage(row.coverImage);
 		await deletePost(params.id);
+		if (row) await deleteImage(row.coverImage);
 		throw redirect(303, '/admin/posts');
 	}
 };

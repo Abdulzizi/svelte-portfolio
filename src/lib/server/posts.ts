@@ -1,4 +1,4 @@
-import { and, desc, eq, ne } from 'drizzle-orm';
+import { and, desc, eq, ne, sql } from 'drizzle-orm';
 import { db } from './db';
 import { posts, type NewPost, type Post } from './db/schema';
 
@@ -10,7 +10,7 @@ export function listPublished(): Promise<Post[]> {
 		.select()
 		.from(posts)
 		.where(eq(posts.published, true))
-		.orderBy(desc(posts.publishedAt), desc(posts.createdAt));
+		.orderBy(sql`${posts.publishedAt} desc nulls last`, desc(posts.createdAt));
 }
 
 /** All posts for the admin list: newest created first. */

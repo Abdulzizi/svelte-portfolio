@@ -20,19 +20,21 @@ export const actions: Actions = {
 		throw redirect(303, '/admin/login');
 	},
 
-	delete: async ({ request }) => {
+	delete: async ({ request, locals }) => {
+		if (!locals.admin) throw redirect(303, '/admin/login');
 		const form = await request.formData();
 		const id = form.get('id');
 		if (typeof id !== 'string' || id.length === 0) {
 			return fail(400, { error: 'Missing project id.' });
 		}
 		const row = await getProject(id);
-		if (row) await deleteImage(row.imagePath);
 		await deleteProject(id);
+		if (row) await deleteImage(row.imagePath);
 		return { ok: true };
 	},
 
-	toggleFeatured: async ({ request }) => {
+	toggleFeatured: async ({ request, locals }) => {
+		if (!locals.admin) throw redirect(303, '/admin/login');
 		const form = await request.formData();
 		const id = form.get('id');
 		if (typeof id !== 'string' || id.length === 0) {

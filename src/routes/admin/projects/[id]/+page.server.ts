@@ -3,7 +3,7 @@ import { projectFormValues, projectFromFormData, projectSchema } from '$lib/vali
 import type { ProjectErrors } from '$lib/validation';
 import { deleteProject, getProject, updateProject } from '$lib/server/projects';
 import { sanitizeBody } from '$lib/server/sanitize';
-import { deleteImage, saveImage } from '$lib/server/uploads';
+import { deleteImage, resolveImage } from '$lib/server/uploads';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
@@ -33,34 +33,23 @@ export const actions: Actions = {
 		const clean = sanitizeBody(parsed.data.body ?? '');
 		const body = clean.trim() === '' ? null : clean;
 
-		// Image: new upload replaces + deletes old; removeImage checkbox clears; else keep.
-		let imagePath: string | null = existing.imagePath;
-		const image = form.get('image');
-		if (image instanceof File && image.size > 0) {
-			let saved: string;
-			try {
-				saved = await saveImage(image);
-			} catch (err) {
-				const errors: ProjectErrors = { image: [err instanceof Error ? err.message : 'Upload failed'] };
-				return fail(400, { errors, values: projectFormValues(form) });
-			}
-			await deleteImage(existing.imagePath);
-			imagePath = saved;
-		} else if (form.get('removeImage') === 'on') {
-			await deleteImage(existing.imagePath);
-			imagePath = null;
+		const img = await resolveImage(form, existing.imagePath);
+		if ('error' in img) {
+			const errors: ProjectErrors = { image: [img.error] };
+			return fail(400, { errors, values: projectFormValues(form) });
 		}
 
 		const { body: _body, ...scalars } = parsed.data;
-		await updateProject(params.id, { ...scalars, body, imagePath });
+		await updateProject(params.id, { ...scalars, body, imagePath: img.path });
+		await deleteImage(img.replaced);
 		throw redirect(303, '/admin');
 	},
 
 	delete: async ({ params, locals }) => {
 		if (!locals.admin) throw redirect(303, '/admin/login');
 		const row = await getProject(params.id);
-		if (row) await deleteImage(row.imagePath);
 		await deleteProject(params.id);
+		if (row) await deleteImage(row.imagePath);
 		throw redirect(303, '/admin');
 	}
 };

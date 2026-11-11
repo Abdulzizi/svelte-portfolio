@@ -19,8 +19,8 @@ export const actions: Actions = {
 			return fail(400, { error: 'Missing post id.' });
 		}
 		const row = await getPost(id);
-		if (row) await deleteImage(row.coverImage);
 		await deletePost(id);
+		if (row) await deleteImage(row.coverImage);
 		return { ok: true };
 	}
 };

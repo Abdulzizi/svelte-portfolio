@@ -64,3 +64,19 @@ export async function deleteImage(path: string | null): Promise<void> {
 		// missing / already gone — ignore
 	}
 }
+
+export async function resolveImage(
+	form: FormData,
+	current: string | null
+): Promise<{ path: string | null; replaced: string | null } | { error: string }> {
+	const image = form.get('image');
+	if (image instanceof File && image.size > 0) {
+		try {
+			return { path: await saveImage(image), replaced: current };
+		} catch (err) {
+			return { error: err instanceof Error ? err.message : 'Upload failed' };
+		}
+	}
+	if (form.get('removeImage') === 'on') return { path: null, replaced: current };
+	return { path: current, replaced: null };
+}

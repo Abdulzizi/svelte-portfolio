@@ -26,7 +26,7 @@ export const actions: Actions = {
 		}
 
 		const { id, expiresAt } = await createSession();
-		// secure:!dev — sent over https in prod (nginx TLS), relaxed in dev so
+		// secure:!dev — sent over https in prod (Vercel TLS), relaxed in dev so
 		// plain http://localhost login works. httpOnly + sameSite:'lax' unchanged.
 		cookies.set(SESSION_COOKIE, id, {
 			path: '/',
