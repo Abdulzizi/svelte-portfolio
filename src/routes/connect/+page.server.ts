@@ -29,7 +29,7 @@ export const actions: Actions = {
 				method: 'POST',
 				headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					from: 'Portfolio <onboarding@resend.dev>',
+					from: 'Portfolio <contact@abdulzizi.xyz>',
 					to: [TO],
 					reply_to: r.values.email,
 					subject: `Portfolio message from ${r.values.name}`,
