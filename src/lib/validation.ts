@@ -7,7 +7,6 @@ export const loginSchema = z.object({
 	password: z.string().min(1)
 });
 
-export type LoginInput = z.infer<typeof loginSchema>;
 
 // Step 5: body is raw TipTap HTML — validated as optional string here, then
 // sanitized server-side AFTER safeParse (zod does not sanitize). The image File
@@ -27,7 +26,6 @@ export const projectSchema = z.object({
 	rank: z.number().int().default(0)
 });
 
-export type ProjectInput = z.infer<typeof projectSchema>;
 
 /** Split a comma/newline-separated string into trimmed, non-empty parts. */
 export function splitStack(raw: FormDataEntryValue | null): string[] {
@@ -110,7 +108,6 @@ export const postSchema = z.object({
 	published: z.boolean().default(false)
 });
 
-export type PostInput = z.infer<typeof postSchema>;
 
 /**
  * Shape raw FormData into an object ready for postSchema.safeParse. If the

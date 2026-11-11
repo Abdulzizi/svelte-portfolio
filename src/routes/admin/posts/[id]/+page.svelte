@@ -5,6 +5,7 @@
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	let submitting = $state(false);
+	let sizeError = $state('');
 	// Delete confirmation: first click arms, second click submits.
 	let armed = $state(false);
 
@@ -29,7 +30,14 @@
 	class="form"
 	enctype="multipart/form-data"
 	novalidate
-	use:enhance={() => {
+	use:enhance={({ formData, cancel }) => {
+		const img = formData.get('image');
+		if (img instanceof File && img.size > 4 * 1024 * 1024) {
+			sizeError = 'Image must be 4 MB or smaller.';
+			cancel();
+			return;
+		}
+		sizeError = '';
 		submitting = true;
 		return async ({ update }) => {
 			await update();
@@ -63,7 +71,7 @@
 	</div>
 
 	<div class="field">
-		<span>Cover image <em class="hint font-mono">— jpeg / png / webp, ≤5MB</em></span>
+		<span>Cover image <em class="hint font-mono">— jpeg / png / webp, ≤4MB</em></span>
 		{#if p.coverImage}
 			<img class="preview" src={p.coverImage} alt="Current cover" />
 			<label class="checkbox" for="removeImage">
@@ -72,7 +80,7 @@
 			</label>
 		{/if}
 		<input type="file" name="image" accept="image/png,image/jpeg,image/webp" />
-		{#if e?.image}<span class="err">{e.image[0]}</span>{/if}
+		{#if sizeError || e?.image}<span class="err">{sizeError || e?.image?.[0]}</span>{/if}
 	</div>
 
 	<label class="field checkbox" for="published">
