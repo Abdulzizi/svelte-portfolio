@@ -40,8 +40,7 @@ import { reveal } from '$lib/actions/reveal';
 
 	async function switchPlane(p: 0 | 1) {
 		if (p === plane) return;
-		if (p === 1 && !hasRest) return;
-		if (p === 0 && !hasFeatured) return;
+		if (!hasFeatured || !hasRest) return;
 		plane = p;
 		openId = null;
 		// Move focus into the newly shown plane so keyboard users land there.
@@ -133,7 +132,7 @@ import { reveal } from '$lib/actions/reveal';
 
 			<!-- PLANE 1 — THE REST -->
 			{#if hasRest}
-				<section id="plane-rest" class="plane rest" tabindex="-1" aria-label="More work" inert={wide && plane !== 1}>
+				<section id="plane-rest" class="plane rest" tabindex="-1" aria-label="More work" inert={wide && hasFeatured && plane !== 1}>
 					<div class="rest-head">
 						<h2 class="font-hand font-extrabold">The rest</h2>
 						{#if hasFeatured}

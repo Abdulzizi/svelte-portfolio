@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { deletePost, getPost, listAllPosts } from '$lib/server/posts';
 import { deleteImage } from '$lib/server/uploads';
+import { UUID } from '$lib/uuid';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
@@ -15,7 +16,7 @@ export const actions: Actions = {
 		if (!locals.admin) throw redirect(303, '/admin/login');
 		const form = await request.formData();
 		const id = form.get('id');
-		if (typeof id !== 'string' || id.length === 0) {
+		if (typeof id !== 'string' || !UUID.test(id)) {
 			return fail(400, { error: 'Missing post id.' });
 		}
 		const row = await getPost(id);

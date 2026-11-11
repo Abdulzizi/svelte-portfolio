@@ -15,12 +15,12 @@ export const projects = pgTable('projects', {
 	rank: integer('rank').notNull().default(0),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
-});
+}).enableRLS();
 
 export const sessions = pgTable('sessions', {
 	id: text('id').primaryKey(),
 	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull()
-});
+}).enableRLS();
 
 // Blog posts (v2.1). Same patterns as projects: body is sanitized TipTap HTML,
 // coverImage is a public Storage URL, published gates public visibility.
@@ -35,7 +35,7 @@ export const posts = pgTable('posts', {
 	publishedAt: timestamp('published_at', { withTimezone: true }),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
-});
+}).enableRLS();
 
 export const messages = pgTable('messages', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -44,7 +44,7 @@ export const messages = pgTable('messages', {
 	body: text('body').notNull(),
 	read: boolean('read').notNull().default(false),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
-});
+}).enableRLS();
 
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;

@@ -11,8 +11,13 @@
 	let dragId = $state<string | null>(null);
 	let status = $state('');
 	let saveSeq = 0;
+	let pending: Promise<void> = Promise.resolve();
 
-	async function save() {
+	function save() {
+		pending = pending.then(send);
+	}
+
+	async function send() {
 		const seq = ++saveSeq;
 		status = 'Saving…';
 		const body = new FormData();

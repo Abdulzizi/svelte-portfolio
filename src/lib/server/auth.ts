@@ -1,7 +1,9 @@
 import { randomBytes } from 'node:crypto';
+import type { Cookies } from '@sveltejs/kit';
 import { eq, lt } from 'drizzle-orm';
 import { verify } from '@node-rs/argon2';
 import { env } from '$env/dynamic/private';
+import { dev } from '$app/environment';
 import { db } from './db';
 import { sessions, type Session } from './db/schema';
 
@@ -52,14 +54,31 @@ export async function createSession(): Promise<{ id: string; expiresAt: Date }> 
 }
 
 /** Return the session if present and unexpired; delete + return null if expired. */
-export async function validateSession(id: string): Promise<Session | null> {
+export async function validateSession(
+	id: string
+): Promise<(Session & { renewed: boolean }) | null> {
 	const [row] = await db.select().from(sessions).where(eq(sessions.id, id)).limit(1);
 	if (!row) return null;
 	if (row.expiresAt.getTime() <= Date.now()) {
 		await destroySession(id);
 		return null;
 	}
-	return row;
+	if (row.expiresAt.getTime() - Date.now() < (ttlDays() * DAY_MS) / 2) {
+		const expiresAt = new Date(Date.now() + ttlDays() * DAY_MS);
+		await db.update(sessions).set({ expiresAt }).where(eq(sessions.id, id));
+		return { ...row, expiresAt, renewed: true };
+	}
+	return { ...row, renewed: false };
+}
+
+export function setSessionCookie(cookies: Cookies, id: string, expiresAt: Date): void {
+	cookies.set(SESSION_COOKIE, id, {
+		path: '/',
+		httpOnly: true,
+		secure: !dev,
+		sameSite: 'lax',
+		expires: expiresAt
+	});
 }
 
 export async function destroySession(id: string): Promise<void> {

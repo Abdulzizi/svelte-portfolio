@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { db } from './db';
 import { messages, type Message, type NewMessage } from './db/schema';
 
@@ -12,8 +12,11 @@ export function listMessages(): Promise<Message[]> {
 }
 
 export async function countUnread(): Promise<number> {
-	const rows = await db.select({ id: messages.id }).from(messages).where(eq(messages.read, false));
-	return rows.length;
+	const [row] = await db
+		.select({ n: sql<number>`count(*)::int` })
+		.from(messages)
+		.where(eq(messages.read, false));
+	return row.n;
 }
 
 export async function setRead(id: string, read: boolean): Promise<void> {

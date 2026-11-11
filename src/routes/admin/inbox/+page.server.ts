@@ -1,10 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { deleteMessage, listMessages, setRead } from '$lib/server/messages';
+import { UUID } from '$lib/uuid';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.admin) throw redirect(303, '/admin/login');

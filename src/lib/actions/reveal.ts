@@ -1,8 +1,8 @@
 import { loadGsap } from '$lib/motion';
+import { QUERY } from '$lib/wide.svelte';
 
 type Options = { selector?: string; stagger?: number };
 
-const WIDE = '(min-width: 1024px) and (min-height: 640px)';
 const ATTRS = ['data-reveal', 'data-reveal-children', 'data-reveal-stacked', 'data-reveal-stacked-children'];
 
 export function reveal(node: HTMLElement, options: Options = {}) {
@@ -20,7 +20,7 @@ export function reveal(node: HTMLElement, options: Options = {}) {
 
 	loadGsap().then((m) => {
 		if (!alive) return;
-		if (!m || (node.hasAttribute('data-reveal-stacked') || node.hasAttribute('data-reveal-stacked-children')) && matchMedia(WIDE).matches) {
+		if (!m || (node.hasAttribute('data-reveal-stacked') || node.hasAttribute('data-reveal-stacked-children')) && matchMedia(QUERY).matches) {
 			show();
 			return;
 		}

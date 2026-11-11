@@ -1,13 +1,12 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { SESSION_COOKIE, destroySession } from '$lib/server/auth';
 import { countUnread } from '$lib/server/messages';
-import { listAllPosts, updatePost } from '$lib/server/posts';
+import { getPost, listAllPosts, updatePost } from '$lib/server/posts';
 import { listRecentProjects, projectCounts } from '$lib/server/projects';
+import { UUID } from '$lib/uuid';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.admin) throw redirect(303, '/admin/login');
@@ -65,8 +64,9 @@ export const actions: Actions = {
 		if (typeof id !== 'string' || !UUID.test(id)) {
 			return fail(400, { error: 'Missing post id.' });
 		}
-		const row = await updatePost(id, { published: true, publishedAt: new Date() });
-		if (!row) return fail(404, { error: 'Not found.' });
+		const post = await getPost(id);
+		if (!post) return fail(404, { error: 'Not found.' });
+		await updatePost(id, { published: true, publishedAt: post.publishedAt ?? new Date() });
 		return { ok: true };
 	}
 };

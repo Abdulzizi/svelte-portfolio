@@ -37,12 +37,23 @@
 		(async () => {
 			const { Editor } = await import('@tiptap/core');
 			const StarterKit = (await import('@tiptap/starter-kit')).default;
-			const Link = (await import('@tiptap/extension-link')).default;
 			const Image = (await import('@tiptap/extension-image')).default;
 			if (destroyed) return;
 			editor = new Editor({
 				element,
-				extensions: [StarterKit, Link.configure({ openOnClick: false }), Image],
+				extensions: [
+					StarterKit.configure({
+						heading: { levels: [2, 3] },
+						blockquote: false,
+						code: false,
+						codeBlock: false,
+						strike: false,
+						underline: false,
+						horizontalRule: false,
+						link: { openOnClick: false }
+					}),
+					Image
+				],
 				content: value,
 				onUpdate: ({ editor: ed }) => {
 					html = ed.getHTML();
