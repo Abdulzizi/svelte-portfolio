@@ -23,7 +23,7 @@ export const sessions = pgTable('sessions', {
 });
 
 // Blog posts (v2.1). Same patterns as projects: body is sanitized TipTap HTML,
-// coverImage is a path into UPLOAD_DIR, published gates public visibility.
+// coverImage is a public Storage URL, published gates public visibility.
 export const posts = pgTable('posts', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	title: text('title').notNull(),

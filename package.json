@@ -15,7 +15,7 @@
     "db:push": "drizzle-kit push"
   },
   "devDependencies": {
-    "@sveltejs/adapter-node": "^5.5.7",
+    "@sveltejs/adapter-vercel": "^6.3.5",
     "@sveltejs/kit": "^2.70.3",
     "@sveltejs/vite-plugin-svelte": "^4.0.4",
     "@tailwindcss/vite": "^4.3.3",
