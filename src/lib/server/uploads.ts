@@ -24,7 +24,8 @@ function publicPrefix(): string {
 }
 
 function authHeader(): Record<string, string> {
-	return { Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` };
+	const key = env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+	return { apikey: key, Authorization: `Bearer ${key}` };
 }
 
 /**
