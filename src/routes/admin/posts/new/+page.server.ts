@@ -2,7 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { postFormValues, postFromFormData, postSchema } from '$lib/validation';
 import type { PostErrors } from '$lib/validation';
 import { createPost, slugExists } from '$lib/server/posts';
-import { sanitizeBody } from '$lib/server/sanitize';
+import { cleanBody } from '$lib/server/sanitize';
 import { resolveImage } from '$lib/server/uploads';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -30,8 +30,7 @@ export const actions: Actions = {
 		}
 
 		// Sanitize body on save (stored-XSS guard). Empty → null.
-		const clean = sanitizeBody(parsed.data.body ?? '');
-		const body = clean.trim() === '' ? null : clean;
+		const body = cleanBody(parsed.data.body);
 
 		const img = await resolveImage(form, null);
 		if ('error' in img) {

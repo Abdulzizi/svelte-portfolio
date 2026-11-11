@@ -21,9 +21,11 @@ export const load: PageServerLoad = async ({ params, url, locals, setHeaders }) 
 	if (!post || (!post.published && !locals.admin)) {
 		throw error(404, 'Post not found');
 	}
-	if (!post.published) {
-		setHeaders({ 'cache-control': 'private, no-store' });
-	}
+	setHeaders({
+		'cache-control': post.published
+			? 'public, max-age=0, s-maxage=60, stale-while-revalidate=300'
+			: 'private, no-store'
+	});
 
 	// Defense-in-depth: body is sanitized on SAVE, but re-sanitize on OUTPUT so a
 	// row written outside the current allowlist can't render unsafe HTML via {@html}.

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { MAX_IMAGE_BYTES } from '$lib/images';
 	import { onMount } from 'svelte';
 
 	let { name = 'body', value = '' }: { name?: string; value?: string } = $props();
@@ -77,7 +78,6 @@
 		syncActive();
 	}
 
-	const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 	let fileInput: HTMLInputElement;
 	let uploading = $state(false);
 	let imageError = $state('');

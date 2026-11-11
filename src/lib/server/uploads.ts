@@ -1,10 +1,10 @@
 import { basename } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { env } from '$env/dynamic/private';
+import { MAX_IMAGE_BYTES } from '$lib/images';
 
 // Server-only. Never import into client code.
 
-const MAX_BYTES = 4 * 1024 * 1024; // 4 MB
 const EXT_BY_MIME: Record<string, string> = {
 	'image/jpeg': '.jpg',
 	'image/png': '.png',
@@ -36,7 +36,7 @@ function authHeader(): Record<string, string> {
 export async function saveImage(file: File): Promise<string> {
 	const ext = EXT_BY_MIME[file.type];
 	if (!ext) throw new Error('Image must be JPEG, PNG, or WebP.');
-	if (file.size > MAX_BYTES) throw new Error('Image must be 4 MB or smaller.');
+	if (file.size > MAX_IMAGE_BYTES) throw new Error('Image must be 4 MB or smaller.');
 
 	const filename = randomUUID() + ext;
 	const res = await fetch(objectUrl(filename), {
@@ -62,6 +62,23 @@ export async function deleteImage(path: string | null): Promise<void> {
 		await fetch(objectUrl(name), { method: 'DELETE', headers: authHeader() });
 	} catch {
 		// missing / already gone — ignore
+	}
+}
+
+export function ownImageUrls(html: string | null): string[] {
+	if (!html) return [];
+	const prefix = publicPrefix();
+	const urls: string[] = [];
+	for (const m of html.matchAll(/<img\b[^>]*?\ssrc="([^"]*)"/g)) {
+		if (m[1].startsWith(prefix)) urls.push(m[1]);
+	}
+	return urls;
+}
+
+export async function deleteRemovedImages(oldBody: string | null, newBody: string | null): Promise<void> {
+	const kept = new Set(ownImageUrls(newBody));
+	for (const url of new Set(ownImageUrls(oldBody))) {
+		if (!kept.has(url)) await deleteImage(url);
 	}
 }
 

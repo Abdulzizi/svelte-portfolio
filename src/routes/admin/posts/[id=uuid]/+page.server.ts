@@ -2,8 +2,8 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { postFormValues, postFromFormData, postSchema } from '$lib/validation';
 import type { PostErrors } from '$lib/validation';
 import { deletePost, getPost, slugExists, updatePost } from '$lib/server/posts';
-import { sanitizeBody } from '$lib/server/sanitize';
-import { deleteImage, resolveImage } from '$lib/server/uploads';
+import { cleanBody } from '$lib/server/sanitize';
+import { deleteImage, deleteRemovedImages, resolveImage } from '$lib/server/uploads';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
@@ -36,8 +36,7 @@ export const actions: Actions = {
 		}
 
 		// Sanitize body on save (stored-XSS guard). Empty → null.
-		const clean = sanitizeBody(parsed.data.body ?? '');
-		const body = clean.trim() === '' ? null : clean;
+		const body = cleanBody(parsed.data.body);
 
 		const img = await resolveImage(form, existing.coverImage);
 		if ('error' in img) {
@@ -62,6 +61,7 @@ export const actions: Actions = {
 			publishedAt
 		});
 		await deleteImage(img.replaced);
+		await deleteRemovedImages(existing.body, body);
 		throw redirect(303, '/admin/posts');
 	},
 
@@ -69,7 +69,10 @@ export const actions: Actions = {
 		if (!locals.admin) throw redirect(303, '/admin/login');
 		const row = await getPost(params.id);
 		await deletePost(params.id);
-		if (row) await deleteImage(row.coverImage);
+		if (row) {
+			await deleteImage(row.coverImage);
+			await deleteRemovedImages(row.body, null);
+		}
 		throw redirect(303, '/admin/posts');
 	}
 };

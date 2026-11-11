@@ -36,3 +36,8 @@ function isOwnImage(src: string | undefined): boolean {
 export function sanitizeBody(dirty: string): string {
 	return sanitizeHtml(dirty, OPTIONS);
 }
+
+export function cleanBody(raw: string | undefined): string | null {
+	const clean = sanitizeBody(raw ?? '');
+	return clean.trim() === '' ? null : clean;
+}

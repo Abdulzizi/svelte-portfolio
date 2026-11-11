@@ -33,8 +33,7 @@ import { reveal } from '$lib/actions/reveal';
 	}
 
 	function goFeat(next: number) {
-		const max = featured.length - 1;
-		feat = Math.max(0, Math.min(max, next));
+		feat = (next + featured.length) % featured.length;
 		openId = null;
 	}
 
@@ -59,8 +58,8 @@ import { reveal } from '$lib/actions/reveal';
 		if (t && t.matches('input, textarea, select')) return;
 
 		if (plane === 0) {
-			if (e.key === 'ArrowRight' && feat < featured.length - 1) { e.preventDefault(); goFeat(feat + 1); }
-			else if (e.key === 'ArrowLeft' && feat > 0) { e.preventDefault(); goFeat(feat - 1); }
+			if (e.key === 'ArrowRight' && multiFeatured) { e.preventDefault(); goFeat(feat + 1); }
+			else if (e.key === 'ArrowLeft' && multiFeatured) { e.preventDefault(); goFeat(feat - 1); }
 			else if (e.key === 'ArrowDown' && hasRest) { e.preventDefault(); switchPlane(1); }
 		} else if (plane === 1 && e.key === 'ArrowUp') {
 			e.preventDefault();
@@ -118,9 +117,9 @@ import { reveal } from '$lib/actions/reveal';
 
 					{#if multiFeatured}
 						<div class="rail-nav">
-							<button type="button" class="nav-btn font-mono" aria-label="Previous project" disabled={feat === 0} onclick={() => goFeat(feat - 1)}>←</button>
+							<button type="button" class="nav-btn font-mono" aria-label="Previous project" onclick={() => goFeat(feat - 1)}>←</button>
 							<span class="count font-mono" aria-live="polite">{String(feat + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}</span>
-							<button type="button" class="nav-btn font-mono" aria-label="Next project" disabled={feat === featured.length - 1} onclick={() => goFeat(feat + 1)}>→</button>
+							<button type="button" class="nav-btn font-mono" aria-label="Next project" onclick={() => goFeat(feat + 1)}>→</button>
 						</div>
 					{/if}
 

@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { deletePost, getPost, listAllPosts } from '$lib/server/posts';
-import { deleteImage } from '$lib/server/uploads';
+import { deleteImage, deleteRemovedImages } from '$lib/server/uploads';
 import { UUID } from '$lib/uuid';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -21,7 +21,10 @@ export const actions: Actions = {
 		}
 		const row = await getPost(id);
 		await deletePost(id);
-		if (row) await deleteImage(row.coverImage);
+		if (row) {
+			await deleteImage(row.coverImage);
+			await deleteRemovedImages(row.body, null);
+		}
 		return { ok: true };
 	}
 };

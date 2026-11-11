@@ -9,8 +9,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.admin = session !== null;
 	event.locals.sessionId = session?.id ?? null;
 
-	const { pathname } = event.url;
-	if (pathname.startsWith('/admin') && pathname !== '/admin/login' && !event.locals.admin) {
+	const route = event.route.id ?? '';
+	if (route.startsWith('/admin') && route !== '/admin/login' && !event.locals.admin) {
 		throw redirect(303, '/admin/login');
 	}
 

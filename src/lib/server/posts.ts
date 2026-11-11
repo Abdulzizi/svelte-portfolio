@@ -4,18 +4,30 @@ import { posts, type NewPost, type Post } from './db/schema';
 
 // Server-only. Never import into client code.
 
+const listColumns = {
+	id: posts.id,
+	title: posts.title,
+	slug: posts.slug,
+	excerpt: posts.excerpt,
+	coverImage: posts.coverImage,
+	published: posts.published,
+	publishedAt: posts.publishedAt,
+	createdAt: posts.createdAt,
+	updatedAt: posts.updatedAt
+};
+
 /** Published posts for public use: newest published first, nulls last, then newest created. */
-export function listPublished(): Promise<Post[]> {
+export function listPublished() {
 	return db
-		.select()
+		.select(listColumns)
 		.from(posts)
 		.where(eq(posts.published, true))
 		.orderBy(sql`${posts.publishedAt} desc nulls last`, desc(posts.createdAt));
 }
 
 /** All posts for the admin list: newest created first. */
-export function listAllPosts(): Promise<Post[]> {
-	return db.select().from(posts).orderBy(desc(posts.createdAt));
+export function listAllPosts() {
+	return db.select(listColumns).from(posts).orderBy(desc(posts.createdAt));
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {

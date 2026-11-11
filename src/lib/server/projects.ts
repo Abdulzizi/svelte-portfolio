@@ -12,24 +12,6 @@ export function listAll(): Promise<Project[]> {
 		.orderBy(desc(projects.featured), asc(projects.rank), asc(projects.createdAt));
 }
 
-/** Featured projects, rank-ordered (step 6: featured rail). */
-export function listFeatured(): Promise<Project[]> {
-	return db
-		.select()
-		.from(projects)
-		.where(eq(projects.featured, true))
-		.orderBy(asc(projects.rank), asc(projects.createdAt));
-}
-
-/** Non-featured projects, rank-ordered (step 6: "the rest" plane). */
-export function listRest(): Promise<Project[]> {
-	return db
-		.select()
-		.from(projects)
-		.where(eq(projects.featured, false))
-		.orderBy(asc(projects.rank), asc(projects.createdAt));
-}
-
 export async function getProject(id: string): Promise<Project | null> {
 	const [row] = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
 	return row ?? null;
@@ -80,9 +62,9 @@ export async function reorderProjects(ids: string[]): Promise<boolean> {
 		const known = new Set(existing.map((r) => r.id));
 		if (ids.length !== known.size || new Set(ids).size !== ids.length) return false;
 		if (!ids.every((id) => known.has(id))) return false;
-		for (let i = 0; i < ids.length; i++) {
-			await tx.update(projects).set({ rank: i }).where(eq(projects.id, ids[i]));
-		}
+		await tx.execute(
+			sql`update projects set rank = array_position(${sql.param(ids)}::uuid[], id) - 1 where id = any(${sql.param(ids)}::uuid[])`
+		);
 		return true;
 	});
 }

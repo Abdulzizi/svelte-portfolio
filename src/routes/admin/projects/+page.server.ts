@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { deleteProject, getProject, listAll, reorderProjects, updateProject } from '$lib/server/projects';
-import { deleteImage } from '$lib/server/uploads';
+import { deleteImage, deleteRemovedImages } from '$lib/server/uploads';
 import { UUID } from '$lib/uuid';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -8,7 +8,7 @@ export const prerender = false;
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.admin) throw redirect(303, '/admin/login');
-	return { projects: await listAll() };
+	return { projects: (await listAll()).map(({ body, ...p }) => p) };
 };
 
 export const actions: Actions = {
@@ -21,7 +21,10 @@ export const actions: Actions = {
 		}
 		const row = await getProject(id);
 		await deleteProject(id);
-		if (row) await deleteImage(row.imagePath);
+		if (row) {
+			await deleteImage(row.imagePath);
+			await deleteRemovedImages(row.body, null);
+		}
 		return { ok: true };
 	},
 

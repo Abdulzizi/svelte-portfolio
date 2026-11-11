@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { MAX_IMAGE_BYTES } from '$lib/images';
 	import { enhance } from '$app/forms';
 	import RichEditor from '$lib/components/RichEditor.svelte';
 	import type { ActionData, PageData } from './$types';
@@ -35,7 +36,7 @@
 	novalidate
 	use:enhance={({ formData, cancel }) => {
 		const img = formData.get('image');
-		if (img instanceof File && img.size > 4 * 1024 * 1024) {
+		if (img instanceof File && img.size > MAX_IMAGE_BYTES) {
 			sizeError = 'Image must be 4 MB or smaller.';
 			cancel();
 			return;

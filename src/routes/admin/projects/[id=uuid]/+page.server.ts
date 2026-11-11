@@ -2,8 +2,8 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { projectFormValues, projectFromFormData, projectSchema } from '$lib/validation';
 import type { ProjectErrors } from '$lib/validation';
 import { deleteProject, getProject, updateProject } from '$lib/server/projects';
-import { sanitizeBody } from '$lib/server/sanitize';
-import { deleteImage, resolveImage } from '$lib/server/uploads';
+import { cleanBody } from '$lib/server/sanitize';
+import { deleteImage, deleteRemovedImages, resolveImage } from '$lib/server/uploads';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
@@ -30,8 +30,7 @@ export const actions: Actions = {
 		if (!existing) throw error(404, 'Project not found');
 
 		// Sanitize body on save (stored-XSS guard). Empty → null.
-		const clean = sanitizeBody(parsed.data.body ?? '');
-		const body = clean.trim() === '' ? null : clean;
+		const body = cleanBody(parsed.data.body);
 
 		const img = await resolveImage(form, existing.imagePath);
 		if ('error' in img) {
@@ -42,6 +41,7 @@ export const actions: Actions = {
 		const { body: _body, ...scalars } = parsed.data;
 		await updateProject(params.id, { ...scalars, body, imagePath: img.path });
 		await deleteImage(img.replaced);
+		await deleteRemovedImages(existing.body, body);
 		throw redirect(303, '/admin/projects');
 	},
 
@@ -49,7 +49,10 @@ export const actions: Actions = {
 		if (!locals.admin) throw redirect(303, '/admin/login');
 		const row = await getProject(params.id);
 		await deleteProject(params.id);
-		if (row) await deleteImage(row.imagePath);
+		if (row) {
+			await deleteImage(row.imagePath);
+			await deleteRemovedImages(row.body, null);
+		}
 		throw redirect(303, '/admin/projects');
 	}
 };
