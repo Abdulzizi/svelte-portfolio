@@ -1,4 +1,7 @@
-import { eq } from 'drizzle-orm';
+import { createCipheriv, createDecipheriv, createHash, randomBytes, randomInt } from 'node:crypto';
+import { hash, verify } from '@node-rs/argon2';
+import { eq, sql } from 'drizzle-orm';
+import { env } from '$env/dynamic/private';
 import * as OTPAuth from 'otpauth';
 import QRCode from 'qrcode';
 import { db } from './db';
@@ -39,19 +42,120 @@ export function qrDataUrl(secret: string): Promise<string> {
 	return QRCode.toDataURL(otpauthUri(secret), { margin: 1, width: 220 });
 }
 
-export async function getTotp(): Promise<{ enabled: boolean; secret: string | null }> {
-	const [row] = await db.select().from(adminSecurity).where(eq(adminSecurity.id, ID));
-	return { enabled: !!row?.totpEnabled && !!row.totpSecret, secret: row?.totpSecret ?? null };
+const PREFIX = 'enc:v1:';
+const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const CODE_COUNT = 8;
+
+function encKey(): Buffer | null {
+	const k = env.TOTP_ENCRYPTION_KEY;
+	return k ? createHash('sha256').update(k).digest() : null;
 }
 
-export async function enableTotp(secret: string): Promise<void> {
-	const set = { totpSecret: secret, totpEnabled: true, updatedAt: new Date() };
+export function encryptionConfigured(): boolean {
+	return encKey() !== null;
+}
+
+function seal(secret: string): string {
+	const key = encKey();
+	if (!key) return secret;
+	const iv = randomBytes(12);
+	const cipher = createCipheriv('aes-256-gcm', key, iv);
+	const ct = Buffer.concat([cipher.update(secret, 'utf8'), cipher.final()]);
+	return `${PREFIX}${iv.toString('base64')}:${cipher.getAuthTag().toString('base64')}:${ct.toString('base64')}`;
+}
+
+function unseal(stored: string): string | null {
+	if (!stored.startsWith(PREFIX)) return stored;
+	const key = encKey();
+	if (!key) {
+		console.error('totp: stored secret is encrypted but TOTP_ENCRYPTION_KEY is not set');
+		return null;
+	}
+	try {
+		const [iv, tag, ct] = stored.slice(PREFIX.length).split(':').map((p) => Buffer.from(p, 'base64'));
+		const decipher = createDecipheriv('aes-256-gcm', key, iv);
+		decipher.setAuthTag(tag);
+		return Buffer.concat([decipher.update(ct), decipher.final()]).toString('utf8');
+	} catch {
+		console.error('totp: failed to decrypt stored secret (wrong TOTP_ENCRYPTION_KEY?)');
+		return null;
+	}
+}
+
+export async function getTotp(): Promise<{ enabled: boolean; secret: string | null; error: boolean }> {
+	const [row] = await db.select().from(adminSecurity).where(eq(adminSecurity.id, ID));
+	const enabled = !!row?.totpEnabled && !!row.totpSecret;
+	if (!enabled) return { enabled: false, secret: null, error: false };
+	const secret = unseal(row!.totpSecret!);
+	return { enabled: true, secret, error: secret === null };
+}
+
+function newCodes(): string[] {
+	return Array.from({ length: CODE_COUNT }, () => {
+		const c = Array.from({ length: 10 }, () => ALPHABET[randomInt(ALPHABET.length)]).join('');
+		return `${c.slice(0, 5)}-${c.slice(5)}`;
+	});
+}
+
+function normalizeCode(code: string): string {
+	return code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
+async function hashCodes(codes: string[]): Promise<string[]> {
+	return Promise.all(codes.map((c) => hash(normalizeCode(c))));
+}
+
+export async function enableTotp(secret: string): Promise<string[]> {
+	const codes = newCodes();
+	const set = {
+		totpSecret: seal(secret),
+		totpEnabled: true,
+		recoveryCodes: await hashCodes(codes),
+		updatedAt: new Date()
+	};
 	await db.insert(adminSecurity).values({ id: ID, ...set }).onConflictDoUpdate({ target: adminSecurity.id, set });
+	return codes;
+}
+
+export async function regenerateRecoveryCodes(): Promise<string[]> {
+	const codes = newCodes();
+	await db
+		.update(adminSecurity)
+		.set({ recoveryCodes: await hashCodes(codes), updatedAt: new Date() })
+		.where(eq(adminSecurity.id, ID));
+	return codes;
+}
+
+export async function consumeRecoveryCode(code: string): Promise<boolean> {
+	const norm = normalizeCode(code);
+	if (norm.length !== 10) return false;
+	const [row] = await db.select({ codes: adminSecurity.recoveryCodes }).from(adminSecurity).where(eq(adminSecurity.id, ID));
+	for (const h of row?.codes ?? []) {
+		let ok = false;
+		try {
+			ok = await verify(h, norm);
+		} catch {
+			ok = false;
+		}
+		if (!ok) continue;
+		const removed = await db
+			.update(adminSecurity)
+			.set({ recoveryCodes: sql`array_remove(${adminSecurity.recoveryCodes}, ${h})` })
+			.where(sql`${adminSecurity.id} = ${ID} and ${h} = any(${adminSecurity.recoveryCodes})`)
+			.returning({ id: adminSecurity.id });
+		return removed.length === 1;
+	}
+	return false;
+}
+
+export async function verifySecondFactor(secret: string, code: string): Promise<boolean> {
+	if (/^\d{6}$/.test(code)) return verifyCode(secret, code);
+	return consumeRecoveryCode(code);
 }
 
 export async function disableTotp(): Promise<void> {
 	await db
 		.update(adminSecurity)
-		.set({ totpSecret: null, totpEnabled: false, updatedAt: new Date() })
+		.set({ totpSecret: null, totpEnabled: false, recoveryCodes: [], updatedAt: new Date() })
 		.where(eq(adminSecurity.id, ID));
 }

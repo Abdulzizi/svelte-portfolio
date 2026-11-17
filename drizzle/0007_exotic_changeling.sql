@@ -1,0 +1,1 @@
+ALTER TABLE "admin_security" ADD COLUMN "recovery_codes" text[] DEFAULT '{}' NOT NULL;

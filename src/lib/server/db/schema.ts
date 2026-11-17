@@ -75,6 +75,7 @@ export const adminSecurity = pgTable('admin_security', {
 	id: text('id').primaryKey().default('admin'),
 	totpSecret: text('totp_secret'),
 	totpEnabled: boolean('totp_enabled').notNull().default(false),
+	recoveryCodes: text('recovery_codes').array().notNull().default([]),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 }).enableRLS();
 

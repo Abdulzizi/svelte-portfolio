@@ -53,15 +53,13 @@
 
 			{#if form?.needCode}
 				<label class="field" for="code">
-					<span>Authenticator code</span>
+					<span>Authenticator or recovery code</span>
 					<input
 						id="code"
 						name="code"
 						type="text"
-						inputmode="numeric"
 						autocomplete="one-time-code"
-						pattern="[0-9]*"
-						maxlength="6"
+						maxlength="12"
 						required
 					/>
 				</label>

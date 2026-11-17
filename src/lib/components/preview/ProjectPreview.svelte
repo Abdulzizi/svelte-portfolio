@@ -11,10 +11,8 @@
 	const field = (n: string) => f[n] ?? '';
 	const list = (s: string) => s.split(/[\n,]/).map((x) => x.trim()).filter(Boolean);
 	const lines = (s: string) => s.split('\n').map((x) => x.trim()).filter(Boolean);
-	const bodyText = $derived(
-		new DOMParser().parseFromString(field('body').replace(/<\/(p|h2|h3|li)>/g, '$&\n'), 'text/html').body
-			.textContent?.trim() ?? ''
-	);
+	let purify = $state.raw<((html: string) => string) | null>(null);
+	const bodyHtml = $derived(purify && field('body') ? purify(field('body')) : '');
 	const isExp = $derived(field('kind') === 'experience');
 
 	function read() {
@@ -32,6 +30,22 @@
 	onMount(() => {
 		open = matchMedia('(min-width: 1024px)').matches;
 		read();
+		import('dompurify').then(({ default: DOMPurify }) => {
+			DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+				if (node.tagName === 'A') node.setAttribute('rel', 'noopener noreferrer');
+				if (node.tagName === 'IMG') {
+					if (!/^https:\/\//i.test(node.getAttribute('src') ?? '')) node.remove();
+					else node.setAttribute('loading', 'lazy');
+				}
+			});
+			purify = (html) =>
+				DOMPurify.sanitize(html, {
+					ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'b', 'i', 'ul', 'ol', 'li', 'h2', 'h3', 'a', 'img'],
+					ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'loading'],
+					ALLOWED_URI_REGEXP: /^(?:https?|mailto):/i,
+					ALLOW_DATA_ATTR: false
+				});
+		});
 	});
 </script>
 
@@ -43,7 +57,7 @@
 		</button>
 		{#if open}
 			<p class="note font-mono">
-				{isExp ? 'Experience entry' : 'Case study'} preview{#if !isExp} · body shown as plain text{/if}
+				{isExp ? 'Experience entry' : 'Case study'} preview{#if !isExp} · body sanitized like the public page{/if}
 			</p>
 			{#if isExp}
 				<div class="entry">
@@ -72,7 +86,7 @@
 					<section class="sec"><h3 class="font-mono">Problem</h3><p>{field('problem')}</p></section>
 					<section class="sec"><h3 class="font-mono">Impact</h3><p class="impact">{field('impact')}</p></section>
 					<section class="sec"><h3 class="font-mono">Result</h3><p>{field('result')}</p></section>
-					{#if bodyText}<div class="body">{bodyText}</div>{/if}
+					{#if bodyHtml}<div class="body">{@html bodyHtml}</div>{/if}
 				</article>
 			{/if}
 		{/if}
@@ -206,8 +220,29 @@
 		border-top: 1px solid var(--line);
 		color: var(--ink-dim);
 		line-height: 1.7;
-		white-space: pre-line;
 		overflow-wrap: anywhere;
+	}
+	.body :global(a) {
+		color: var(--accent);
+		text-decoration: underline;
+	}
+	.body :global(h2),
+	.body :global(h3) {
+		color: var(--ink);
+		font-family: var(--font-hand);
+		font-weight: 800;
+		margin: 1rem 0 0.25rem;
+	}
+	.body :global(ul),
+	.body :global(ol) {
+		margin: 0.5rem 0 0.5rem 1.25rem;
+	}
+	.body :global(img) {
+		display: block;
+		max-width: 100%;
+		height: auto;
+		border: 1px solid var(--line);
+		margin: 1rem 0;
 	}
 	.entry {
 		display: grid;

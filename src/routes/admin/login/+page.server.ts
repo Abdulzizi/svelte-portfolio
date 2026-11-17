@@ -2,7 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema } from '$lib/validation';
 import { createSession, setSessionCookie, verifyAdmin } from '$lib/server/auth';
 import { checkRateLimit, clientKey } from '$lib/server/rate-limit';
-import { getTotp, verifyCode } from '$lib/server/totp';
+import { getTotp, verifySecondFactor } from '$lib/server/totp';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
@@ -30,16 +30,19 @@ export const actions: Actions = {
 			return fail(400, { error: 'Invalid credentials', email });
 		}
 
-		let totp: Awaited<ReturnType<typeof getTotp>> = { enabled: false, secret: null };
+		let totp: Awaited<ReturnType<typeof getTotp>> = { enabled: false, secret: null, error: false };
 		try {
 			totp = await getTotp();
 		} catch {
 			return fail(500, { error: 'Sign in unavailable, try again later', email });
 		}
+		if (totp.error) {
+			return fail(500, { error: 'Sign in unavailable, try again later', email });
+		}
 		if (totp.enabled && totp.secret) {
 			const code = String(form.get('code') ?? '').trim();
 			if (!code) return fail(400, { needCode: true, email });
-			if (!verifyCode(totp.secret, code)) {
+			if (!(await verifySecondFactor(totp.secret, code))) {
 				return fail(400, { needCode: true, error: 'Invalid credentials', email });
 			}
 		}
