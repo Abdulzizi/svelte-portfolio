@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { cubicOut } from 'svelte/easing';
+	import { magnetic } from '$lib/actions/magnetic';
 	// Flips data-theme and persists to localStorage under the key app.html reads on load.
 	// SSR/prerender: start from the attribute the inline script already set, so no flash.
 	const KEY = 'aj-theme';
@@ -44,6 +45,7 @@
 	type="button"
 	class="toggle font-mono"
 	data-chrome
+	use:magnetic
 	onclick={toggle}
 	aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
 	aria-pressed={theme === 'light'}

@@ -30,9 +30,12 @@ export const actions: Actions = {
 		if (!existing) throw error(404, 'Project not found');
 
 		// Sanitize body on save (stored-XSS guard). Empty → null.
-		const body = cleanBody(parsed.data.body);
+		const isExp = parsed.data.kind === 'experience';
+		const body = isExp ? null : cleanBody(parsed.data.body);
 
-		const img = await resolveImage(form, existing.imagePath);
+		const img = isExp
+			? { path: null, replaced: existing.imagePath }
+			: await resolveImage(form, existing.imagePath);
 		if ('error' in img) {
 			const errors: ProjectErrors = { image: [img.error] };
 			return fail(400, { errors, values: projectFormValues(form) });

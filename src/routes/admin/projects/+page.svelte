@@ -42,7 +42,7 @@
 	}
 
 	function move(from: number, to: number) {
-		if (from === to || to < 0 || to >= items.length || items[from]?.featured !== items[to].featured) return;
+		if (from === to || to < 0 || to >= items.length || items[from]?.featured !== items[to].featured || items[from].kind !== items[to].kind) return;
 		const next = [...items];
 		const [item] = next.splice(from, 1);
 		next.splice(to, 0, item);
@@ -110,7 +110,10 @@
 				>
 					⋮⋮
 				</button>
-				<a href={`/admin/projects/${p.id}`} class="title">{p.title}</a>
+				<span class="titlecell">
+					<a href={`/admin/projects/${p.id}`} class="title">{p.title}</a>
+					<span class="badge font-mono" class:exp={p.kind === 'experience'}>{p.kind === 'experience' ? 'Experience' : 'Project'}</span>
+				</span>
 				<span class="meta font-mono">{p.year}</span>
 				<span class="meta font-mono stack">{p.stack.join(' · ')}</span>
 				<span class="meta font-mono">{p.rank}</span>
@@ -126,7 +129,7 @@
 						type="button"
 						class="act font-mono"
 						aria-label={`Move ${p.title} up`}
-						disabled={i === 0 || items[i - 1].featured !== p.featured}
+						disabled={i === 0 || items[i - 1].featured !== p.featured || items[i - 1].kind !== p.kind}
 						onclick={() => move(i, i - 1)}
 					>
 						Up
@@ -135,7 +138,7 @@
 						type="button"
 						class="act font-mono"
 						aria-label={`Move ${p.title} down`}
-						disabled={i === items.length - 1 || items[i + 1].featured !== p.featured}
+						disabled={i === items.length - 1 || items[i + 1].featured !== p.featured || items[i + 1].kind !== p.kind}
 						onclick={() => move(i, i + 1)}
 					>
 						Down
@@ -253,6 +256,25 @@
 		transition: color 0.2s ease;
 	}
 	.title:hover {
+		color: var(--accent);
+	}
+	.titlecell {
+		display: flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: 0.25rem 0.6rem;
+		min-width: 0;
+	}
+	.badge {
+		font-size: 0.5625rem;
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+		border: 1px solid var(--line);
+		color: var(--ink-dim);
+		padding: 0.1rem 0.4rem;
+	}
+	.badge.exp {
+		border-color: var(--accent);
 		color: var(--accent);
 	}
 	.meta {

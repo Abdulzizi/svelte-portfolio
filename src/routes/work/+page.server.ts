@@ -1,4 +1,4 @@
-import { listAll } from '$lib/server/projects';
+import { listByKind } from '$lib/server/projects';
 import { sanitizeBody } from '$lib/server/sanitize';
 import type { Project } from '$lib/server/db/schema';
 import type { PageServerLoad } from './$types';
@@ -20,15 +20,16 @@ export const load: PageServerLoad = async ({ setHeaders }) => {
 	// instead of throwing a raw 500 — the public page still renders its frame + a
 	// quiet message. Do NOT rethrow.
 	try {
-		const all = await listAll();
+		const [all, exp] = await Promise.all([listByKind('project'), listByKind('experience')]);
 		setHeaders({ 'cache-control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=300' });
 		return {
 			featured: all.filter((p) => p.featured).map(sanitizeProject),
 			rest: all.filter((p) => !p.featured).map(sanitizeProject),
+			experience: exp,
 			loadError: false
 		};
 	} catch (err) {
 		console.error('work load failed', err);
-		return { featured: [], rest: [], loadError: true };
+		return { featured: [], rest: [], experience: [], loadError: true };
 	}
 };

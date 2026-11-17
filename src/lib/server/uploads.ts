@@ -97,3 +97,34 @@ export async function resolveImage(
 	if (form.get('removeImage') === 'on') return { path: null, replaced: current };
 	return { path: current, replaced: null };
 }
+
+const CV_OBJECT = 'cv/cv.pdf';
+export const MAX_CV_BYTES = 4 * 1024 * 1024;
+
+export function cvPublicUrl(): string {
+	return publicPrefix() + CV_OBJECT;
+}
+
+export async function cvInfo(): Promise<{ size: number | null; updated: string | null } | null> {
+	try {
+		const res = await fetch(cvPublicUrl(), { method: 'HEAD', cache: 'no-store' });
+		if (!res.ok) return null;
+		const len = Number(res.headers.get('content-length'));
+		return { size: len > 0 ? len : null, updated: res.headers.get('last-modified') };
+	} catch {
+		return null;
+	}
+}
+
+export async function saveCv(file: File): Promise<void> {
+	if (file.type !== 'application/pdf') throw new Error('CV must be a PDF.');
+	if (file.size > MAX_CV_BYTES) throw new Error('CV must be 4 MB or smaller.');
+	const bytes = Buffer.from(await file.arrayBuffer());
+	if (bytes.subarray(0, 5).toString('latin1') !== '%PDF-') throw new Error('File is not a valid PDF.');
+	const res = await fetch(objectUrl(CV_OBJECT), {
+		method: 'POST',
+		headers: { ...authHeader(), 'Content-Type': 'application/pdf', 'x-upsert': 'true' },
+		body: bytes
+	});
+	if (!res.ok) throw new Error(`CV upload failed (${res.status}).`);
+}

@@ -11,21 +11,32 @@ export const loginSchema = z.object({
 // Step 5: body is raw TipTap HTML — validated as optional string here, then
 // sanitized server-side AFTER safeParse (zod does not sanitize). The image File
 // is handled separately in the action, never through zod.
-export const projectSchema = z.object({
-	title: z.string().min(1, 'Required'),
-	role: z.string().min(1, 'Required'),
-	year: z.string().min(1, 'Required'),
-	// Form sends a comma/newline-separated string; projectFromFormData splits it to
-	// a trimmed, blank-free string[] before this runs. Guard empty here.
-	stack: z.array(z.string().min(1)).min(1, 'At least one stack entry'),
-	impact: z.string().min(1, 'Required'),
-	problem: z.string().min(1, 'Required'),
-	result: z.string().min(1, 'Required'),
-	body: z.string().optional(),
-	featured: z.boolean().default(false),
-	rank: z.number().int().default(0)
-});
-
+export const projectSchema = z
+	.object({
+		kind: z.enum(['project', 'experience']),
+		company: z.string().optional(),
+		title: z.string().min(1, 'Required'),
+		role: z.string().min(1, 'Required'),
+		year: z.string().min(1, 'Required'),
+		stack: z.array(z.string().min(1)).min(1, 'At least one stack entry'),
+		impact: z.string().min(1, 'Required'),
+		problem: z.string().optional(),
+		result: z.string().optional(),
+		body: z.string().optional(),
+		featured: z.boolean().default(false),
+		rank: z.number().int().default(0)
+	})
+	.superRefine((d, ctx) => {
+		const need = d.kind === 'experience' ? (['company'] as const) : (['problem', 'result'] as const);
+		for (const k of need) {
+			if (!d[k]?.trim()) ctx.addIssue({ code: 'custom', path: [k], message: 'Required' });
+		}
+	})
+	.transform((d) =>
+		d.kind === 'experience'
+			? { ...d, company: d.company!.trim(), problem: '', result: '', body: undefined, featured: false }
+			: { ...d, company: null, problem: d.problem!, result: d.result! }
+	);
 
 /** Split a comma/newline-separated string into trimmed, non-empty parts. */
 export function splitStack(raw: FormDataEntryValue | null): string[] {
@@ -45,6 +56,8 @@ export function projectFromFormData(form: FormData): unknown {
 	const rankRaw = form.get('rank');
 	const rankNum = typeof rankRaw === 'string' && rankRaw.trim() !== '' ? Number(rankRaw) : 0;
 	return {
+		kind: form.get('kind') ?? '',
+		company: form.get('company') ?? '',
 		title: form.get('title') ?? '',
 		role: form.get('role') ?? '',
 		year: form.get('year') ?? '',
@@ -68,6 +81,8 @@ export type ProjectErrors = Record<string, string[] | undefined>;
  */
 export function projectFormValues(form: FormData) {
 	return {
+		kind: String(form.get('kind') ?? 'project'),
+		company: String(form.get('company') ?? ''),
 		title: String(form.get('title') ?? ''),
 		role: String(form.get('role') ?? ''),
 		year: String(form.get('year') ?? ''),

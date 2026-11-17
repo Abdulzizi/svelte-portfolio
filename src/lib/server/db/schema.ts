@@ -3,6 +3,8 @@ import { pgTable, uuid, text, boolean, integer, timestamp } from 'drizzle-orm/pg
 export const projects = pgTable('projects', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	title: text('title').notNull(),
+	kind: text('kind', { enum: ['project', 'experience'] }).notNull().default('project'),
+	company: text('company'),
 	role: text('role').notNull(),
 	year: text('year').notNull(),
 	stack: text('stack').array().notNull().default([]),

@@ -6,6 +6,7 @@
 	import MotionToggle from '$lib/components/MotionToggle.svelte';
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
 	import Cursor from '$lib/components/Cursor.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import { motionPref, motionOff } from '$lib/motion-pref.svelte';
 	import { startSmoothScroll } from '$lib/smooth-scroll';
 	import { page } from '$app/state';
@@ -26,10 +27,25 @@
 		const from = navigation.from?.url.pathname ?? '';
 		const to = navigation.to?.url.pathname ?? '';
 		if (from.startsWith('/admin') || to.startsWith('/admin')) return;
+		const target = from === '/' ? to.slice(1) : '';
+		const title = ['work', 'connect', 'about', 'blog'].includes(target)
+			? document.querySelector<HTMLElement>(`#${target} .grid-title`)
+			: null;
+		if (title) title.style.viewTransitionName = 'title-morph';
 		return new Promise<void>((resolve) => {
-			document.startViewTransition(async () => {
+			const transition = document.startViewTransition(async () => {
 				resolve();
 				await navigation.complete;
+				if (title) {
+					title.style.viewTransitionName = '';
+					const h1 = document.querySelector<HTMLElement>('h1');
+					if (h1) h1.style.viewTransitionName = 'title-morph';
+				}
+			});
+			transition.finished.finally(() => {
+				if (title) title.style.viewTransitionName = '';
+				const h1 = document.querySelector<HTMLElement>('h1');
+				if (h1) h1.style.viewTransitionName = '';
 			});
 		});
 	});
@@ -46,6 +62,7 @@
 	<MotionToggle />
 	<CommandPalette />
 	<Cursor />
+	<Seo />
 </div>
 
 <style>

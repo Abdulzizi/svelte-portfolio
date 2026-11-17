@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { reveal } from '$lib/actions/reveal';
+	import { magnetic } from '$lib/actions/magnetic';
 	import SlidePage from '$lib/components/SlidePage.svelte';
 	import type { ActionData } from './$types';
 
@@ -97,7 +98,7 @@
 							</div>
 
 							<div class="flex items-center gap-4">
-								<button type="submit" class="send font-hand font-extrabold" disabled={sending}>
+								<button type="submit" use:magnetic class="send font-hand font-extrabold" disabled={sending}>
 									{sending ? 'Sending' : 'Send'}
 								</button>
 								<p role="status" aria-live="polite" class="text-sm">

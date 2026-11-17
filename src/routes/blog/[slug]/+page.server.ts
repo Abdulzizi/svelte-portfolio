@@ -32,5 +32,5 @@ export const load: PageServerLoad = async ({ params, url, locals, setHeaders }) 
 	// og:image must be an absolute URL for social scrapers — resolve against origin.
 	const ogImage = post.coverImage ? new URL(post.coverImage, url.origin).href : null;
 	const body = post.body ? sanitizeBody(post.body) : null;
-	return { post: { ...post, body }, ogImage, minutes: readingTime(body ?? post.excerpt), draft: !post.published };
+	return { post: { ...post, body }, ogImage, minutes: readingTime(body ?? post.excerpt), draft: !post.published, og: { title: post.title, description: post.excerpt } };
 };

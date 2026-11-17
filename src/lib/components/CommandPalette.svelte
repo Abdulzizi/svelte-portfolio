@@ -5,7 +5,7 @@
 	import { tick } from 'svelte';
 	import { lockScroll } from '$lib/smooth-scroll';
 
-	type Item = { id: string; label: string; hint: string; run: () => void };
+	type Item = { id: string; label: string; hint: string; keep?: boolean; run: () => void };
 
 	let open = $state(false);
 	let query = $state('');
@@ -15,6 +15,35 @@
 	let input = $state<HTMLInputElement>();
 	let returnTo: HTMLElement | null = null;
 	let lastPath = '';
+
+	const EMAIL = 'jawadabdul307@gmail.com';
+	let copied = $state(false);
+	let copyTimer: ReturnType<typeof setTimeout> | undefined;
+
+	async function copyEmail() {
+		try {
+			await navigator.clipboard.writeText(EMAIL);
+		} catch {
+			const t = document.createElement('textarea');
+			t.value = EMAIL;
+			t.style.position = 'fixed';
+			t.style.opacity = '0';
+			document.body.appendChild(t);
+			t.select();
+			try {
+				document.execCommand('copy');
+			} finally {
+				t.remove();
+			}
+		}
+		copied = true;
+		clearTimeout(copyTimer);
+		copyTimer = setTimeout(() => (copied = false), 1200);
+	}
+
+	function openTab(href: string) {
+		window.open(href, '_blank', 'noopener');
+	}
 
 	const hidden = $derived(page.url.pathname.startsWith('/admin'));
 
@@ -60,6 +89,25 @@
 			label: motionPref.off ? 'Turn motion on' : 'Turn motion off',
 			hint: 'Action',
 			run: () => motionPref.toggle()
+		},
+		{ id: 'copy-email', label: 'Copy email', hint: 'Action', keep: true, run: copyEmail },
+		{
+			id: 'github',
+			label: 'Open GitHub',
+			hint: 'Action',
+			run: () => openTab('https://github.com/Abdulzizi')
+		},
+		{
+			id: 'linkedin',
+			label: 'Open LinkedIn',
+			hint: 'Action',
+			run: () => openTab('https://www.linkedin.com/in/abduljawadazizi07/')
+		},
+		{
+			id: 'cv',
+			label: 'Download CV',
+			hint: 'Action',
+			run: () => openTab('/cv')
 		},
 		...posts.map((p) => ({
 			id: `post-${p.slug}`,
@@ -140,7 +188,7 @@
 	function choose(item: Item | undefined) {
 		if (!item) return;
 		const nav = item.id.startsWith('page-') || item.id.startsWith('post-');
-		close(!nav);
+		if (!item.keep) close(!nav);
 		item.run();
 	}
 
@@ -214,7 +262,7 @@
 						onkeydown={(e) => e.key === 'Enter' && choose(item)}
 					>
 						<span class="label">{#each parts(item.label, idx) as p}{#if p.m}<mark>{p.t}</mark>{:else}{p.t}{/if}{/each}</span>
-						<span class="chip font-mono">{item.hint}</span>
+						<span class="chip font-mono">{item.id === 'copy-email' && copied ? 'Copied' : item.hint}</span>
 					</li>
 				{:else}
 					<li class="empty" role="presentation">No results</li>

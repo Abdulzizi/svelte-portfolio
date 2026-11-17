@@ -57,7 +57,7 @@
 						<p class="mt-3 text-[var(--ink-dim)]">
 							Often stronger across the stack than a specialist is in any single layer.
 						</p>
-						<a class="resume font-hand font-extrabold" href="/abdul-jawad-azizi-cv.pdf" target="_blank" rel="noopener noreferrer">
+						<a class="resume font-hand font-extrabold" href="/cv" target="_blank" rel="noopener noreferrer">
 							Résumé
 							<!-- Phosphor arrow-up-right (MIT): opens externally. -->
 							<svg class="icon-nudge" viewBox="0 0 256 256" width="18" height="18" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

@@ -7,6 +7,8 @@
 	//  on-screen prev/next, and a plane switcher all drive the same state.
 	//  One viewport, no scroll on lg+ tall; stacks + scrolls below.
 	import { tick } from 'svelte';
+	import { page } from '$app/state';
+	import { replaceState } from '$app/navigation';
 	import { useWide } from '$lib/wide.svelte';
 import { reveal } from '$lib/actions/reveal';
 	import ImageDistort from '$lib/components/ImageDistort.svelte';
@@ -17,6 +19,9 @@ import { reveal } from '$lib/actions/reveal';
 	const wideState = useWide();
 	const wide = $derived(wideState.current);
 
+	const TABS = ['projects', 'experience'] as const;
+	type Tab = (typeof TABS)[number];
+
 	let plane = $state(0); // 0 = featured rail, 1 = the rest
 	let feat = $state(0); // which featured card is centred
 	let openId = $state<string | null>(null); // which spec sheet is developed (one at a time)
@@ -25,6 +30,17 @@ import { reveal } from '$lib/actions/reveal';
 	const rest = $derived(data.rest);
 	const hasRest = $derived(rest.length > 0);
 	const hasFeatured = $derived(featured.length > 0);
+	const experience = $derived(data.experience);
+	const hasProjects = $derived(hasFeatured || hasRest);
+	const hasExperience = $derived(experience.length > 0);
+	const showTabs = $derived(hasProjects && hasExperience);
+	const activeTab = $derived<Tab>(
+		!hasProjects && hasExperience
+			? 'experience'
+			: hasExperience && page.url.searchParams.get('tab') === 'experience'
+				? 'experience'
+				: 'projects'
+	);
 	const multiFeatured = $derived(featured.length > 1);
 	// Clamp centred index so a stale/large feat never points past the list.
 	const safeFeat = $derived(Math.min(feat, Math.max(0, featured.length - 1)));
@@ -36,6 +52,34 @@ import { reveal } from '$lib/actions/reveal';
 	function goFeat(next: number) {
 		feat = (next + featured.length) % featured.length;
 		openId = null;
+	}
+
+	function outcomes(text: string) {
+		return text.split('\n').map((l) => l.trim()).filter(Boolean);
+	}
+
+	function setTab(t: Tab) {
+		if (t === activeTab) return;
+		const u = new URL(page.url);
+		if (t === 'experience') u.searchParams.set('tab', t);
+		else u.searchParams.delete('tab');
+		openId = null;
+		replaceState(u, {});
+	}
+
+	async function onTabKey(e: KeyboardEvent) {
+		const i = TABS.indexOf(activeTab);
+		const n =
+			e.key === 'ArrowRight' ? (i + 1) % TABS.length
+			: e.key === 'ArrowLeft' ? (i - 1 + TABS.length) % TABS.length
+			: e.key === 'Home' ? 0
+			: e.key === 'End' ? TABS.length - 1
+			: -1;
+		if (n < 0) return;
+		e.preventDefault();
+		setTab(TABS[n]);
+		await tick();
+		document.getElementById(`tab-${TABS[n]}`)?.focus();
 	}
 
 	async function switchPlane(p: 0 | 1) {
@@ -56,7 +100,8 @@ import { reveal } from '$lib/actions/reveal';
 		// Arrow-key deck nav only on the one-viewport layout, and never while typing.
 		if (!wide) return;
 		const t = e.target as HTMLElement | null;
-		if (t && t.matches('input, textarea, select')) return;
+		if (t && (t.matches('input, textarea, select') || t.closest('[role="tablist"]'))) return;
+		if (activeTab !== 'projects') return;
 
 		if (plane === 0) {
 			if (e.key === 'ArrowRight' && multiFeatured) { e.preventDefault(); goFeat(feat + 1); }
@@ -78,12 +123,63 @@ import { reveal } from '$lib/actions/reveal';
 
 <main id="main-content" class="page relative text-[var(--ink)]" style="--feat: {safeFeat}; --plane: {plane}; --n: {Math.max(featured.length, 1)}">
 	<a href="/" class="back font-hand font-extrabold">Back</a>
-	<h1 class="sr-only">Work</h1>
+	<header class="head">
+		<h1 class="font-hand font-extrabold">Work</h1>
+		{#if showTabs}
+			<div class="tabs font-mono" role="tablist" aria-label="Work type">
+				{#each TABS as t (t)}
+					<button
+						type="button"
+						role="tab"
+						id={`tab-${t}`}
+						aria-selected={activeTab === t}
+						aria-controls={`panel-${t}`}
+						tabindex={activeTab === t ? 0 : -1}
+						class="tab"
+						class:on={activeTab === t}
+						onclick={() => setTab(t)}
+						onkeydown={onTabKey}
+					>{t === 'projects' ? 'Projects' : 'Experience'}</button>
+				{/each}
+			</div>
+		{/if}
+	</header>
 
 	{#if data.loadError}
 		<p class="empty font-mono">Couldn't load work right now. Try again shortly.</p>
-	{:else if !hasFeatured && !hasRest}
+	{:else if !hasProjects && !hasExperience}
 		<p class="empty font-mono">No projects yet.</p>
+	{:else if activeTab === 'experience'}
+		<div
+			class="exp"
+			id="panel-experience"
+			role="tabpanel"
+			aria-labelledby={showTabs ? 'tab-experience' : undefined}
+			aria-label={showTabs ? undefined : 'Experience'}
+			tabindex="0"
+		>
+			<ol class="timeline" data-reveal-stacked-children use:reveal>
+				{#each experience as x (x.id)}
+					<li class="entry">
+						<p class="when font-mono">{x.year}</p>
+						<div class="what">
+							<h2 class="co font-hand font-extrabold">{x.company ?? x.title}</h2>
+							<p class="xrole font-mono">{x.role}</p>
+							<ul class="outcomes">
+								{#each outcomes(x.impact) as line}
+									<li>{line}</li>
+								{/each}
+							</ul>
+							<ul class="chips font-mono" aria-label="Stack">
+								{#each x.stack as s}
+									<li>{s}</li>
+								{/each}
+							</ul>
+						</div>
+					</li>
+				{/each}
+			</ol>
+		</div>
 	{:else}
 		<!-- Plane switcher: visible, functional on every viewport. -->
 		{#if hasFeatured && hasRest}
@@ -93,7 +189,13 @@ import { reveal } from '$lib/actions/reveal';
 			</div>
 		{/if}
 
-		<div class="deck" data-plane={plane}>
+		<div
+			class="deck"
+			data-plane={plane}
+			id="panel-projects"
+			role={showTabs ? 'tabpanel' : undefined}
+			aria-labelledby={showTabs ? 'tab-projects' : undefined}
+		>
 			<!-- PLANE 0 — FEATURED RAIL -->
 			{#if hasFeatured}
 				<section id="plane-featured" class="plane rail" tabindex="-1" aria-label="Featured work" inert={wide && plane !== 0}>
@@ -177,6 +279,7 @@ import { reveal } from '$lib/actions/reveal';
 				<ImageDistort class="shot" src={p.imagePath ?? ''} alt={`${p.title} screenshot`} />
 				<p class="problem">{p.problem}</p>
 				<p class="result"><span class="arrow font-mono" aria-hidden="true">→</span><span>{p.result}</span></p>
+				<a href={`/work/${p.id}`} class="case-link font-mono">Case study →</a>
 				{#if p.body}
 					<!-- Sanitized server-side (sanitize.ts) before storage. -->
 					<div class="body">{@html p.body}</div>
@@ -192,6 +295,41 @@ import { reveal } from '$lib/actions/reveal';
 	.page { padding: 4.5rem 2.25rem 4rem; min-height: 100dvh; padding-left: max(2.25rem, env(safe-area-inset-left)); padding-right: max(2.25rem, env(safe-area-inset-right)); padding-bottom: max(4rem, env(safe-area-inset-bottom)); }
 	/* Above the fixed marquee bars (z-10) and clear of the ~2rem rails. */
 	.back { position: absolute; top: 3rem; left: 2.5rem; z-index: 20; padding: 0.25rem 0; animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+	.head { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; width: 100%; max-width: 78rem; margin: 1.5rem auto 0; }
+	.head h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1; text-transform: uppercase; letter-spacing: -0.02em; }
+	.tabs { display: flex; border: 1px solid var(--line); width: max-content; }
+	.tab {
+		background: none; border: none; color: var(--ink-dim); cursor: pointer;
+		font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+		padding: 0.6rem 1.1rem; min-height: 44px; transition: color 0.2s ease, background-color 0.2s ease;
+	}
+	.tab + .tab { border-left: 1px solid var(--line); }
+	.tab.on { color: var(--bg); background: var(--accent); }
+	.tab:not(.on):hover { color: var(--ink); }
+	.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+	.exp { width: 100%; max-width: 52rem; margin: 2rem auto 0; }
+	.exp:focus-visible { outline: none; }
+	.timeline { position: relative; display: flex; flex-direction: column; }
+	.timeline::before { content: ''; position: absolute; top: 0.6rem; bottom: 0.6rem; left: 0.3rem; width: 1px; background: var(--line); }
+	.entry { position: relative; display: grid; grid-template-columns: 1fr; gap: 0.35rem; padding: 0 0 2.5rem 1.75rem; }
+	.entry::before { content: ''; position: absolute; top: 0.45rem; left: 0; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--accent); }
+	.when { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--ink-dim); text-transform: uppercase; }
+	.co { font-size: clamp(1.6rem, 4.5vw, 2.75rem); line-height: 1.05; text-transform: uppercase; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+	.xrole { margin-top: 0.35rem; font-size: 0.8rem; letter-spacing: 0.08em; color: var(--accent); }
+	.outcomes { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.35rem; color: var(--ink-dim); line-height: 1.5; max-width: 42rem; }
+	.outcomes li { display: flex; gap: 0.6rem; }
+	.outcomes li::before { content: '→'; color: var(--accent); flex: 0 0 auto; }
+	.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; font-size: 0.7rem; letter-spacing: 0.1em; }
+	.chips li { border: 1px solid var(--line); padding: 0.25rem 0.6rem; color: var(--ink-dim); }
+	@media (min-width: 768px) {
+		.entry { grid-template-columns: 8rem 1fr; gap: 0; padding-left: 0; }
+		.entry::before { left: 8rem; margin-left: -0.3rem; }
+		.timeline::before { left: 8rem; }
+		.when { padding: 0.2rem 1.5rem 0 0; text-align: right; }
+		.what { padding-left: 1.5rem; }
+	}
+
 	.empty { margin-top: 6rem; color: var(--ink-dim); letter-spacing: 0.15em; text-transform: uppercase; }
 
 	/* Plane switcher (tabs) */
@@ -244,6 +382,9 @@ import { reveal } from '$lib/actions/reveal';
 	.problem { color: var(--ink-dim); line-height: 1.5; }
 	.result { margin-top: 0.5rem; display: flex; gap: 0.6rem; line-height: 1.5; }
 	.arrow { color: var(--accent); flex: 0 0 auto; }
+	.case-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 0.75rem; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+	.case-link:hover { text-decoration: underline; }
+	.case-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 	.body { margin-top: 1rem; color: var(--ink-dim); line-height: 1.6; }
 	.body :global(a) { color: var(--accent); text-decoration: underline; }
 	.body :global(h2), .body :global(h3) { color: var(--ink); font-family: var(--font-hand); font-weight: 800; margin: 0.75rem 0 0.25rem; }
@@ -303,6 +444,8 @@ import { reveal } from '$lib/actions/reveal';
 		.back { top: 3rem; left: 2.5rem; }
 		/* Deck-only controls become visible here. */
 		.switch { display: inline-flex; position: absolute; top: 3rem; right: 3.5rem; max-width: calc(100% - 7rem); margin: 0; }
+		.head { position: absolute; top: 3rem; left: 50%; transform: translateX(-50%); width: max-content; flex-wrap: nowrap; margin: 0; z-index: 20; }
+		.exp { height: 100%; margin: 0 auto; padding: 4.5rem 0 1rem; overflow-y: auto; }
 		.rail-nav { display: flex; }
 		.jump { display: inline-block; }
 
@@ -330,6 +473,6 @@ import { reveal } from '$lib/actions/reveal';
 
 	@media (prefers-reduced-motion: reduce) {
 		.back, .sheet-inner { animation: none; }
-		.deck, .rail-track, .card, .nav-btn, .jump, .switch-btn { transition: none; }
+		.deck, .rail-track, .card, .nav-btn, .jump, .switch-btn, .tab { transition: none; }
 	}
 </style>

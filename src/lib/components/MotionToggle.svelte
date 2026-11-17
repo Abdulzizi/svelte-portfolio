@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { motionPref } from '$lib/motion-pref.svelte';
+	import { magnetic } from '$lib/actions/magnetic';
 </script>
 
 <button
 	type="button"
 	class="toggle font-mono"
 	data-chrome
+	use:magnetic
 	onclick={() => motionPref.toggle()}
 	aria-label={motionPref.off ? 'Turn motion on' : 'Reduce motion'}
 	aria-pressed={motionPref.off}

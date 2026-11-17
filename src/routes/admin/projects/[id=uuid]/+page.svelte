@@ -15,6 +15,10 @@
 	// On a failed submit, prefer the rejected values; otherwise the loaded row.
 	let v = $derived(form?.values);
 
+	let picked = $state<string>();
+	const kind = $derived(picked ?? form?.values?.kind ?? data.project.kind);
+	const isExp = $derived(kind === 'experience');
+
 	let stackText = $derived(p.stack.join('\n'));
 </script>
 
@@ -49,6 +53,23 @@
 		};
 	}}
 >
+	<label class="field" for="kind">
+		<span>Kind</span>
+		<select id="kind" name="kind" value={kind} onchange={(e) => (picked = e.currentTarget.value)}>
+			<option value="project">Project</option>
+			<option value="experience">Experience</option>
+		</select>
+		{#if e?.kind}<span class="err">{e.kind[0]}</span>{/if}
+	</label>
+
+	{#if isExp}
+		<label class="field" for="company">
+			<span>Company</span>
+			<input id="company" name="company" type="text" required value={v?.company ?? p.company ?? ''} />
+			{#if e?.company}<span class="err">{e.company[0]}</span>{/if}
+		</label>
+	{/if}
+
 	<label class="field" for="title">
 		<span>Title</span>
 		<input id="title" name="title" type="text" required value={v?.title ?? p.title} />
@@ -75,11 +96,16 @@
 	</label>
 
 	<label class="field" for="impact">
-		<span>Impact</span>
-		<input id="impact" name="impact" type="text" required value={v?.impact ?? p.impact} />
+		<span>Impact{#if isExp} <em class="hint font-mono">— 2-3 outcomes, one per line</em>{/if}</span>
+		{#if isExp}
+			<textarea id="impact" name="impact" rows="4" required>{v?.impact ?? p.impact}</textarea>
+		{:else}
+			<input id="impact" name="impact" type="text" required value={v?.impact ?? p.impact} />
+		{/if}
 		{#if e?.impact}<span class="err">{e.impact[0]}</span>{/if}
 	</label>
 
+	{#if !isExp}
 	<label class="field" for="problem">
 		<span>Problem</span>
 		<textarea id="problem" name="problem" rows="3" required>{v?.problem ?? p.problem}</textarea>
@@ -111,8 +137,10 @@
 		<input type="file" name="image" accept="image/png,image/jpeg,image/webp" />
 		{#if sizeError || e?.image}<span class="err">{sizeError || e?.image?.[0]}</span>{/if}
 	</div>
+	{/if}
 
 	<div class="grid2">
+		{#if !isExp}
 		<label class="field checkbox" for="featured">
 			<input
 				id="featured"
@@ -122,6 +150,9 @@
 			/>
 			<span>Featured</span>
 		</label>
+		{:else}
+			<span></span>
+		{/if}
 		<label class="field" for="rank">
 			<span>Rank</span>
 			<input id="rank" name="rank" type="number" step="1" value={v?.rank ?? String(p.rank)} />
@@ -205,6 +236,7 @@
 		color: var(--ink-dim);
 		opacity: 0.8;
 	}
+	.field select,
 	.field input[type='text'],
 	.field input[type='number'],
 	.field textarea {

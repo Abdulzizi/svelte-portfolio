@@ -9,6 +9,14 @@ export function listAll(): Promise<Project[]> {
 	return db
 		.select()
 		.from(projects)
+		.orderBy(desc(projects.featured), asc(projects.kind), asc(projects.rank), asc(projects.createdAt));
+}
+
+export function listByKind(kind: Project['kind']): Promise<Project[]> {
+	return db
+		.select()
+		.from(projects)
+		.where(eq(projects.kind, kind))
 		.orderBy(desc(projects.featured), asc(projects.rank), asc(projects.createdAt));
 }
 

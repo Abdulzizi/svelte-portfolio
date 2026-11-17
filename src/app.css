@@ -105,6 +105,10 @@ body::after {
   ::view-transition-new(root) {
     animation: vt-in 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+  ::view-transition-group(title-morph) {
+    animation-duration: 450ms;
+    animation-timing-function: ease-out;
+  }
   ::view-transition-old(marquee-top),
   ::view-transition-old(marquee-bottom),
   ::view-transition-old(marquee-left),
