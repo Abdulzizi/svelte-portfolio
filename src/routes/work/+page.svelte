@@ -34,7 +34,7 @@ import { reveal } from '$lib/actions/reveal';
 	const hasProjects = $derived(hasFeatured || hasRest);
 	const hasExperience = $derived(experience.length > 0);
 	const showTabs = $derived(hasProjects && hasExperience);
-	const activeTab = $derived<Tab>(
+	let activeTab = $derived<Tab>(
 		!hasProjects && hasExperience
 			? 'experience'
 			: hasExperience && page.url.searchParams.get('tab') === 'experience'
@@ -60,6 +60,7 @@ import { reveal } from '$lib/actions/reveal';
 
 	function setTab(t: Tab) {
 		if (t === activeTab) return;
+		activeTab = t;
 		const u = new URL(page.url);
 		if (t === 'experience') u.searchParams.set('tab', t);
 		else u.searchParams.delete('tab');
@@ -125,6 +126,7 @@ import { reveal } from '$lib/actions/reveal';
 	<a href="/" class="back font-hand font-extrabold">Back</a>
 	<header class="head">
 		<h1 class="font-hand font-extrabold">Work</h1>
+		<div class="ctrls">
 		{#if showTabs}
 			<div class="tabs font-mono" role="tablist" aria-label="Work type">
 				{#each TABS as t (t)}
@@ -143,6 +145,13 @@ import { reveal } from '$lib/actions/reveal';
 				{/each}
 			</div>
 		{/if}
+		{#if activeTab === 'projects' && hasFeatured && hasRest && !data.loadError}
+			<div class="switch font-mono" role="tablist" aria-label="Work sections">
+				<button type="button" role="tab" aria-selected={plane === 0} class="switch-btn" class:on={plane === 0} onclick={() => switchPlane(0)}>Featured</button>
+				<button type="button" role="tab" aria-selected={plane === 1} class="switch-btn" class:on={plane === 1} onclick={() => switchPlane(1)}>The rest</button>
+			</div>
+		{/if}
+		</div>
 	</header>
 
 	{#if data.loadError}
@@ -181,14 +190,6 @@ import { reveal } from '$lib/actions/reveal';
 			</ol>
 		</div>
 	{:else}
-		<!-- Plane switcher: visible, functional on every viewport. -->
-		{#if hasFeatured && hasRest}
-			<div class="switch font-mono" role="tablist" aria-label="Work sections">
-				<button type="button" role="tab" aria-selected={plane === 0} class="switch-btn" class:on={plane === 0} onclick={() => switchPlane(0)}>Featured</button>
-				<button type="button" role="tab" aria-selected={plane === 1} class="switch-btn" class:on={plane === 1} onclick={() => switchPlane(1)}>The rest</button>
-			</div>
-		{/if}
-
 		<div
 			class="deck"
 			data-plane={plane}
@@ -212,6 +213,7 @@ import { reveal } from '$lib/actions/reveal';
 								>
 									<span class="title font-hand font-extrabold">{p.title}</span>
 								</button>
+								<p class="meta font-mono" hidden={isOpen}>{p.role} · {p.year} · {p.stack.slice(0, 4).join(' · ')}</p>
 
 								{@render sheet(p, isOpen)}
 							</article>
@@ -295,7 +297,8 @@ import { reveal } from '$lib/actions/reveal';
 	.page { padding: 4.5rem 2.25rem 4rem; min-height: 100dvh; padding-left: max(2.25rem, env(safe-area-inset-left)); padding-right: max(2.25rem, env(safe-area-inset-right)); padding-bottom: max(4rem, env(safe-area-inset-bottom)); }
 	/* Above the fixed marquee bars (z-10) and clear of the ~2rem rails. */
 	.back { position: absolute; top: 3rem; left: 2.5rem; z-index: 20; padding: 0.25rem 0; animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
-	.head { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; width: 100%; max-width: 78rem; margin: 1.5rem auto 0; }
+	.head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 1.5rem; width: 100%; max-width: 78rem; margin: 1.5rem auto 0; }
+	.ctrls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem; }
 	.head h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1; text-transform: uppercase; letter-spacing: -0.02em; }
 	.tabs { display: flex; border: 1px solid var(--line); width: max-content; }
 	.tab {
@@ -334,7 +337,7 @@ import { reveal } from '$lib/actions/reveal';
 
 	/* Plane switcher (tabs) */
 	/* Plane switcher (tabs) — deck-only; on mobile both planes stack and scroll. */
-	.switch { display: none; gap: 0; margin: 2.5rem auto 0; border: 1px solid var(--line); width: max-content; }
+	.switch { display: none; gap: 0; margin: 0; border: 1px solid var(--line); width: max-content; }
 	.switch-btn {
 		background: none; border: none; color: var(--ink-dim); cursor: pointer;
 		font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
@@ -361,8 +364,9 @@ import { reveal } from '$lib/actions/reveal';
 	}
 	.bar:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
 
-	.title { font-size: clamp(1.9rem, 7vw, 5rem); line-height: 1; text-transform: uppercase; letter-spacing: -0.02em; transition: color 0.35s ease; overflow-wrap: anywhere; }
+	.title { font-size: clamp(1.9rem, 5vw, 3.5rem); line-height: 1; text-transform: uppercase; letter-spacing: -0.02em; transition: color 0.35s ease; overflow-wrap: anywhere; }
 	.card.open .title { color: var(--accent); }
+	.meta { color: var(--ink-dim); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; padding-bottom: 0.75rem; }
 	@media (hover: hover) and (pointer: fine) { .bar:hover .title { color: var(--accent); } }
 
 	/* Spec sheet (F) */
@@ -443,9 +447,9 @@ import { reveal } from '$lib/actions/reveal';
 		.page { height: 100dvh; min-height: 0; overflow: hidden; padding: 3rem max(2.5rem, env(safe-area-inset-right)) 3rem max(2.5rem, env(safe-area-inset-left)); }
 		.back { top: 3rem; left: 2.5rem; }
 		/* Deck-only controls become visible here. */
-		.switch { display: inline-flex; position: absolute; top: 3rem; right: 3.5rem; max-width: calc(100% - 7rem); margin: 0; }
-		.head { position: absolute; top: 3rem; left: 50%; transform: translateX(-50%); width: max-content; flex-wrap: nowrap; margin: 0; z-index: 20; }
-		.exp { height: 100%; margin: 0 auto; padding: 4.5rem 0 1rem; overflow-y: auto; }
+		.switch { display: inline-flex; }
+		.head { position: absolute; top: 5.25rem; left: 2.5rem; right: 2.5rem; width: auto; max-width: 78rem; margin: 0 auto; flex-wrap: nowrap; z-index: 20; }
+		.exp { height: 100%; margin: 0 auto; padding: 8.5rem 0 1rem; overflow-y: auto; }
 		.rail-nav { display: flex; }
 		.jump { display: inline-block; }
 
@@ -454,7 +458,7 @@ import { reveal } from '$lib/actions/reveal';
 			transform: translateY(calc(var(--plane) * -100%));
 			transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 		}
-		.plane { flex: 0 0 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+		.plane { flex: 0 0 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; overflow: hidden; padding-top: 8rem; }
 
 		.rail-track {
 			flex-direction: row; flex: 0 0 auto; width: calc(var(--n) * 100%);

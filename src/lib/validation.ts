@@ -157,3 +157,10 @@ export function postFormValues(form: FormData) {
 		published: form.get('published') === 'on' || form.get('published') === 'true'
 	};
 }
+
+export const chapterSchema = z.object({
+	kicker: z.string().trim().min(1, 'Required').max(40, 'Max 40 characters'),
+	big: z.string().trim().min(1, 'Required').max(160, 'Max 160 characters'),
+	body: z.string().trim().min(1, 'Required').max(600, 'Max 600 characters'),
+	variant: z.enum(['text', 'now', 'next'])
+});

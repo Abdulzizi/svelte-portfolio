@@ -3,7 +3,14 @@
 	import { Renderer, Program, Mesh, Geometry } from 'ogl';
 	import { motionOff } from '$lib/motion-pref.svelte';
 
+	let { density = 0 }: { density?: number } = $props();
+
 	let host: HTMLDivElement;
+	let sync: ((d: number) => void) | undefined;
+
+	$effect(() => {
+		sync?.(density);
+	});
 
 	const COLS = 64;
 	const ROWS = 40;
@@ -16,6 +23,7 @@
 		uniform vec2 uMouse;
 		uniform vec2 uAspect;
 		uniform float uPx;
+		uniform float uDens;
 		varying float vA;
 		void main() {
 			vec2 scatter = (rnd.xy * 2.0 - 1.0);
@@ -31,7 +39,9 @@
 			p += normalize(d + 1e-4) / uAspect * exp(-l * l * 10.0) * 0.16;
 			vA = 0.35 + 0.65 * rnd.z;
 			gl_Position = vec4(p, 0.0, 1.0);
-			gl_PointSize = uPx * (1.5 + rnd.z * 1.5);
+			float keep = fract(rnd.z * 97.13);
+			float show = smoothstep(0.0, 0.15, 0.3 + 0.7 * uDens - keep);
+			gl_PointSize = uPx * (1.5 + rnd.z * 1.5) * (1.0 + 0.7 * uDens) * show;
 		}
 	`;
 
@@ -104,6 +114,7 @@
 				uMouse: { value: [2, 2] },
 				uAspect: { value: [1, 1] },
 				uPx: { value: renderer.dpr },
+				uDens: { value: 0 },
 				uColor: { value: [0.5, 0.5, 0.5] },
 				uAlpha: { value: 0.28 }
 			}
@@ -117,6 +128,8 @@
 		let last = 0;
 		let time = 0;
 		let form = still ? 1 : 0;
+		let dens = density;
+		let densTarget = density;
 		let rect = host.getBoundingClientRect();
 		const target = [2, 2];
 		const mouse = [2, 2];
@@ -139,6 +152,8 @@
 		function render() {
 			u.uTime.value = time;
 			u.uForm.value = form;
+			u.uDens.value = dens;
+			u.uAlpha.value = 0.22 + 0.26 * dens;
 			u.uMouse.value = mouse.slice();
 			renderer.render({ scene: mesh });
 		}
@@ -149,6 +164,7 @@
 			last = t;
 			time += dt;
 			form += (1 - form) * Math.min(1, dt * 0.8);
+			dens += (densTarget - dens) * Math.min(1, dt * 2);
 			mouse[0] += (target[0] - mouse[0]) * Math.min(1, dt * 6);
 			mouse[1] += (target[1] - mouse[1]) * Math.min(1, dt * 6);
 			render();
@@ -205,11 +221,20 @@
 		window.addEventListener('pointermove', onMove, { passive: true });
 		document.addEventListener('visibilitychange', onVisibility);
 
+		sync = (d) => {
+			densTarget = d;
+			if (still) {
+				dens = d;
+				render();
+			} else schedule();
+		};
+
 		colors();
 		resize();
 		schedule();
 
 		return () => {
+			sync = undefined;
 			stop();
 			io.disconnect();
 			ro.disconnect();

@@ -4,6 +4,7 @@
 	import { motionPref, motionOff } from '$lib/motion-pref.svelte';
 	import { tick } from 'svelte';
 	import { lockScroll } from '$lib/smooth-scroll';
+	import { EMAIL, GITHUB_URL, LINKEDIN_URL } from '$lib/site';
 
 	type Item = { id: string; label: string; hint: string; keep?: boolean; run: () => void };
 
@@ -16,7 +17,6 @@
 	let returnTo: HTMLElement | null = null;
 	let lastPath = '';
 
-	const EMAIL = 'jawadabdul307@gmail.com';
 	let copied = $state(false);
 	let copyTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -95,13 +95,13 @@
 			id: 'github',
 			label: 'Open GitHub',
 			hint: 'Action',
-			run: () => openTab('https://github.com/Abdulzizi')
+			run: () => openTab(GITHUB_URL)
 		},
 		{
 			id: 'linkedin',
 			label: 'Open LinkedIn',
 			hint: 'Action',
-			run: () => openTab('https://www.linkedin.com/in/abduljawadazizi07/')
+			run: () => openTab(LINKEDIN_URL)
 		},
 		{
 			id: 'cv',

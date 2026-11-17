@@ -11,6 +11,7 @@
 		{ href: '/admin', label: 'Dashboard' },
 		{ href: '/admin/projects', label: 'Projects' },
 		{ href: '/admin/posts', label: 'Posts' },
+		{ href: '/admin/story', label: 'Story' },
 		{ href: '/admin/inbox', label: 'Inbox' },
 		{ href: '/admin/cv', label: 'CV' }
 	];

@@ -1,13 +1,14 @@
 import { fail } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { validate } from '$lib/contact';
+import { EMAIL as TO } from '$lib/site';
 import { createMessage } from '$lib/server/messages';
 import type { Actions } from './$types';
 
 // Form actions need a server runtime; `/` stays prerendered via +layout.ts.
 export const prerender = false;
 
-const TO = 'jawadabdul307@gmail.com';
+const TIMELINES: Record<string, string> = { asap: 'ASAP', '1-3': '1-3 months', flexible: 'Flexible' };
 
 export const actions: Actions = {
 	default: async ({ request, fetch }) => {
@@ -19,9 +20,12 @@ export const actions: Actions = {
 		if (r.honeypot) return { success: true };
 		if (!r.ok) return fail(400, { errors: r.errors, values: r.values });
 
+		const tl = TIMELINES[String(form.get('timeline') ?? '')];
+		const text = `Building: ${r.values.message}${tl ? `\nTimeline: ${tl}` : ''}`;
+
 		let saved = false;
 		try {
-			await createMessage({ name: r.values.name, email: r.values.email, body: r.values.message });
+			await createMessage({ name: r.values.name, email: r.values.email, body: text });
 			saved = true;
 		} catch {
 			console.error('contact: save failed');
@@ -43,7 +47,7 @@ export const actions: Actions = {
 					to: [TO],
 					reply_to: r.values.email,
 					subject: `Portfolio message from ${r.values.name}`,
-					text: `${r.values.message}\n\n${r.values.name} <${r.values.email}>`
+					text: `${text}\n\n${r.values.name} <${r.values.email}>`
 				}),
 				signal: AbortSignal.timeout(8000)
 			});

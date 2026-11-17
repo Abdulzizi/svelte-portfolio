@@ -1,27 +1,109 @@
 <script lang="ts">
-	import { reveal } from '$lib/actions/reveal';
-	import SlidePage from '$lib/components/SlidePage.svelte';
+	import { onMount, tick as flush } from 'svelte';
 	import DataField from '$lib/components/DataField.svelte';
+	import { loadGsap } from '$lib/motion';
+	import { motionOff, motionPref } from '$lib/motion-pref.svelte';
+	import { useWide } from '$lib/wide.svelte';
+	import type { PageData } from './$types';
 
-	let index = $state(0);
+	let { data }: { data: PageData } = $props();
+	let chapters = $derived(data.chapters);
 
-	const words = ['Build', 'Ship', 'Stack'];
+	const wide = useWide();
 
-	const roles = [
-		{ at: 'Telkom Akses', when: 'Jul 2025 — now', line: 'Own 3 backend services and the UI of a nationwide workforce platform.' },
-		{ at: 'Freecause', when: 'Jan 2026 — now', line: 'Rebuilding a 19M-user petition platform from scratch. Edge caching, versioned invalidation, hardened CI/CD.' },
-		{ at: 'Venturo', when: 'Nov 2024 — Apr 2025', line: 'Vue + Laravel admin dashboard that cut manual admin work by 30%.' }
-	];
+	let root: HTMLElement;
+	let active = $state(0);
+	let density = $state(0.4);
+	let pinned = $state(false);
+	let progress = $state(0);
+	let triggers: { start: number }[] = [];
 
-	const stack = [
-		{ group: 'Languages', items: ['PHP', 'JavaScript', 'TypeScript', 'Python', 'Go'] },
-		{ group: 'Frontend', items: ['Vue.js', 'Next.js', 'React'] },
-		{ group: 'Backend', items: ['Laravel', 'Node.js', 'Express', 'REST', 'Microservices'] },
-		{ group: 'Data', items: ['PostgreSQL', 'MySQL', 'MongoDB'] },
-		{ group: 'DevOps', items: ['Docker', 'GitHub Actions', 'Deployer 8', 'Cloudflare', 'CI/CD'] },
-		{ group: 'Cloud', items: ['AWS', 'Azure', 'GCP', 'Vercel'] },
-		{ group: 'AI Coding', items: ['Claude Code', 'Kiro', 'Kilo Code', 'Codex', 'Gemini CLI', 'Cursor'] }
-	];
+	let time = $state('--:--');
+	let commit = $state<string | null>(null);
+
+	function tick() {
+		time = new Intl.DateTimeFormat('en-GB', {
+			timeZone: 'Asia/Jakarta',
+			hour: '2-digit',
+			minute: '2-digit',
+			hourCycle: 'h23'
+		}).format(new Date());
+	}
+
+	onMount(() => {
+		tick();
+		const id = setInterval(tick, 60_000);
+		fetch('/api/ticker')
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => {
+				if (d && typeof d.github === 'string') commit = d.github;
+			})
+			.catch(() => {});
+		return () => clearInterval(id);
+	});
+
+	$effect(() => {
+		const count = chapters.length;
+		if (!wide.current || motionPref.off || motionOff() || !matchMedia('(pointer: fine)').matches) {
+			pinned = false;
+			density = 0.4;
+			return;
+		}
+		let dead = false;
+		let revert = () => {};
+		loadGsap().then((m) => {
+			if (!m || dead) return;
+			const { gsap, ScrollTrigger } = m;
+			const ctx = gsap.context(() => {
+				triggers = [];
+				root.querySelectorAll<HTMLElement>('[data-chapter]').forEach((el, i) => {
+					const tl = gsap.timeline({
+						defaults: { ease: 'power2.out' },
+						scrollTrigger: {
+							trigger: el,
+							start: 'top top',
+							end: () => `+=${Math.round(innerHeight * 0.7)}`,
+							pin: true,
+							scrub: 0.5,
+							invalidateOnRefresh: true,
+							onToggle: (self) => {
+								if (self.isActive) {
+									active = i;
+									density = (i + 1) / count;
+								}
+							}
+						}
+					});
+					tl.from(el.querySelector('.big'), { opacity: 0, y: 48, duration: 1 })
+						.from(el.querySelector('.after'), { opacity: 0, y: 24, duration: 1 })
+						.to({}, { duration: 0.4 });
+					triggers.push(tl.scrollTrigger as { start: number });
+				});
+				ScrollTrigger.create({
+					trigger: root,
+					start: 'top top',
+					end: 'bottom bottom',
+					onUpdate: (self) => (progress = self.progress)
+				});
+			}, root);
+			revert = () => ctx.revert();
+			pinned = true;
+			flush().then(() => !dead && ScrollTrigger.refresh());
+			document.fonts?.ready.then(() => !dead && ScrollTrigger.refresh());
+		});
+		return () => {
+			dead = true;
+			revert();
+			triggers = [];
+			pinned = false;
+		};
+	});
+
+	function go(i: number) {
+		const top = triggers[i]?.start;
+		if (top !== undefined) scrollTo({ top, behavior: 'smooth' });
+		document.getElementById(`${chapters[i].id}-heading`)?.focus({ preventScroll: true });
+	}
 </script>
 
 <svelte:head>
@@ -29,121 +111,136 @@
 	<meta name="description" content="Abdul Jawad Azizi, full-stack engineer in Jakarta. What he builds, where he ships, and the stack he works in." />
 </svelte:head>
 
-<SlidePage
-	bind:index
-	count={3}
-	headingIds={['who-heading', 'work-heading', 'stack-heading']}
-	arrowLabel="Next section"
-	trackTiming="cubic-bezier(0.22, 1, 0.36, 1)"
->
-	{#snippet children({ wide, index })}
-		<!-- Signature device: one giant Syne word per slide, cross-fades + rises on change. -->
-		<div class="ghost" aria-hidden="true">
-			{#key index}
-				<span class="ghost-word font-hand font-extrabold">{words[index]}</span>
-			{/key}
-		</div>
+<div class="backdrop" aria-hidden="true"><DataField {density} /></div>
 
-		<div class="viewport">
-			<div class="track">
-				<!-- 01 — WHO -->
-				<section class="slide" aria-label="Who" inert={wide && index !== 0}>
-					<div class="mx-auto w-full max-w-lg">
-						<span class="idx font-mono">01</span>
-						<h1 id="who-heading" tabindex="-1" class="font-hand text-4xl font-extrabold leading-[0.95] sm:text-5xl">
-							I ship whole <span class="text-[var(--accent)]">products</span>.
-						</h1>
-						<p class="mt-5 text-lg text-[var(--ink-dim)]">UI to database to deploy. Full-stack, Jakarta.</p>
-						<p class="mt-3 text-[var(--ink-dim)]">
-							Often stronger across the stack than a specialist is in any single layer.
-						</p>
-						<a class="resume font-hand font-extrabold" href="/cv" target="_blank" rel="noopener noreferrer">
-							Résumé
-							<!-- Phosphor arrow-up-right (MIT): opens externally. -->
-							<svg class="icon-nudge" viewBox="0 0 256 256" width="18" height="18" fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-								<line x1="64" y1="192" x2="192" y2="64" />
-								<polyline points="96 64 192 64 192 160" />
-							</svg>
-						</a>
-					</div>
-				</section>
+<main id="main-content" bind:this={root} class="story relative text-[var(--ink)]" class:pinned>
+	<a href="/" class="back font-hand font-extrabold">Back</a>
 
-				<!-- 02 — WORK -->
-				<section class="slide" aria-label="Work" inert={wide && index !== 1}>
-					<div class="mx-auto w-full max-w-lg">
-						<span class="idx font-mono">02</span>
-						<h2 id="work-heading" tabindex="-1" class="font-hand text-4xl font-extrabold leading-none sm:text-5xl">Where I <span class="text-[var(--accent)]">ship</span></h2>
-						<ul class="mt-7 flex flex-col" data-reveal-stacked-children use:reveal>
-							{#each roles as r}
-								<li class="role border-b border-[var(--line)] py-4 first:border-t">
-									<div class="flex items-baseline justify-between gap-4">
-										<span class="font-hand text-xl font-extrabold">{r.at}</span>
-										<span class="shrink-0 font-mono text-xs text-[var(--ink-dim)]">{r.when}</span>
-									</div>
-									<p class="mt-1.5 text-sm text-[var(--ink-dim)]">{r.line}</p>
-								</li>
-							{/each}
-						</ul>
-					</div>
-				</section>
+	{#each chapters as c, i (c.id)}
+		<section data-chapter aria-labelledby="{c.id}-heading" class="chapter">
+			<div class="copy">
+				{#if i === 0}
+					<h1 class="font-hand text-2xl font-extrabold">About</h1>
+				{/if}
+				<h2 id="{c.id}-heading" tabindex="-1" class="kicker font-mono">
+					<span>{String(i + 1).padStart(2, '0')}</span>
+					{c.kicker}
+				</h2>
+				<p class="big font-hand font-extrabold">{c.big}</p>
+				<div class="after">
+					<p class="text">{c.text}</p>
 
-				<!-- 03 — STACK -->
-				<section class="slide" aria-label="Stack" inert={wide && index !== 2}>
-					<div class="mx-auto w-full max-w-lg">
-						<span class="idx font-mono">03</span>
-						<h2 id="stack-heading" tabindex="-1" class="font-hand text-4xl font-extrabold leading-none sm:text-5xl">The <span class="text-[var(--accent)]">stack</span></h2>
-						<dl class="mt-7 grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2" data-reveal-stacked-children use:reveal>
-							{#each stack as s}
+					{#if c.variant === 'now'}
+						<dl class="live font-mono">
+							<div>
+								<dt>Jakarta</dt>
+								<dd>{time} WIB</dd>
+							</div>
+							{#if commit}
 								<div>
-									<dt class="font-mono text-xs uppercase tracking-wider text-[var(--ink-dim)]">{s.group}</dt>
-									<dd class="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 font-hand font-extrabold">
-										{#each s.items as it}<span>{it}</span>{/each}
-									</dd>
+									<dt>Latest commit</dt>
+									<dd class="commit">{commit}</dd>
 								</div>
-							{/each}
+							{/if}
 						</dl>
-					</div>
-				</section>
+					{/if}
+
+					{#if c.variant === 'next'}
+						<div class="links font-hand font-extrabold">
+							<a href="/connect">Get in touch</a>
+							<a href="/cv" target="_blank" rel="noopener noreferrer">Résumé</a>
+						</div>
+					{/if}
+				</div>
 			</div>
-		</div>
-	{/snippet}
-</SlidePage>
+		</section>
+	{/each}
+
+	{#if pinned}
+		<nav class="rail" aria-label="Chapters" style="--p: {progress}">
+			<ol>
+				{#each chapters as c, i (c.id)}
+					<li>
+						<button
+							type="button"
+							class="font-mono"
+							class:on={i === active}
+							aria-label="Chapter {i + 1}: {c.kicker}"
+							aria-current={i === active ? 'step' : undefined}
+							onclick={() => go(i)}
+						>
+							{String(i + 1).padStart(2, '0')}
+						</button>
+					</li>
+				{/each}
+			</ol>
+		</nav>
+	{/if}
+</main>
 
 <style>
-	.ghost { display: none; }
+	.backdrop { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-	.idx { display: block; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--accent); }
+	.story { z-index: 1; }
 
-	.resume {
-		display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 2rem;
+	.back { position: absolute; top: 3rem; left: 2.5rem; z-index: 20; }
+
+	.chapter {
+		display: flex; align-items: center; min-height: 100dvh;
+		padding: 5rem 2.25rem 4rem;
+	}
+
+	.copy {
+		position: relative; width: 100%; max-width: 44rem; margin-inline: auto; padding: 2rem;
+		background: radial-gradient(closest-side, color-mix(in srgb, var(--bg) 85%, transparent) 60%, transparent);
+	}
+
+	.kicker {
+		display: flex; gap: 0.75rem; margin-top: 1rem; font-size: 0.75rem; font-weight: 400;
+		text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent);
+	}
+	.kicker:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+	.big {
+		margin-top: 1rem; font-size: clamp(2.5rem, 11vw, 4.5rem); line-height: 0.95; letter-spacing: -0.02em;
+	}
+
+	.text { margin-top: 1.5rem; max-width: 34rem; font-size: 1.125rem; color: var(--ink-dim); }
+
+	.live {
+		display: grid; gap: 1rem; margin-top: 2rem; max-width: 34rem;
+		border-top: 1px solid var(--line); padding-top: 1rem;
+	}
+	.live dt { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--ink-dim); }
+	.live dd { margin-top: 0.25rem; font-size: 1rem; color: var(--ink); }
+
+	.links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
+	.links a {
 		border: 1px solid var(--ink); padding: 0.5rem 1.1rem;
 		transition: background-color 0.2s ease, color 0.2s ease;
-		--tx: 2px; --ty: -2px;
 	}
-	.resume:hover { background: var(--ink); color: var(--bg); }
+	.links a:hover { background: var(--ink); color: var(--bg); }
 
-	/* One viewport: giant ghost word behind the content, swaps per slide (about-only). */
-	@media (min-width: 1024px) and (min-height: 640px) {
-		.ghost {
-			display: block; position: absolute; right: 2.5rem; bottom: 2rem;
-			z-index: -1; pointer-events: none; overflow: hidden; max-width: 60vw;
-		}
-		.ghost-word {
-			display: block; font-size: clamp(6rem, 18vw, 16rem); line-height: 0.8;
-			text-transform: uppercase; letter-spacing: -0.03em;
-			color: transparent; -webkit-text-stroke: 1px var(--line);
-			animation: word-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-		}
+	:where(a, button):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+	.pinned .chapter { height: 100dvh; min-height: 0; padding-right: 5rem; }
+	.pinned .big { font-size: clamp(3.5rem, 10vw, 8rem); }
+	.pinned .copy { max-width: 56rem; margin: 0 auto 0 4rem; }
+
+	.rail {
+		position: fixed; top: 50%; right: 3rem; z-index: 15; transform: translateY(-50%);
 	}
-
-	@keyframes word-in {
-		from { opacity: 0; transform: translateY(0.75rem); }
-		to { opacity: 1; transform: none; }
+	.rail::before, .rail::after {
+		content: ''; position: absolute; top: 0; bottom: 0; right: 0.45rem; width: 1px; background: var(--line);
 	}
-
-	:where(a):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-	@media (prefers-reduced-motion: reduce) {
-		.ghost-word { animation: none; }
+	.rail::after {
+		background: var(--accent); transform-origin: top; transform: scaleY(var(--p, 0));
 	}
+	.rail ol { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 1.25rem; list-style: none; margin: 0; padding: 0; }
+	.rail button {
+		display: block; padding: 0.25rem 0.75rem 0.25rem 0.5rem; background: var(--bg);
+		font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--ink-dim); cursor: pointer;
+		transition: color 0.2s ease;
+	}
+	.rail button:hover, .rail button.on { color: var(--accent); }
 </style>

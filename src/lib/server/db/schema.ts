@@ -48,6 +48,18 @@ export const messages = pgTable('messages', {
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 }).enableRLS();
 
+export const storyChapters = pgTable('story_chapters', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	kicker: text('kicker').notNull(),
+	big: text('big').notNull(),
+	body: text('body').notNull(),
+	variant: text('variant', { enum: ['text', 'now', 'next'] }).notNull().default('text'),
+	rank: integer('rank').notNull().default(0),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+}).enableRLS();
+
+export type StoryChapter = typeof storyChapters.$inferSelect;
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
