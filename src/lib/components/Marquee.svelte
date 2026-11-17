@@ -43,8 +43,8 @@
 	);
 	const textClass = $derived(
 		axis === 'x'
-			? 'text-[11px] h-full leading-8'
-			: 'text-[10px] leading-6'
+			? 'text-xs h-full leading-8'
+			: 'text-xs leading-6'
 	);
 
 	$effect(() => {

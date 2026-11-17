@@ -347,7 +347,7 @@
 	}
 	.chip {
 		flex: none;
-		font-size: 0.65rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: var(--ink-dim);
@@ -369,7 +369,7 @@
 		gap: 1rem;
 		padding: 0.5rem 1rem;
 		border-top: 1px solid var(--line);
-		font-size: 0.65rem;
+		font-size: 0.75rem;
 		color: var(--ink-dim);
 	}
 	@keyframes fade {

@@ -101,7 +101,7 @@
 		padding: 0.25rem 0;
 		border-top: 1px solid var(--line);
 		border-bottom: 1px solid var(--line);
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.2em;
 		text-transform: uppercase;
 		transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);

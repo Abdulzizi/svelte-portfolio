@@ -303,7 +303,7 @@ import { reveal } from '$lib/actions/reveal';
 	.tabs { display: flex; border: 1px solid var(--line); width: max-content; }
 	.tab {
 		background: none; border: none; color: var(--ink-dim); cursor: pointer;
-		font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+		font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
 		padding: 0.6rem 1.1rem; min-height: 44px; transition: color 0.2s ease, background-color 0.2s ease;
 	}
 	.tab + .tab { border-left: 1px solid var(--line); }
@@ -317,13 +317,13 @@ import { reveal } from '$lib/actions/reveal';
 	.timeline::before { content: ''; position: absolute; top: 0.6rem; bottom: 0.6rem; left: 0.3rem; width: 1px; background: var(--line); }
 	.entry { position: relative; display: grid; grid-template-columns: 1fr; gap: 0.35rem; padding: 0 0 2.5rem 1.75rem; }
 	.entry::before { content: ''; position: absolute; top: 0.45rem; left: 0; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--accent); }
-	.when { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--ink-dim); text-transform: uppercase; }
+	.when { font-size: 0.75rem; letter-spacing: 0.2em; color: var(--ink-dim); text-transform: uppercase; }
 	.co { font-size: clamp(1.6rem, 4.5vw, 2.75rem); line-height: 1.05; text-transform: uppercase; letter-spacing: -0.01em; overflow-wrap: anywhere; }
 	.xrole { margin-top: 0.35rem; font-size: 0.8rem; letter-spacing: 0.08em; color: var(--accent); }
 	.outcomes { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.35rem; color: var(--ink-dim); line-height: 1.5; max-width: 42rem; }
 	.outcomes li { display: flex; gap: 0.6rem; }
 	.outcomes li::before { content: '→'; color: var(--accent); flex: 0 0 auto; }
-	.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; font-size: 0.7rem; letter-spacing: 0.1em; }
+	.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; font-size: 0.75rem; letter-spacing: 0.1em; }
 	.chips li { border: 1px solid var(--line); padding: 0.25rem 0.6rem; color: var(--ink-dim); }
 	@media (min-width: 768px) {
 		.entry { grid-template-columns: 8rem 1fr; gap: 0; padding-left: 0; }
@@ -340,7 +340,7 @@ import { reveal } from '$lib/actions/reveal';
 	.switch { display: none; gap: 0; margin: 0; border: 1px solid var(--line); width: max-content; }
 	.switch-btn {
 		background: none; border: none; color: var(--ink-dim); cursor: pointer;
-		font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+		font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
 		padding: 0.6rem 1.1rem; min-height: 44px; transition: color 0.2s ease, background-color 0.2s ease;
 	}
 	.switch-btn + .switch-btn { border-left: 1px solid var(--line); }
@@ -386,7 +386,7 @@ import { reveal } from '$lib/actions/reveal';
 	.problem { color: var(--ink-dim); line-height: 1.5; }
 	.result { margin-top: 0.5rem; display: flex; gap: 0.6rem; line-height: 1.5; }
 	.arrow { color: var(--accent); flex: 0 0 auto; }
-	.case-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 0.75rem; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+	.case-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 0.75rem; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
 	.case-link:hover { text-decoration: underline; }
 	.case-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 	.body { margin-top: 1rem; color: var(--ink-dim); line-height: 1.6; }
@@ -413,7 +413,7 @@ import { reveal } from '$lib/actions/reveal';
 	.rest-title { font-size: clamp(1.4rem, 4vw, 2.5rem); text-transform: uppercase; letter-spacing: -0.01em; transition: color 0.35s ease; }
 	@media (hover: hover) and (pointer: fine) { .rest-bar:hover .rest-title { color: var(--accent); } }
 	.rest-row.open .rest-title { color: var(--accent); }
-	.rest-year { flex: 0 0 auto; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--ink-dim); }
+	.rest-year { flex: 0 0 auto; font-size: 0.75rem; letter-spacing: 0.15em; color: var(--ink-dim); }
 
 	/* Rail nav: real prev/next buttons (click + keyboard + touch all work) */
 	/* Rail prev/next only makes sense on the horizontal deck; on mobile all
@@ -429,13 +429,13 @@ import { reveal } from '$lib/actions/reveal';
 	.nav-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
 	.nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 	.nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-	.count { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--ink-dim); padding: 0 0.5rem; }
+	.count { font-size: 0.75rem; letter-spacing: 0.2em; color: var(--ink-dim); padding: 0 0.5rem; }
 
 	/* Jump buttons between planes — deck-only (mobile just scrolls). */
 	.jump {
 		display: none;
 		margin-top: 1.5rem; align-self: flex-start; background: none; border: 1px solid var(--line);
-		color: var(--ink-dim); padding: 0.5rem 1rem; min-height: 44px; font-size: 0.7rem; letter-spacing: 0.2em;
+		color: var(--ink-dim); padding: 0.5rem 1rem; min-height: 44px; font-size: 0.75rem; letter-spacing: 0.2em;
 		text-transform: uppercase; cursor: pointer; transition: color 0.2s ease, border-color 0.2s ease;
 	}
 	.rest-head .jump { margin-top: 0; }

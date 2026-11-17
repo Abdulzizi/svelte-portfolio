@@ -192,7 +192,7 @@
 
 	.copy {
 		position: relative; width: 100%; max-width: 44rem; margin-inline: auto; padding: 2rem;
-		background: radial-gradient(closest-side, color-mix(in srgb, var(--bg) 85%, transparent) 60%, transparent);
+		background: radial-gradient(closest-side, color-mix(in srgb, var(--bg) 85%, transparent) 85%, transparent);
 	}
 
 	.kicker {
@@ -211,7 +211,7 @@
 		display: grid; gap: 1rem; margin-top: 2rem; max-width: 34rem;
 		border-top: 1px solid var(--line); padding-top: 1rem;
 	}
-	.live dt { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--ink-dim); }
+	.live dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--ink-dim); }
 	.live dd { margin-top: 0.25rem; font-size: 1rem; color: var(--ink); }
 
 	.links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
@@ -239,7 +239,7 @@
 	.rail ol { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 1.25rem; list-style: none; margin: 0; padding: 0; }
 	.rail button {
 		display: block; padding: 0.25rem 0.75rem 0.25rem 0.5rem; background: var(--bg);
-		font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--ink-dim); cursor: pointer;
+		font-size: 0.75rem; letter-spacing: 0.15em; color: var(--ink-dim); cursor: pointer;
 		transition: color 0.2s ease;
 	}
 	.rail button:hover, .rail button.on { color: var(--accent); }

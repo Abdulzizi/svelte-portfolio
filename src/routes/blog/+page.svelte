@@ -77,7 +77,7 @@
 	}
 	.lede {
 		margin-top: 0.75rem;
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.2em;
 		text-transform: uppercase;
 		color: var(--ink-dim);
@@ -107,7 +107,7 @@
 	.row-link:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
 
 	.date {
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.2em;
 		text-transform: uppercase;
 		color: var(--ink-dim);

@@ -115,7 +115,7 @@
 	.wrap { margin: 3.5rem auto 0; width: 100%; max-width: var(--reader-wrap, 44rem); }
 
 	.draft {
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.2em;
 		text-transform: uppercase;
 		color: var(--accent);
@@ -130,14 +130,14 @@
 		animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 	.kicker {
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.2em;
 		text-transform: uppercase;
 		color: var(--accent);
 	}
 	.date {
 		margin-left: 1rem;
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.2em;
 		text-transform: uppercase;
 		color: var(--ink-dim);
