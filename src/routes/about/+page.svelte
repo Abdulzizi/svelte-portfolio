@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, tick as flush } from 'svelte';
 	import DataField from '$lib/components/DataField.svelte';
+	import AsciiPortrait from '$lib/components/AsciiPortrait.svelte';
 	import { loadGsap } from '$lib/motion';
 	import { motionOff, motionPref } from '$lib/motion-pref.svelte';
 	import { useWide } from '$lib/wide.svelte';
@@ -112,6 +113,10 @@
 </svelte:head>
 
 <div class="backdrop" aria-hidden="true"><DataField {density} /></div>
+
+{#if wide.current}
+	<AsciiPortrait />
+{/if}
 
 <main id="main-content" bind:this={root} class="story relative text-[var(--ink)]" class:pinned>
 	<a href="/" class="back font-hand font-extrabold">Back</a>
