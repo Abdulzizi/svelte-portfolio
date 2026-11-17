@@ -2,6 +2,7 @@
 	import '../app.css';
 	import { onNavigate } from '$app/navigation';
 	import Marquee from '$lib/components/Marquee.svelte';
+	import AsciiBackdrop from '$lib/components/AsciiBackdrop.svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import MotionToggle from '$lib/components/MotionToggle.svelte';
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
@@ -53,6 +54,7 @@
 </script>
 
 <div class="relative">
+	<AsciiBackdrop />
 	<Marquee axis="x" position="top" />
 	<Marquee axis="x" position="bottom" />
 	<Marquee axis="y" position="left" />
