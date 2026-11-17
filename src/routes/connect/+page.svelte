@@ -149,12 +149,12 @@
 </main>
 
 <style>
-	.page { padding: 6rem 1.25rem 3rem; min-height: 100dvh; display: flex; }
+	.page { padding: 6rem 2.5rem 3rem; min-height: 100dvh; display: flex; }
 	.back { position: absolute; top: 3rem; left: 2.5rem; z-index: 20; padding: 0.25rem 0; }
 	.wrap { width: 100%; max-width: 78rem; margin: auto; display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
 	.title { font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
 	.mail {
-		font-size: clamp(1.5rem, 7vw, 7vw); line-height: 1.05; letter-spacing: -0.03em; text-align: left;
+		font-size: clamp(1.25rem, 6vw, 7vw); line-height: 1.05; letter-spacing: -0.03em; text-align: left;
 		min-height: 2.75rem; padding: 0.25rem 0; max-width: 100%; overflow-wrap: anywhere;
 		color: var(--ink); background: none; border: 0; border-bottom: 2px solid var(--line);
 		transition: color 0.2s ease, border-color 0.2s ease;
@@ -187,6 +187,6 @@
 	.links a:hover { text-decoration: underline; text-underline-offset: 4px; }
 	:where(a, button, input, textarea):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 	@media (min-width: 640px) { .row { grid-template-columns: 1fr 1fr; } }
-	@media (min-width: 1024px) { .page { padding: 6rem 2.5rem 3rem; } }
+	@media (min-width: 1024px) { .page { padding: 6rem 3rem 3rem; } .back { left: 3rem; } }
 	@media (prefers-reduced-motion: reduce) { .mail, .btn { transition: none; } }
 </style>
