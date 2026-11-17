@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { motionOff } from '$lib/motion-pref.svelte';
 
 type Gsap = typeof import('gsap').gsap;
 type ScrollTriggerPlugin = typeof import('gsap/ScrollTrigger').ScrollTrigger;
@@ -7,7 +8,7 @@ export type Motion = { gsap: Gsap; ScrollTrigger: ScrollTriggerPlugin };
 let cached: Promise<Motion | null> | undefined;
 
 export function loadGsap(): Promise<Motion | null> {
-	if (!browser || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+	if (!browser || motionOff()) {
 		return Promise.resolve(null);
 	}
 	cached ??= Promise.all([import('gsap'), import('gsap/ScrollTrigger')])

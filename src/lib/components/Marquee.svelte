@@ -1,5 +1,8 @@
 <script lang="ts">
-	const TEXT = ' FULL STACK DEVELOPER — DATA SCIENCE — CLEAN INTERFACES — TYPE DESIGN — CLEAN ARCHITECTURE — ROBUST SYSTEM — ';
+	import { onMount } from 'svelte';
+
+	const TAGLINE = ['FULL STACK DEVELOPER', 'DATA SCIENCE', 'CLEAN INTERFACES', 'TYPE DESIGN', 'CLEAN ARCHITECTURE', 'ROBUST SYSTEM'];
+	const TIMEZONE = 'Asia/Jakarta';
 	const SPEED = 40; // px per second
 
 	let { axis, position }: { axis: 'x' | 'y'; position: 'top' | 'bottom' | 'left' | 'right' } = $props();
@@ -7,6 +10,31 @@
 	let bar = $state<HTMLElement>();
 	let track = $state<HTMLElement>();
 	let count = $state(1);
+	let now = $state('');
+	let post = $state<string | null>(null);
+	let github = $state<string | null>(null);
+
+	const text = $derived(
+		` ${[...TAGLINE, ...(now ? [`${now} JAKARTA`] : []), ...(post ? [`NEW: ${post}`] : []), ...(github ? [github] : [])].join(' — ')} — `
+	);
+
+	function tick() {
+		now = new Intl.DateTimeFormat('en-GB', { timeZone: TIMEZONE, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date());
+	}
+
+	onMount(() => {
+		tick();
+		const id = setInterval(tick, 60_000);
+		fetch('/api/ticker')
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => {
+				if (!d) return;
+				post = typeof d.post === 'string' ? d.post : null;
+				github = typeof d.github === 'string' ? d.github : null;
+			})
+			.catch(() => {});
+		return () => clearInterval(id);
+	});
 
 	const barClass = $derived(
 		axis === 'x'
@@ -21,6 +49,7 @@
 
 	$effect(() => {
 		if (!bar || !track) return;
+		void text;
 		const b = bar;
 		const t = track;
 		let alive = true;
@@ -57,7 +86,7 @@
 >
 	<div class="track" class:vertical={axis === 'y'} bind:this={track}>
 		{#each Array(count) as _, i (i)}
-			<span class="font-mono uppercase tracking-[0.1em] whitespace-nowrap {textClass}">{TEXT}</span>
+			<span class="font-mono uppercase tracking-[0.1em] whitespace-pre {textClass}">{text}</span>
 		{/each}
 	</div>
 </div>

@@ -3,12 +3,26 @@
 	import { onNavigate } from '$app/navigation';
 	import Marquee from '$lib/components/Marquee.svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import MotionToggle from '$lib/components/MotionToggle.svelte';
+	import CommandPalette from '$lib/components/CommandPalette.svelte';
+	import Cursor from '$lib/components/Cursor.svelte';
+	import { motionPref, motionOff } from '$lib/motion-pref.svelte';
+	import { startSmoothScroll } from '$lib/smooth-scroll';
+	import { page } from '$app/state';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
 
+	onMount(() => motionPref.init());
+
+	$effect(() => {
+		if (motionPref.off || page.url.pathname.startsWith('/admin')) return;
+		return startSmoothScroll();
+	});
+
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
-		if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		if (motionOff()) return;
 		const from = navigation.from?.url.pathname ?? '';
 		const to = navigation.to?.url.pathname ?? '';
 		if (from.startsWith('/admin') || to.startsWith('/admin')) return;
@@ -29,6 +43,9 @@
 	<a class="skip-link" href="#main-content">Skip to content</a>
 	{@render children()}
 	<ThemeToggle />
+	<MotionToggle />
+	<CommandPalette />
+	<Cursor />
 </div>
 
 <style>

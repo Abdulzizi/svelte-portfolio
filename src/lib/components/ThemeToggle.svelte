@@ -13,6 +13,11 @@
 	$effect(() => {
 		const t = document.documentElement.dataset.theme;
 		theme = t === 'light' ? 'light' : 'dark';
+		const mo = new MutationObserver(() => {
+			theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+		});
+		mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+		return () => mo.disconnect();
 	});
 
 	function spin(node: Element) {

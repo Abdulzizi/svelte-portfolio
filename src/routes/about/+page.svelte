@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { reveal } from '$lib/actions/reveal';
 	import SlidePage from '$lib/components/SlidePage.svelte';
+	import DataField from '$lib/components/DataField.svelte';
 
 	let index = $state(0);
 

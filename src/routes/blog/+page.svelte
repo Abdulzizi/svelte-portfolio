@@ -33,7 +33,7 @@
 			<ul class="list" data-reveal-children use:reveal={{ stagger: 0.06 }}>
 				{#each posts as p (p.slug)}
 					<li class="row">
-						<a class="row-link" href={`/blog/${p.slug}`}>
+						<a class="row-link" data-cursor="READ" href={`/blog/${p.slug}`}>
 							<span class="date font-mono">{fmtDate(p.publishedAt ?? p.createdAt)}</span>
 							<span class="title font-hand font-extrabold" style="view-transition-name: post-{p.slug}">{p.title}</span>
 							{#if p.excerpt}

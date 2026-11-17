@@ -1,11 +1,11 @@
 @import "tailwindcss";
-@import "@fontsource/space-grotesk/latin-700.css";
+@import "@fontsource-variable/space-grotesk/wght.css";
 @import "@fontsource/inter/latin-400.css";
 @import "@fontsource/inter/latin-500.css";
 
 /* Tailwind v4 generates font-* utilities only from @theme. */
 @theme {
-  --font-hand: "Space Grotesk", sans-serif;
+  --font-hand: "Space Grotesk Variable", sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "Inter", system-ui, sans-serif;
 }
@@ -38,6 +38,18 @@
 
 html {
   background: var(--bg);
+}
+
+html,
+body,
+main {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+main::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -97,14 +109,16 @@ body::after {
   ::view-transition-old(marquee-bottom),
   ::view-transition-old(marquee-left),
   ::view-transition-old(marquee-right),
-  ::view-transition-old(theme-toggle) {
+  ::view-transition-old(theme-toggle),
+  ::view-transition-old(motion-toggle) {
     display: none;
   }
   ::view-transition-new(marquee-top),
   ::view-transition-new(marquee-bottom),
   ::view-transition-new(marquee-left),
   ::view-transition-new(marquee-right),
-  ::view-transition-new(theme-toggle) {
+  ::view-transition-new(theme-toggle),
+  ::view-transition-new(motion-toggle) {
     animation: none;
   }
 }
@@ -118,6 +132,33 @@ body::after {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-motion="off"] .track {
+  animation: none !important;
+}
+
+html[data-motion="off"] [data-reveal],
+html[data-motion="off"] [data-reveal-children] > *,
+html[data-motion="off"] [data-reveal-stacked],
+html[data-motion="off"] [data-reveal-stacked-children] > * {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+html[data-motion="off"]::view-transition-group(*),
+html[data-motion="off"]::view-transition-old(*),
+html[data-motion="off"]::view-transition-new(*) {
+  animation: none !important;
 }
 
 [data-chrome].fixed {

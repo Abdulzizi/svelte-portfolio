@@ -9,6 +9,7 @@
 	import { tick } from 'svelte';
 	import { useWide } from '$lib/wide.svelte';
 import { reveal } from '$lib/actions/reveal';
+	import ImageDistort from '$lib/components/ImageDistort.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -173,9 +174,7 @@ import { reveal } from '$lib/actions/reveal';
 				<div class="spec-row"><dt>Impact</dt><dd class="impact">{p.impact}</dd></div>
 			</dl>
 			<div class="prose">
-				{#if p.imagePath}
-					<img class="shot" src={p.imagePath} alt={`${p.title} screenshot`} loading="lazy" />
-				{/if}
+				<ImageDistort class="shot" src={p.imagePath ?? ''} alt={`${p.title} screenshot`} />
 				<p class="problem">{p.problem}</p>
 				<p class="result"><span class="arrow font-mono" aria-hidden="true">→</span><span>{p.result}</span></p>
 				{#if p.body}
@@ -241,7 +240,7 @@ import { reveal } from '$lib/actions/reveal';
 	.spec dd { text-align: right; min-width: 0; overflow-wrap: anywhere; }
 	.spec .impact { color: var(--accent); }
 	.prose { max-width: 42rem; }
-	.shot { display: block; width: 100%; max-width: 32rem; aspect-ratio: 16 / 9; height: auto; object-fit: cover; border: 1px solid var(--line); margin-bottom: 1rem; }
+	:global(.shot) { display: block; width: 100%; max-width: 32rem; aspect-ratio: 16 / 9; height: auto; object-fit: cover; border: 1px solid var(--line); background: var(--surface); margin-bottom: 1rem; }
 	.problem { color: var(--ink-dim); line-height: 1.5; }
 	.result { margin-top: 0.5rem; display: flex; gap: 0.6rem; line-height: 1.5; }
 	.arrow { color: var(--accent); flex: 0 0 auto; }
