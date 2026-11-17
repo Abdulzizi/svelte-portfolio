@@ -1,6 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { loginSchema } from '$lib/validation';
 import { createSession, setSessionCookie, verifyAdmin } from '$lib/server/auth';
+import { checkRateLimit, clientKey } from '$lib/server/rate-limit';
+import { getTotp, verifyCode } from '$lib/server/totp';
 import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
@@ -10,8 +12,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, cookies, locals }) => {
+	default: async (event) => {
+		const { request, cookies, locals } = event;
 		const form = await request.formData();
+		if (!(await checkRateLimit(`login:${clientKey(event)}`, 5, 15 * 60_000))) {
+			return fail(429, { error: 'Too many attempts, try again later', email: '' });
+		}
 		const parsed = loginSchema.safeParse(Object.fromEntries(form));
 		if (!parsed.success) {
 			const email = typeof form.get('email') === 'string' ? (form.get('email') as string) : '';
@@ -22,6 +28,20 @@ export const actions: Actions = {
 		if (!(await verifyAdmin(email, password))) {
 			// Echo email back (not the password) so the user needn't retype it.
 			return fail(400, { error: 'Invalid credentials', email });
+		}
+
+		let totp: Awaited<ReturnType<typeof getTotp>> = { enabled: false, secret: null };
+		try {
+			totp = await getTotp();
+		} catch {
+			return fail(500, { error: 'Sign in unavailable, try again later', email });
+		}
+		if (totp.enabled && totp.secret) {
+			const code = String(form.get('code') ?? '').trim();
+			if (!code) return fail(400, { needCode: true, email });
+			if (!verifyCode(totp.secret, code)) {
+				return fail(400, { needCode: true, error: 'Invalid credentials', email });
+			}
 		}
 
 		const { id, expiresAt } = await createSession();

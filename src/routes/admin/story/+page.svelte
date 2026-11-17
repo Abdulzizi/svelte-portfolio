@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import StoryPreview from '$lib/components/preview/StoryPreview.svelte';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -55,6 +56,7 @@
 		</select>
 		{#if e.variant}<span class="err font-mono">{e.variant[0]}</span>{/if}
 	</label>
+	<StoryPreview />
 {/snippet}
 
 <ul class="rows">

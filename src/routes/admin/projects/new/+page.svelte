@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { MAX_IMAGE_BYTES } from '$lib/images';
 	import { enhance } from '$app/forms';
+	import ProjectPreview from '$lib/components/preview/ProjectPreview.svelte';
 	import RichEditor from '$lib/components/RichEditor.svelte';
 	import type { ActionData } from './$types';
 
@@ -27,6 +28,7 @@
 	</h1>
 </div>
 
+<ProjectPreview>
 <form
 	method="POST"
 	class="form"
@@ -149,6 +151,7 @@
 		<a href="/admin/projects" class="cancel font-mono">Cancel</a>
 	</div>
 </form>
+</ProjectPreview>
 
 <style>
 	.head {

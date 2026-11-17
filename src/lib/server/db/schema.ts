@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, boolean, integer, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, boolean, integer, timestamp, index } from 'drizzle-orm/pg-core';
 
 export const projects = pgTable('projects', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -45,6 +45,8 @@ export const messages = pgTable('messages', {
 	email: text('email').notNull(),
 	body: text('body').notNull(),
 	read: boolean('read').notNull().default(false),
+	archived: boolean('archived').notNull().default(false),
+	spam: boolean('spam').notNull().default(false),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 }).enableRLS();
 
@@ -59,6 +61,33 @@ export const storyChapters = pgTable('story_chapters', {
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 }).enableRLS();
 
+export const siteSettings = pgTable('site_settings', {
+	id: text('id').primaryKey().default('site'),
+	email: text('email').notNull(),
+	githubUrl: text('github_url').notNull(),
+	linkedinUrl: text('linkedin_url').notNull(),
+	instagramUrl: text('instagram_url').notNull(),
+	availability: text('availability').notNull(),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+}).enableRLS();
+
+export const adminSecurity = pgTable('admin_security', {
+	id: text('id').primaryKey().default('admin'),
+	totpSecret: text('totp_secret'),
+	totpEnabled: boolean('totp_enabled').notNull().default(false),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
+}).enableRLS();
+
+export const rateLimits = pgTable(
+	'rate_limits',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		bucket: text('bucket').notNull(),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => [index('rate_limits_bucket_created_idx').on(t.bucket, t.createdAt)]
+).enableRLS();
+
 export type StoryChapter = typeof storyChapters.$inferSelect;
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
@@ -67,3 +96,7 @@ export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type NewSiteSettings = typeof siteSettings.$inferInsert;
+export type AdminSecurity = typeof adminSecurity.$inferSelect;
+export type RateLimit = typeof rateLimits.$inferSelect;

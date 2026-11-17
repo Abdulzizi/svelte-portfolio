@@ -1,15 +1,19 @@
 import { fail } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { validate } from '$lib/contact';
-import { EMAIL as TO } from '$lib/site';
+import { getSettings } from '$lib/server/settings';
 import { createMessage } from '$lib/server/messages';
-import type { Actions } from './$types';
+import { checkRateLimit, clientKey } from '$lib/server/rate-limit';
+import type { Actions, PageServerLoad } from './$types';
 
 // Form actions need a server runtime; `/` stays prerendered via +layout.ts.
 export const prerender = false;
 
+export const load: PageServerLoad = async () => ({ settings: await getSettings() });
+
 export const actions: Actions = {
-	default: async ({ request, fetch }) => {
+	default: async (event) => {
+		const { request, fetch } = event;
 		const form = await request.formData();
 		const r = validate(Object.fromEntries(form));
 
@@ -17,6 +21,9 @@ export const actions: Actions = {
 		// caveman: bots get a fake success, no signal to retry. Upgrade: rate limit in shared store.
 		if (r.honeypot) return { success: true };
 		if (!r.ok) return fail(400, { errors: r.errors, values: r.values });
+		if (!(await checkRateLimit(`connect:${clientKey(event)}`, 5, 3_600_000))) {
+			return fail(429, { error: 'You have sent a few messages already. Please try again in an hour or email me directly.', values: r.values });
+		}
 
 		const text = r.values.message;
 
@@ -35,6 +42,7 @@ export const actions: Actions = {
 			return fail(500, { error: 'Sending is not set up yet. Email me directly instead.', values: r.values });
 		}
 
+		const TO = (await getSettings()).email;
 		try {
 			const res = await fetch('https://api.resend.com/emails', {
 				method: 'POST',

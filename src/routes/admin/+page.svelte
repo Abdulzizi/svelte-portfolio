@@ -5,12 +5,33 @@
 
 	let { data }: { data: PageData } = $props();
 
+	const na = 'n/a';
+	const mb = (n: number) => (n / 1048576).toFixed(n < 104858 ? 2 : 1);
+	const st = $derived(data.stats);
 	const tiles = $derived([
-		{ label: 'Projects', value: data.stats.projects },
-		{ label: 'Featured', value: data.stats.featured },
-		{ label: 'Posts published', value: data.stats.published },
-		{ label: 'Drafts', value: data.stats.drafts },
-		{ label: 'Unread messages', value: data.stats.unread }
+		{ label: 'Unread messages', value: st.unread.ok ? st.unread.value : na, href: '/admin/inbox' },
+		{ label: 'Total messages', value: st.total.ok ? st.total.value : na },
+		{
+			label: 'Drafts waiting',
+			value: st.postAgg.ok ? st.postAgg.value.drafts : na,
+			href: '/admin/posts'
+		},
+		{ label: 'Posts published', value: st.postAgg.ok ? st.postAgg.value.published : na },
+		{
+			label: 'Last publish',
+			value: !st.postAgg.ok ? na : fmtDate(st.postAgg.value.lastPublished) || 'none',
+			small: true
+		},
+		{ label: 'Projects', value: st.projects.ok ? st.projects.value.total : na },
+		{ label: 'Experience', value: st.experience.ok ? st.experience.value : na },
+		{ label: 'Story chapters', value: st.chapters.ok ? st.chapters.value : na },
+		{
+			label: 'Upload storage',
+			value: st.storage.ok
+				? `${st.storage.value.truncated ? '≥ ' : ''}${mb(st.storage.value.bytes)} MB`
+				: 'unavailable',
+			small: true
+		}
 	]);
 </script>
 
@@ -26,13 +47,19 @@
 	<div class="quick">
 		<a href="/admin/posts/new" class="new font-hand font-extrabold">New post</a>
 		<a href="/admin/projects/new" class="new font-hand font-extrabold">New project</a>
+		<a href="/admin/story" class="new font-hand font-extrabold">Edit story</a>
+		<a href="/admin/cv" class="new font-hand font-extrabold">Upload CV</a>
 	</div>
 </div>
 
 <ul class="tiles">
 	{#each tiles as t (t.label)}
 		<li class="tile">
-			<span class="num font-hand font-extrabold">{t.value}</span>
+			{#if t.href}
+				<a href={t.href} class="num font-hand font-extrabold">{t.value}</a>
+			{:else}
+				<span class="num font-hand font-extrabold" class:small={t.small}>{t.value}</span>
+			{/if}
 			<span class="label font-mono">{t.label}</span>
 		</li>
 	{/each}
@@ -120,6 +147,13 @@
 	.num {
 		font-size: 2rem;
 		line-height: 1;
+	}
+	.num.small {
+		font-size: 1.125rem;
+		line-height: 2rem;
+	}
+	a.num:hover {
+		color: var(--accent);
 	}
 	.label,
 	.sect,

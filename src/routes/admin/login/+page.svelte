@@ -51,6 +51,22 @@
 				/>
 			</label>
 
+			{#if form?.needCode}
+				<label class="field" for="code">
+					<span>Authenticator code</span>
+					<input
+						id="code"
+						name="code"
+						type="text"
+						inputmode="numeric"
+						autocomplete="one-time-code"
+						pattern="[0-9]*"
+						maxlength="6"
+						required
+					/>
+				</label>
+			{/if}
+
 			<div class="flex items-center gap-4">
 				<button type="submit" class="send font-hand font-extrabold" disabled={submitting}>
 					{submitting ? 'Signing in' : 'Sign in'}

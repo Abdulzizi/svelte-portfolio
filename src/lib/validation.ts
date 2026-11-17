@@ -164,3 +164,24 @@ export const chapterSchema = z.object({
 	body: z.string().trim().min(1, 'Required').max(600, 'Max 600 characters'),
 	variant: z.enum(['text', 'now', 'next'])
 });
+
+const httpsUrl = z
+	.string()
+	.trim()
+	.min(1, 'Required')
+	.max(300, 'Max 300 characters')
+	.refine((v) => {
+		try {
+			return new URL(v).protocol === 'https:';
+		} catch {
+			return false;
+		}
+	}, 'Must be an https URL');
+
+export const settingsSchema = z.object({
+	email: z.string().trim().min(1, 'Required').max(254, 'Max 254 characters').email('Invalid email'),
+	githubUrl: httpsUrl,
+	linkedinUrl: httpsUrl,
+	instagramUrl: httpsUrl,
+	availability: z.string().trim().min(1, 'Required').max(80, 'Max 80 characters')
+});

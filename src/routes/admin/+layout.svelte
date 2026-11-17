@@ -13,7 +13,10 @@
 		{ href: '/admin/posts', label: 'Posts' },
 		{ href: '/admin/story', label: 'Story' },
 		{ href: '/admin/inbox', label: 'Inbox' },
-		{ href: '/admin/cv', label: 'CV' }
+		{ href: '/admin/cv', label: 'CV' },
+		{ href: '/admin/settings', label: 'Settings' },
+		{ href: '/admin/backup', label: 'Backup' },
+		{ href: '/admin/security', label: 'Security' }
 	];
 	const isActive = (href: string, path: string) =>
 		href === '/admin' ? path === '/admin' : path === href || path.startsWith(href + '/');

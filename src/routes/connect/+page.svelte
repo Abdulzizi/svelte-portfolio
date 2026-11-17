@@ -2,10 +2,11 @@
 	import { enhance } from '$app/forms';
 	import { onMount } from 'svelte';
 	import { magnetic } from '$lib/actions/magnetic';
-	import { AVAILABILITY, EMAIL, GITHUB_URL, INSTAGRAM_URL, LINKEDIN_URL } from '$lib/site';
-	import type { ActionData } from './$types';
+		import type { ActionData, PageData } from './$types';
 
-	let { form }: { form: ActionData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
+
+	const s = $derived(data.settings);
 
 	let sending = $state(false);
 	let copied = $state(false);
@@ -18,11 +19,11 @@
 	async function copyEmail() {
 		let ok = false;
 		try {
-			await navigator.clipboard.writeText(EMAIL);
+			await navigator.clipboard.writeText(s.email);
 			ok = true;
 		} catch {
 			const t = document.createElement('textarea');
-			t.value = EMAIL;
+			t.value = s.email;
 			t.setAttribute('readonly', '');
 			t.style.position = 'fixed';
 			t.style.opacity = '0';
@@ -53,11 +54,11 @@
 	<div class="wrap">
 		<h1 class="title font-hand font-extrabold">Connect</h1>
 
-		<button type="button" use:magnetic class="mail font-hand font-extrabold" onclick={copyEmail} aria-label="Copy email address {EMAIL}">
-			{copied ? 'Copied' : EMAIL}
+		<button type="button" use:magnetic class="mail font-hand font-extrabold" onclick={copyEmail} aria-label="Copy email address {s.email}">
+			{copied ? 'Copied' : s.email}
 		</button>
 		<p class="sr-only" role="status" aria-live="polite">{copied ? 'Email copied to clipboard' : ''}</p>
-		<a class="alt" href="mailto:{EMAIL}">or open in mail app</a>
+		<a class="alt" href="mailto:{s.email}">or open in mail app</a>
 
 		{#if form?.success}
 			<div class="done" role="status">
@@ -136,12 +137,12 @@
 
 		<footer class="foot">
 			<p class="flex items-center gap-2 text-sm text-[var(--ink-dim)]">
-				<span class="dot" aria-hidden="true"></span>{AVAILABILITY}
+				<span class="dot" aria-hidden="true"></span>{s.availability}
 			</p>
 			<p class="links">
-				<a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
-				<a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-				<a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">Instagram</a>
+				<a href={s.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+				<a href={s.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+				<a href={s.instagramUrl} target="_blank" rel="noopener noreferrer">Instagram</a>
 			</p>
 		</footer>
 	</div>

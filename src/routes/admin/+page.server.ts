@@ -3,6 +3,7 @@ import { SESSION_COOKIE, destroySession } from '$lib/server/auth';
 import { countUnread } from '$lib/server/messages';
 import { getPost, listAllPosts, updatePost } from '$lib/server/posts';
 import { listRecentProjects, projectCounts } from '$lib/server/projects';
+import { chapterCount, experienceCount, messageTotal, postStats, safe, storageUsed } from '$lib/server/stats';
 import { UUID } from '$lib/uuid';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -10,21 +11,28 @@ export const prerender = false;
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.admin) throw redirect(303, '/admin/login');
-	const [counts, recentProjects, posts, unread] = await Promise.all([
-		projectCounts(),
-		listRecentProjects(5),
-		listAllPosts(),
-		countUnread()
-	]);
+	const [counts, recentProjects, posts, unread, total, postAgg, experience, chapters, storage] =
+		await Promise.all([
+			safe(projectCounts()),
+			safe(listRecentProjects(5)),
+			safe(listAllPosts()),
+			safe(countUnread()),
+			safe(messageTotal()),
+			safe(postStats()),
+			safe(experienceCount()),
+			safe(chapterCount()),
+			safe(storageUsed())
+		]);
+	const postRows = posts.ok ? posts.value : [];
 	const recent = [
-		...recentProjects.map((p) => ({
+		...(recentProjects.ok ? recentProjects.value : []).map((p) => ({
 			type: 'Project' as const,
 			id: p.id,
 			title: p.title,
 			updatedAt: p.updatedAt,
 			href: `/admin/projects/${p.id}`
 		})),
-		...posts.map((p) => ({
+		...postRows.map((p) => ({
 			type: 'Post' as const,
 			id: p.id,
 			title: p.title,
@@ -35,15 +43,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
 		.slice(0, 5);
 	return {
-		stats: {
-			projects: counts.total,
-			featured: counts.featured,
-			published: posts.filter((p) => p.published).length,
-			drafts: posts.filter((p) => !p.published).length,
-			unread
-		},
+		stats: { projects: counts, unread, total, postAgg, experience, chapters, storage },
 		recent,
-		drafts: posts.filter((p) => !p.published).map((p) => ({ id: p.id, title: p.title }))
+		drafts: postRows.filter((p) => !p.published).map((p) => ({ id: p.id, title: p.title }))
 	};
 };
 

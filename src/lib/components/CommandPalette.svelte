@@ -13,6 +13,7 @@
 	let active = $state(0);
 	let posts = $state<{ slug: string; title: string }[]>([]);
 	let loaded = false;
+	let site = $state({ email: EMAIL, githubUrl: GITHUB_URL, linkedinUrl: LINKEDIN_URL });
 	let input = $state<HTMLInputElement>();
 	let returnTo: HTMLElement | null = null;
 	let lastPath = '';
@@ -22,10 +23,10 @@
 
 	async function copyEmail() {
 		try {
-			await navigator.clipboard.writeText(EMAIL);
+			await navigator.clipboard.writeText(site.email);
 		} catch {
 			const t = document.createElement('textarea');
-			t.value = EMAIL;
+			t.value = site.email;
 			t.style.position = 'fixed';
 			t.style.opacity = '0';
 			document.body.appendChild(t);
@@ -95,13 +96,13 @@
 			id: 'github',
 			label: 'Open GitHub',
 			hint: 'Action',
-			run: () => openTab(GITHUB_URL)
+			run: () => openTab(site.githubUrl)
 		},
 		{
 			id: 'linkedin',
 			label: 'Open LinkedIn',
 			hint: 'Action',
-			run: () => openTab(LINKEDIN_URL)
+			run: () => openTab(site.linkedinUrl)
 		},
 		{
 			id: 'cv',
@@ -170,8 +171,9 @@
 		if (!loaded) {
 			loaded = true;
 			try {
-				const res = await fetch('/api/posts-index');
+				const [res, siteRes] = await Promise.all([fetch('/api/posts-index'), fetch('/api/site')]);
 				if (res.ok) posts = await res.json();
+				if (siteRes.ok) site = await siteRes.json();
 			} catch {
 				loaded = false;
 			}

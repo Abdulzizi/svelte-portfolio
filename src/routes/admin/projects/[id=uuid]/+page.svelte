@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { MAX_IMAGE_BYTES } from '$lib/images';
 	import { enhance } from '$app/forms';
+	import ProjectPreview from '$lib/components/preview/ProjectPreview.svelte';
 	import RichEditor from '$lib/components/RichEditor.svelte';
 	import type { ActionData, PageData } from './$types';
 
@@ -32,6 +33,7 @@
 	<h1 class="font-hand text-3xl font-extrabold leading-none">{p.title}</h1>
 </div>
 
+<ProjectPreview>
 <form
 	method="POST"
 	action="?/save"
@@ -167,6 +169,7 @@
 		<a href="/admin/projects" class="cancel font-mono">Cancel</a>
 	</div>
 </form>
+</ProjectPreview>
 
 <form
 	method="POST"
