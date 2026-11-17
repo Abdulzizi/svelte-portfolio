@@ -21,5 +21,6 @@
 		<meta property="og:url" content={page.url.href} />
 		<meta property="og:image" content={image} />
 		<meta name="twitter:card" content="summary_large_image" />
+		<link rel="alternate" type="application/rss+xml" title="Abdul Jawad Azizi blog" href="/blog/rss.xml" />
 	{/if}
 </svelte:head>

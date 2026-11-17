@@ -16,12 +16,12 @@
 	<div class="mid">
 		<p class="status font-mono">{$page.status}</p>
 		<h1 class="heading font-hand font-extrabold">
-			{#if notFound}Not <span class="accent">found</span>{:else}Something <span class="accent">broke</span>{/if}
+			{#if notFound}Page <span class="accent">not found</span>{:else}Something <span class="accent">went wrong</span>{/if}
 		</h1>
-		{#if $page.error?.message}
-			<p class="detail font-mono">{$page.error.message}</p>
-		{/if}
-		<a href="/" class="home font-hand font-extrabold">Back home</a>
+		<div class="links">
+			<a href="/" class="home font-hand font-extrabold">Back home</a>
+			<a href="/work" class="home font-hand font-extrabold">Work</a>
+		</div>
 	</div>
 </main>
 
@@ -34,6 +34,6 @@
 	.status { font-size: clamp(3rem, 14vw, 8rem); line-height: 1; color: var(--ink-dim); letter-spacing: -0.02em; }
 	.heading { font-size: clamp(2rem, 7vw, 4.5rem); line-height: 1; text-transform: uppercase; letter-spacing: -0.02em; margin-top: 0.5rem; }
 	.accent { color: var(--accent); }
-	.detail { margin-top: 1.25rem; color: var(--ink-dim); font-size: 0.8rem; letter-spacing: 0.08em; overflow-wrap: anywhere; }
-	.home { display: inline-block; margin-top: 2rem; color: var(--accent); }
+	.links { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; margin-top: 2rem; }
+	.home { display: inline-block; padding: 0.5rem 0; color: var(--accent); }
 </style>
