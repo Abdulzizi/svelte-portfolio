@@ -6,6 +6,7 @@
 	import MotionToggle from '$lib/components/MotionToggle.svelte';
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
 	import Cursor from '$lib/components/Cursor.svelte';
+	import NavProgress from '$lib/components/NavProgress.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import { motionPref, motionOff } from '$lib/motion-pref.svelte';
 	import { startSmoothScroll } from '$lib/smooth-scroll';
@@ -62,6 +63,7 @@
 	<MotionToggle />
 	<CommandPalette />
 	<Cursor />
+	<NavProgress />
 	<Seo />
 </div>
 

@@ -8,8 +8,6 @@ import type { Actions } from './$types';
 // Form actions need a server runtime; `/` stays prerendered via +layout.ts.
 export const prerender = false;
 
-const TIMELINES: Record<string, string> = { asap: 'ASAP', '1-3': '1-3 months', flexible: 'Flexible' };
-
 export const actions: Actions = {
 	default: async ({ request, fetch }) => {
 		const form = await request.formData();
@@ -20,8 +18,7 @@ export const actions: Actions = {
 		if (r.honeypot) return { success: true };
 		if (!r.ok) return fail(400, { errors: r.errors, values: r.values });
 
-		const tl = TIMELINES[String(form.get('timeline') ?? '')];
-		const text = `Building: ${r.values.message}${tl ? `\nTimeline: ${tl}` : ''}`;
+		const text = r.values.message;
 
 		let saved = false;
 		try {
