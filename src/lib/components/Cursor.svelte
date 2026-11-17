@@ -285,10 +285,6 @@
 		opacity: 1;
 	}
 
-	:global(html[data-zen]) .cursor {
-		display: none;
-	}
-
 	:global(html[data-custom-cursor]),
 	:global(html[data-custom-cursor] *) {
 		cursor: none !important;
