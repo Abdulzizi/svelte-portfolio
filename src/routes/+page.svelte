@@ -23,7 +23,7 @@
 	.grid-section { animation: panel-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--d, 0ms); }
 	.grid-wrap:has(.grid-section:focus-visible) .grid-section:not(:focus-visible) { flex: 0.7 1 35%; opacity: 0.7; }
 	.grid-section:focus-visible { flex: 1.6 1 60%; z-index: 5; background-color: var(--surface); outline: 2px solid var(--accent); outline-offset: -4px; }
-	.grid-title { font-size: clamp(1.5rem, 3.5vw, 3rem); line-height: 1; text-transform: uppercase; transition: color 0.35s ease; position: relative; }
+	.grid-title { font-size: clamp(2.25rem, 6vw, 5rem); line-height: 1; text-transform: uppercase; transition: color 0.35s ease; position: relative; }
 	/* Signature detail: accent underline grows from the left on hover/focus. */
 	.grid-title::after {
 		content: ""; position: absolute; left: 0; bottom: -0.15em; height: 2px; width: 100%;

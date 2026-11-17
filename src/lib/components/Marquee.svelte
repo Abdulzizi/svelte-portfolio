@@ -1,6 +1,6 @@
 <script lang="ts">
 	const TEXT = ' FULL STACK DEVELOPER — DATA SCIENCE — CLEAN INTERFACES — TYPE DESIGN — CLEAN ARCHITECTURE — ROBUST SYSTEM — ';
-	const SPEED = 150; // px per second
+	const SPEED = 40; // px per second
 
 	let { axis, position }: { axis: 'x' | 'y'; position: 'top' | 'bottom' | 'left' | 'right' } = $props();
 
@@ -15,8 +15,8 @@
 	);
 	const textClass = $derived(
 		axis === 'x'
-			? 'text-[10px] h-full leading-8'
-			: 'text-[8px] lg:text-[9px] leading-6'
+			? 'text-[11px] h-full leading-8'
+			: 'text-[10px] leading-6'
 	);
 
 	$effect(() => {
@@ -57,7 +57,7 @@
 >
 	<div class="track" class:vertical={axis === 'y'} bind:this={track}>
 		{#each Array(count) as _, i (i)}
-			<span class="font-mono uppercase tracking-[0.2em] whitespace-nowrap {textClass}">{TEXT}</span>
+			<span class="font-mono uppercase tracking-[0.1em] whitespace-nowrap {textClass}">{TEXT}</span>
 		{/each}
 	</div>
 </div>
@@ -75,6 +75,9 @@
 		display: flex;
 		color: var(--ink-dim);
 		animation: marquee-x var(--marquee-dur, 10s) linear infinite;
+	}
+	div:hover > .track {
+		animation-play-state: paused;
 	}
 	.track.vertical {
 		/* in vertical-rl, inline axis = vertical, so row stacks vertically */
