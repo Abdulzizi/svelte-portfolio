@@ -14,7 +14,33 @@
 
 	const errors = $derived(form?.errors ?? {});
 
-	onMount(() => () => clearTimeout(copyTimer));
+	let sendBtn = $state<HTMLButtonElement>();
+	let markBox = $state<HTMLDivElement>();
+	let loader: { start: (l?: string) => void; fail: (l?: string) => void; reset: (l?: string) => void; destroy: () => void } | undefined;
+
+	onMount(() => {
+		let mark: { destroy: () => void } | undefined;
+		let dead = false;
+		import('asciify-engine/kit').then(({ buttonLoading, wordmark }) => {
+			if (dead) return;
+			if (sendBtn) loader = buttonLoading(sendBtn);
+			if (markBox) {
+				mark = wordmark(markBox, {
+					text: 'Abdul Jawad Azizi',
+					font: '"Space Grotesk Variable", sans-serif',
+					fontWeight: 700,
+					assemble: 'visible',
+					look: { cellSize: 6, hover: 'trail' }
+				});
+			}
+		});
+		return () => {
+			dead = true;
+			clearTimeout(copyTimer);
+			loader?.destroy();
+			mark?.destroy();
+		};
+	});
 
 	async function copyEmail() {
 		let ok = false;
@@ -72,9 +98,12 @@
 				novalidate
 				use:enhance={() => {
 					sending = true;
-					return async ({ update }) => {
+					loader?.start('Sending');
+					return async ({ result, update }) => {
 						await update({ reset: false });
 						sending = false;
+						if (result.type === 'success') loader?.reset();
+						else loader?.fail('Retry');
 					};
 				}}
 			>
@@ -126,7 +155,7 @@
 
 				<div class="send">
 					<button type="submit" use:magnetic class="btn font-hand font-extrabold" disabled={sending}>
-						{sending ? 'Sending…' : 'Send'}
+						Send
 					</button>
 					<p class="status err" role="status" aria-live="polite">
 						{#if form && 'error' in form && form.error}{form.error}{/if}
@@ -134,6 +163,8 @@
 				</div>
 			</form>
 		{/if}
+
+		<div bind:this={markBox} class="mark" aria-label="Abdul Jawad Azizi"></div>
 
 		<footer class="foot">
 			<p class="flex items-center gap-2 text-sm text-[var(--ink-dim)]">
@@ -180,6 +211,7 @@
 	.btn:active:not(:disabled) { transform: scale(0.97); }
 	.btn:disabled { opacity: 0.5; }
 	.done { margin-top: 1.5rem; }
+	.mark { width: 100%; height: 7rem; margin-top: 1.5rem; }
 	.foot { margin-top: 1.5rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1.5rem; width: 100%; }
 	.dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: var(--accent); }
 	.links { display: flex; gap: 0.25rem; font-size: 0.875rem; color: var(--ink-dim); }
