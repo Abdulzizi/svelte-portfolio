@@ -4,11 +4,15 @@ import type { RequestHandler } from './$types';
 
 const GITHUB_USER = 'Abdulzizi';
 const TTL = 10 * 60 * 1000;
+const EMPTY_TTL = 60 * 1000;
 const MAX = 60;
+const HEADERS = { 'Cache-Control': 'public, s-maxage=600' };
+const NO_STORE = { 'Cache-Control': 'no-store' };
 
 type Ticker = { post: string | null; github: string | null };
 
 let cache: { at: number; data: Ticker } | null = null;
+let inflight: Promise<Ticker> | null = null;
 
 function clean(s: string): string {
 	const t = s.replace(/\s+/g, ' ').trim();
@@ -52,10 +56,28 @@ async function latestPush(): Promise<string | null> {
 	}
 }
 
+function ttl(data: Ticker): number {
+	return data.post || data.github ? TTL : EMPTY_TTL;
+}
+
+function load(): Promise<Ticker> {
+	return (inflight ??= Promise.all([latestPost(), latestPush()])
+		.then(([post, github]) => {
+			const data: Ticker = { post, github };
+			cache = { at: Date.now(), data };
+			return data;
+		})
+		.catch(() => {
+			const data: Ticker = { post: null, github: null };
+			cache = { at: Date.now(), data };
+			return data;
+		})
+		.finally(() => {
+			inflight = null;
+		}));
+}
+
 export const GET: RequestHandler = async () => {
-	if (!cache || Date.now() - cache.at > TTL) {
-		const [post, github] = await Promise.all([latestPost(), latestPush()]);
-		cache = { at: Date.now(), data: { post, github } };
-	}
-	return json(cache.data, { headers: { 'Cache-Control': 'public, s-maxage=600' } });
+	const data = cache && Date.now() - cache.at <= ttl(cache.data) ? cache.data : await load();
+	return json(data, { headers: data.post || data.github ? HEADERS : NO_STORE });
 };

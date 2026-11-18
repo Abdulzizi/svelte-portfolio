@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { loadTicker, ticker } from '$lib/ticker.svelte';
 
 	const TAGLINE = ['FULL STACK DEVELOPER', 'DATA SCIENCE', 'CLEAN INTERFACES', 'TYPE DESIGN', 'CLEAN ARCHITECTURE', 'ROBUST SYSTEM'];
 	const TIMEZONE = 'Asia/Jakarta';
@@ -11,11 +12,9 @@
 	let track = $state<HTMLElement>();
 	let count = $state(1);
 	let now = $state('');
-	let post = $state<string | null>(null);
-	let github = $state<string | null>(null);
 
 	const text = $derived(
-		` ${[...TAGLINE, ...(now ? [`${now} JAKARTA`] : []), ...(post ? [`NEW: ${post}`] : []), ...(github ? [github] : [])].join(' — ')} — `
+		` ${[...TAGLINE, ...(now ? [`${now} JAKARTA`] : []), ...(ticker.post ? [`NEW: ${ticker.post}`] : []), ...(ticker.github ? [ticker.github] : [])].join(' — ')} — `
 	);
 
 	function tick() {
@@ -24,15 +23,11 @@
 
 	onMount(() => {
 		tick();
-		const id = setInterval(tick, 60_000);
-		fetch('/api/ticker')
-			.then((r) => (r.ok ? r.json() : null))
-			.then((d) => {
-				if (!d) return;
-				post = typeof d.post === 'string' ? d.post : null;
-				github = typeof d.github === 'string' ? d.github : null;
-			})
-			.catch(() => {});
+		loadTicker();
+		const id = setInterval(() => {
+			tick();
+			loadTicker();
+		}, 60_000);
 		return () => clearInterval(id);
 	});
 

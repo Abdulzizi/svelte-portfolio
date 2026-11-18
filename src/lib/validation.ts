@@ -2,6 +2,26 @@ import { z } from 'zod';
 
 // Admin form schemas (zod).
 
+export const LIMITS = {
+	project: {
+		title: 200,
+		company: 200,
+		role: 200,
+		year: 40,
+		stackItem: 80,
+		stack: 50,
+		impact: 2000,
+		problem: 5000,
+		result: 5000,
+		body: 200000,
+		imagePath: 500
+	},
+	post: { title: 200, slug: 200, excerpt: 300, body: 200000, coverImage: 500 },
+	chapter: { kicker: 40, big: 160, body: 600 },
+	settings: { email: 254, url: 300, availability: 80 },
+	message: { name: 80, email: 254, body: 2000 }
+} as const;
+
 export const loginSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(1)
@@ -14,15 +34,15 @@ export const loginSchema = z.object({
 export const projectSchema = z
 	.object({
 		kind: z.enum(['project', 'experience']),
-		company: z.string().optional(),
-		title: z.string().min(1, 'Required'),
-		role: z.string().min(1, 'Required'),
-		year: z.string().min(1, 'Required'),
-		stack: z.array(z.string().min(1)).min(1, 'At least one stack entry'),
-		impact: z.string().min(1, 'Required'),
-		problem: z.string().optional(),
-		result: z.string().optional(),
-		body: z.string().optional(),
+		company: z.string().max(LIMITS.project.company).optional(),
+		title: z.string().min(1, 'Required').max(LIMITS.project.title),
+		role: z.string().min(1, 'Required').max(LIMITS.project.role),
+		year: z.string().min(1, 'Required').max(LIMITS.project.year),
+		stack: z.array(z.string().min(1).max(LIMITS.project.stackItem)).min(1, 'At least one stack entry').max(LIMITS.project.stack),
+		impact: z.string().min(1, 'Required').max(LIMITS.project.impact),
+		problem: z.string().max(LIMITS.project.problem).optional(),
+		result: z.string().max(LIMITS.project.result).optional(),
+		body: z.string().max(LIMITS.project.body).optional(),
 		featured: z.boolean().default(false),
 		rank: z.number().int().default(0)
 	})
@@ -116,10 +136,10 @@ export function slugify(input: string): string {
 // body is raw TipTap HTML — validated as optional string here, then sanitized
 // server-side AFTER safeParse. coverImage File handled separately in the action.
 export const postSchema = z.object({
-	title: z.string().min(1, 'Required'),
-	slug: z.string().min(1, 'Required').regex(SLUG_RE, 'Lowercase letters, numbers, and dashes only'),
-	excerpt: z.string().min(1, 'Required').max(300, 'Keep it under 300 characters'),
-	body: z.string().optional(),
+	title: z.string().min(1, 'Required').max(LIMITS.post.title),
+	slug: z.string().min(1, 'Required').max(LIMITS.post.slug).regex(SLUG_RE, 'Lowercase letters, numbers, and dashes only'),
+	excerpt: z.string().min(1, 'Required').max(LIMITS.post.excerpt, 'Keep it under 300 characters'),
+	body: z.string().max(LIMITS.post.body).optional(),
 	published: z.boolean().default(false)
 });
 
@@ -159,17 +179,17 @@ export function postFormValues(form: FormData) {
 }
 
 export const chapterSchema = z.object({
-	kicker: z.string().trim().min(1, 'Required').max(40, 'Max 40 characters'),
-	big: z.string().trim().min(1, 'Required').max(160, 'Max 160 characters'),
-	body: z.string().trim().min(1, 'Required').max(600, 'Max 600 characters'),
+	kicker: z.string().trim().min(1, 'Required').max(LIMITS.chapter.kicker, 'Max 40 characters'),
+	big: z.string().trim().min(1, 'Required').max(LIMITS.chapter.big, 'Max 160 characters'),
+	body: z.string().trim().min(1, 'Required').max(LIMITS.chapter.body, 'Max 600 characters'),
 	variant: z.enum(['text', 'now', 'next'])
 });
 
-const httpsUrl = z
+export const httpsUrl = z
 	.string()
 	.trim()
 	.min(1, 'Required')
-	.max(300, 'Max 300 characters')
+	.max(LIMITS.settings.url, 'Max 300 characters')
 	.refine((v) => {
 		try {
 			return new URL(v).protocol === 'https:';
@@ -179,9 +199,9 @@ const httpsUrl = z
 	}, 'Must be an https URL');
 
 export const settingsSchema = z.object({
-	email: z.string().trim().min(1, 'Required').max(254, 'Max 254 characters').email('Invalid email'),
+	email: z.string().trim().min(1, 'Required').max(LIMITS.settings.email, 'Max 254 characters').email('Invalid email'),
 	githubUrl: httpsUrl,
 	linkedinUrl: httpsUrl,
 	instagramUrl: httpsUrl,
-	availability: z.string().trim().min(1, 'Required').max(80, 'Max 80 characters')
+	availability: z.string().trim().min(1, 'Required').max(LIMITS.settings.availability, 'Max 80 characters')
 });

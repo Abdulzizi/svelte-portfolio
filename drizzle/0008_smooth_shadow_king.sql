@@ -1,0 +1,1 @@
+ALTER TABLE "admin_security" ADD COLUMN "totp_last_step" integer;

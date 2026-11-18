@@ -9,6 +9,8 @@
 	afterNavigate(() => markDirty());
 
 	onMount(() => {
+		if (matchMedia('(pointer: coarse)').matches) return;
+
 		let field: { update: (o: Record<string, unknown>) => void; destroy: () => void } | undefined;
 		let mo: MutationObserver | undefined;
 		let ro: ResizeObserver | undefined;
@@ -53,8 +55,13 @@
 			document.fonts.addEventListener('loadingdone', mark);
 			ro = new ResizeObserver(mark);
 			ro.observe(document.body);
-			mo = new MutationObserver(() => field?.update({ ink: ink() }));
-			mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+			mo = new MutationObserver(() =>
+				field?.update({ ink: ink(), speed: motionOff() ? 0 : 0.6 })
+			);
+			mo.observe(document.documentElement, {
+				attributes: true,
+				attributeFilter: ['data-theme', 'data-motion']
+			});
 		});
 
 		return () => {

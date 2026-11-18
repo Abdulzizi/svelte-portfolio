@@ -39,16 +39,20 @@ export const posts = pgTable('posts', {
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 }).enableRLS();
 
-export const messages = pgTable('messages', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	name: text('name').notNull(),
-	email: text('email').notNull(),
-	body: text('body').notNull(),
-	read: boolean('read').notNull().default(false),
-	archived: boolean('archived').notNull().default(false),
-	spam: boolean('spam').notNull().default(false),
-	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
-}).enableRLS();
+export const messages = pgTable(
+	'messages',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		name: text('name').notNull(),
+		email: text('email').notNull(),
+		body: text('body').notNull(),
+		read: boolean('read').notNull().default(false),
+		archived: boolean('archived').notNull().default(false),
+		spam: boolean('spam').notNull().default(false),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => [index('messages_spam_created_idx').on(t.spam, t.createdAt)]
+).enableRLS();
 
 export const storyChapters = pgTable('story_chapters', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -75,6 +79,7 @@ export const adminSecurity = pgTable('admin_security', {
 	id: text('id').primaryKey().default('admin'),
 	totpSecret: text('totp_secret'),
 	totpEnabled: boolean('totp_enabled').notNull().default(false),
+	totpLastStep: integer('totp_last_step'),
 	recoveryCodes: text('recovery_codes').array().notNull().default([]),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 }).enableRLS();

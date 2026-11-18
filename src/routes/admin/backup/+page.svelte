@@ -23,7 +23,7 @@
 
 <section class="block">
 	<h2 class="lbl font-mono">Restore</h2>
-	<p class="note">Messages are not restored. Max file size 2MB.</p>
+	<p class="note">Max file size 4MB (platform limit).</p>
 
 	{#if form && 'error' in form && form.error}
 		<p class="err font-mono" role="alert">{form.error}</p>
@@ -31,7 +31,7 @@
 	{#if form && 'counts' in form && form.counts}
 		<p class="ok font-mono" role="status">
 			Restored: {form.counts.projects} projects, {form.counts.posts} posts, {form.counts.storyChapters}
-			story chapters, {form.counts.siteSettings} site settings.
+			story chapters, {form.counts.messages} messages, {form.counts.siteSettings} site settings.
 		</p>
 	{/if}
 

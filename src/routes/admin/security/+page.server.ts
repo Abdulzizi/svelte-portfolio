@@ -1,14 +1,16 @@
 import { fail } from '@sveltejs/kit';
 import { checkRateLimit, clientKey } from '$lib/server/rate-limit';
 import {
+	acceptedStep,
 	disableTotp,
 	enableTotp,
 	encryptionConfigured,
 	generateSecret,
 	getTotp,
 	qrDataUrl,
+	recordUsedStep,
 	regenerateRecoveryCodes,
-	verifyCode
+	verifySecondFactor
 } from '$lib/server/totp';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -23,9 +25,11 @@ async function guarded(event: Parameters<Actions[string]>[0]) {
 		return { res: fail(429, { error: 'Too many attempts, try again later' }) };
 	}
 	const code = String(form.get('code') ?? '').trim();
-	const { secret, error } = await getTotp();
+	const { secret, error, lastStep } = await getTotp();
 	if (error) return { res: fail(500, { error: 'Stored 2FA secret cannot be decrypted. Check TOTP_ENCRYPTION_KEY.' }) };
-	if (!secret || !verifyCode(secret, code)) return { res: fail(400, { error: 'Invalid code' }) };
+	if (!secret || !(await verifySecondFactor(secret, code, lastStep))) {
+		return { res: fail(400, { error: 'Invalid code' }) };
+	}
 	return { res: null };
 }
 
@@ -38,13 +42,36 @@ export const actions: Actions = {
 		const form = await event.request.formData();
 		const secret = String(form.get('secret') ?? '');
 		const code = String(form.get('code') ?? '').trim();
+		const currentCode = String(form.get('currentCode') ?? '').trim();
 		if (!(await checkRateLimit(`totp:${clientKey(event)}`, 5, 15 * 60_000))) {
 			return fail(429, { error: 'Too many attempts, try again later' });
 		}
-		if (!secret || !verifyCode(secret, code)) {
-			return fail(400, { error: 'Invalid code', setup: { secret, qr: await qrDataUrl(secret || generateSecret()) } });
+		const current = await getTotp();
+		if (current.error) {
+			return fail(500, { error: 'Stored 2FA secret cannot be decrypted. Check TOTP_ENCRYPTION_KEY.' });
 		}
-		const codes = await enableTotp(secret);
+		if (!secret) {
+			return fail(400, { error: 'Invalid code', setup: { secret, qr: await qrDataUrl(generateSecret()) } });
+		}
+		const newStep = acceptedStep(secret, code);
+		if (newStep === null) {
+			return fail(400, { error: 'Invalid code', setup: { secret, qr: await qrDataUrl(secret) } });
+		}
+		if (current.enabled) {
+			const step = current.secret ? acceptedStep(current.secret, currentCode) : null;
+			const fresh =
+				step !== null &&
+				(current.lastStep === null || step > current.lastStep) &&
+				(await recordUsedStep(step));
+			if (!fresh) {
+				return fail(400, {
+					error: 'Invalid current code',
+					setup: { secret, qr: await qrDataUrl(secret || generateSecret()) }
+				});
+			}
+		}
+		const step = current.enabled ? Math.max(newStep, current.lastStep ?? newStep) : newStep;
+		const codes = await enableTotp(secret, step);
 		return { done: 'Two-factor authentication enabled.', codes };
 	},
 	disable: async (event) => {

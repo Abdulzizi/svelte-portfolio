@@ -1,5 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { and, count, eq, gte, lt } from 'drizzle-orm';
+import { and, count, eq, gte, lt, sql } from 'drizzle-orm';
 import { db } from './db';
 import { rateLimits } from './db/schema';
 
@@ -16,18 +16,30 @@ export function clientKey(event: Pick<RequestEvent, 'getClientAddress' | 'reques
 }
 
 export async function checkRateLimit(bucket: string, max: number, windowMs: number): Promise<boolean> {
+	let allowed: boolean;
 	try {
-		const since = new Date(Date.now() - windowMs);
-		const [row] = await db
-			.select({ n: count() })
-			.from(rateLimits)
-			.where(and(eq(rateLimits.bucket, bucket), gte(rateLimits.createdAt, since)));
-		if ((row?.n ?? 0) >= max) return false;
-		await db.insert(rateLimits).values({ bucket });
-		await db.delete(rateLimits).where(lt(rateLimits.createdAt, new Date(Date.now() - DAY_MS)));
-		return true;
+		allowed = await db.transaction(async (tx) => {
+			await tx.execute(sql`set local lock_timeout = '2s'`);
+			await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${bucket}), hashtext(${bucket} || ':2'))`);
+			const since = new Date(Date.now() - windowMs);
+			const [row] = await tx
+				.select({ n: count() })
+				.from(rateLimits)
+				.where(and(eq(rateLimits.bucket, bucket), gte(rateLimits.createdAt, since)));
+			if ((row?.n ?? 0) >= max) return false;
+			await tx.insert(rateLimits).values({ bucket });
+			return true;
+		});
 	} catch (e) {
 		console.error('rate-limit: db error', e instanceof Error ? e.message : 'unknown');
-		return true;
+		return false;
 	}
+	if (allowed) {
+		try {
+			await db.delete(rateLimits).where(lt(rateLimits.createdAt, new Date(Date.now() - DAY_MS)));
+		} catch (e) {
+			console.error('rate-limit: cleanup error', e instanceof Error ? e.message : 'unknown');
+		}
+	}
+	return allowed;
 }

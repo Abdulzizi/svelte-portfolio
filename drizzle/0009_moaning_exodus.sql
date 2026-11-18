@@ -1,0 +1,1 @@
+CREATE INDEX "messages_spam_created_idx" ON "messages" USING btree ("spam","created_at");

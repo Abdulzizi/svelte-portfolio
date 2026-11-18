@@ -4,7 +4,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const prerender = false;
 
-const MAX_BYTES = 2 * 1024 * 1024;
+const MAX_BYTES = 4 * 1024 * 1024;
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.admin) throw redirect(303, '/admin/login');
@@ -19,7 +19,7 @@ export const actions: Actions = {
 		if (form.get('confirm') !== 'RESTORE') return fail(400, { error: 'Type RESTORE to confirm.' });
 		const file = form.get('file');
 		if (!(file instanceof File) || file.size === 0) return fail(400, { error: 'Choose a backup file.' });
-		if (file.size > MAX_BYTES) return fail(400, { error: 'File is larger than 2MB.' });
+		if (file.size > MAX_BYTES) return fail(400, { error: 'File is larger than 4MB.' });
 		const parsed = parseBackup(await file.text());
 		if (!parsed.ok) return fail(400, { error: parsed.error });
 		try {

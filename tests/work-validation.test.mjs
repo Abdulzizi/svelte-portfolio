@@ -17,6 +17,7 @@ function fd(entries) {
 }
 
 const validFields = {
+	kind: 'project',
 	title: 'Freecause',
 	role: 'Full Stack',
 	year: '2024',
