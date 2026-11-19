@@ -103,6 +103,5 @@ export type NewPost = typeof posts.$inferInsert;
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
 export type SiteSettings = typeof siteSettings.$inferSelect;
-export type NewSiteSettings = typeof siteSettings.$inferInsert;
 export type AdminSecurity = typeof adminSecurity.$inferSelect;
 export type RateLimit = typeof rateLimits.$inferSelect;

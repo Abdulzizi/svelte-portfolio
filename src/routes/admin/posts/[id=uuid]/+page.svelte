@@ -54,7 +54,7 @@
 	</label>
 
 	<label class="field" for="slug">
-		<span>Slug <em class="hint font-mono">— URL path</em></span>
+		<span>Slug <em class="hint font-mono">: URL path</em></span>
 		<input id="slug" name="slug" type="text" value={v?.slug ?? p.slug} />
 		{#if e?.slug}<span class="err">{e.slug[0]}</span>{/if}
 	</label>
@@ -66,16 +66,16 @@
 	</label>
 
 	<div class="field">
-		<span>Body <em class="hint font-mono">— optional rich text</em></span>
+		<span>Body <em class="hint font-mono">: optional rich text</em></span>
 		<!-- caveman: body does not repopulate from a failed submit (values omits it);
 		     on error it resets to the last-saved value. Upgrade: round-trip failed HTML. -->
 		<RichEditor name="body" value={p.body ?? ''} />
 	</div>
 
 	<div class="field">
-		<span>Cover image <em class="hint font-mono">— jpeg / png / webp, ≤4MB</em></span>
+		<span>Cover image <em class="hint font-mono">: jpeg / png / webp, ≤4MB</em></span>
 		{#if p.coverImage}
-			<img class="preview" src={p.coverImage} alt="Current cover" />
+			<img class="preview" src={p.coverImage} alt="Current cover" width="400" height="225" />
 			<label class="checkbox" for="removeImage">
 				<input id="removeImage" name="removeImage" type="checkbox" />
 				<span>Remove image</span>

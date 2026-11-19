@@ -59,6 +59,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+button,
+a[href],
+summary,
+label[for],
+select {
+  cursor: pointer;
+}
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
 /* caveman: static feTurbulence tile instead of animated canvas dust; upgrade to canvas when motion budget allows. */
 body::after {
   content: "";

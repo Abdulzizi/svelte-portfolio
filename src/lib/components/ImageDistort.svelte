@@ -277,12 +277,12 @@
 </script>
 
 <div bind:this={wrap} class="distort {cls}" onpointerenter={enter} onpointerleave={leave} onpointermove={move} role="presentation">
-	{#if shown}<img src={shown} {alt} loading="lazy" onerror={() => (useGenerated = true)} />{/if}
+	{#if shown}<img src={shown} {alt} width="960" height="540" loading="lazy" onerror={() => (useGenerated = true)} />{/if}
 	<canvas bind:this={canvas} aria-hidden="true" class:on={active}></canvas>
 </div>
 
 <style>
-	.distort { position: relative; display: block; width: 100%; }
+	.distort { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; }
 	img { display: block; width: 100%; height: 100%; object-fit: cover; }
 	canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
 	canvas.on { opacity: 1; }

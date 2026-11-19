@@ -92,13 +92,13 @@
 	</div>
 
 	<label class="field" for="stack">
-		<span>Stack <em class="hint font-mono">— one per line or comma-separated</em></span>
+		<span>Stack <em class="hint font-mono">: one per line or comma-separated</em></span>
 		<textarea id="stack" name="stack" rows="3" required>{v?.stack ?? stackText}</textarea>
 		{#if e?.stack}<span class="err">{e.stack[0]}</span>{/if}
 	</label>
 
 	<label class="field" for="impact">
-		<span>Impact{#if isExp} <em class="hint font-mono">— 2-3 outcomes, one per line</em>{/if}</span>
+		<span>Impact{#if isExp} <em class="hint font-mono">: 2-3 outcomes, one per line</em>{/if}</span>
 		{#if isExp}
 			<textarea id="impact" name="impact" rows="4" required>{v?.impact ?? p.impact}</textarea>
 		{:else}
@@ -121,16 +121,16 @@
 	</label>
 
 	<div class="field">
-		<span>Body <em class="hint font-mono">— optional rich text</em></span>
+		<span>Body <em class="hint font-mono">: optional rich text</em></span>
 		<!-- caveman: body does not repopulate from a failed submit (values omits it);
 		     on error it resets to the last-saved value. Upgrade: round-trip failed HTML. -->
 		<RichEditor name="body" value={p.body ?? ''} />
 	</div>
 
 	<div class="field">
-		<span>Image <em class="hint font-mono">— jpeg / png / webp, ≤4MB</em></span>
+		<span>Image <em class="hint font-mono">: jpeg / png / webp, ≤4MB</em></span>
 		{#if p.imagePath}
-			<img class="preview" src={p.imagePath} alt="Current project" />
+			<img class="preview" src={p.imagePath} alt="Current project" width="400" height="300" />
 			<label class="checkbox" for="removeImage">
 				<input id="removeImage" name="removeImage" type="checkbox" />
 				<span>Remove image</span>

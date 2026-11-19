@@ -312,7 +312,8 @@ import { reveal } from '$lib/actions/reveal';
 	.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 	.exp { width: 100%; max-width: 52rem; margin: 2rem auto 0; }
-	.exp:focus-visible { outline: none; }
+	.exp:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 	.timeline { position: relative; display: flex; flex-direction: column; }
 	.timeline::before { content: ''; position: absolute; top: 0.6rem; bottom: 0.6rem; left: 0.3rem; width: 1px; background: var(--line); }
 	.entry { position: relative; display: grid; grid-template-columns: 1fr; gap: 0.35rem; padding: 0 0 2.5rem 1.75rem; }
@@ -350,7 +351,8 @@ import { reveal } from '$lib/actions/reveal';
 
 	/* Deck (stacked + scroll on small; transform-driven one-viewport on lg+ tall) */
 	.deck { margin: 2rem auto 0; width: 100%; max-width: 78rem; display: flex; flex-direction: column; gap: 3.5rem; }
-	.plane:focus-visible { outline: none; }
+	.plane:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 	.rail-track { display: flex; flex-direction: column; }
 
 	/* Cards / rail rows */

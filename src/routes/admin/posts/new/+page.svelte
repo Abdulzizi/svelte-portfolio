@@ -51,7 +51,7 @@
 	</label>
 
 	<label class="field" for="slug">
-		<span>Slug <em class="hint font-mono">— URL path, auto from title if blank</em></span>
+		<span>Slug <em class="hint font-mono">: URL path, auto from title if blank</em></span>
 		<input id="slug" name="slug" type="text" placeholder="auto from title" value={v?.slug ?? ''} />
 		{#if e?.slug}<span class="err">{e.slug[0]}</span>{/if}
 	</label>
@@ -63,14 +63,14 @@
 	</label>
 
 	<div class="field">
-		<span>Body <em class="hint font-mono">— optional rich text</em></span>
+		<span>Body <em class="hint font-mono">: optional rich text</em></span>
 		<!-- caveman: body does not repopulate from a failed submit (values omits it);
 		     acceptable for now — rich HTML round-trip into the editor is the upgrade path. -->
 		<RichEditor name="body" value="" />
 	</div>
 
 	<div class="field">
-		<span>Cover image <em class="hint font-mono">— jpeg / png / webp, ≤4MB</em></span>
+		<span>Cover image <em class="hint font-mono">: jpeg / png / webp, ≤4MB</em></span>
 		<input type="file" name="image" accept="image/png,image/jpeg,image/webp" />
 		{#if sizeError || e?.image}<span class="err">{sizeError || e?.image?.[0]}</span>{/if}
 	</div>

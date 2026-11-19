@@ -68,7 +68,7 @@
 
 	<article class="wrap" bind:this={article}>
 		{#if data.draft}
-			<div class="draft font-mono">Draft preview — not published</div>
+			<div class="draft font-mono">Draft preview: not published</div>
 		{/if}
 		<header class="masthead">
 			<span class="kicker font-mono">Writing</span>
@@ -76,7 +76,7 @@
 			<span class="date font-mono">{data.minutes} min read</span>
 			<h1 class="headline font-hand font-extrabold" style="view-transition-name: post-{post.slug}">{post.title}</h1>
 			{#if post.coverImage}
-				<img class="cover" data-reveal use:reveal src={post.coverImage} alt={`${post.title} cover`} />
+				<img class="cover" data-reveal use:reveal src={post.coverImage} alt={`${post.title} cover`} width="1200" height="630" />
 			{/if}
 		</header>
 

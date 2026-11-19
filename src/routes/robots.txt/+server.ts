@@ -4,7 +4,7 @@ export const prerender = false;
 
 export const GET: RequestHandler = ({ url }) =>
 	new Response(
-		`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /ripple\n\nSitemap: ${url.origin}/sitemap.xml\n`,
+		`User-agent: *\nAllow: /\nDisallow: /admin\n\nSitemap: ${url.origin}/sitemap.xml\n`,
 		{
 			headers: {
 				'content-type': 'text/plain; charset=utf-8',

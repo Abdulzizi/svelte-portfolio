@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { db } from './db';
 import { projects, posts, storyChapters, siteSettings, messages } from './db/schema';
 import { sanitizeBody } from './sanitize';
-import { LIMITS, httpsUrl } from '../validation';
+import { LIMITS, httpsUrl, SLUG_RE } from '../validation';
 import { EMAIL_RE } from '../email';
 
 const id = z.string().uuid();
@@ -35,7 +35,7 @@ const post = z.strictObject({
 	title: text(LIMITS.post.title).min(1),
 	slug: text(LIMITS.post.slug)
 		.min(1)
-		.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+		.regex(SLUG_RE),
 	excerpt: text(LIMITS.post.excerpt).min(1),
 	body: nullText(LIMITS.post.body),
 	coverImage: nullText(LIMITS.post.coverImage),

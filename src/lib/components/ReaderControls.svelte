@@ -6,7 +6,7 @@
 	const KEY = 'aj-reader';
 	const SIZE = { s: '1rem', m: '1.125rem', l: '1.3rem' };
 	const MEASURE = { narrow: '38rem', wide: '46rem' };
-	const WRAP = { narrow: '44rem', wide: '50rem' };
+	const WRAP = { narrow: `${parseFloat(MEASURE.narrow) + 6}rem`, wide: `${parseFloat(MEASURE.wide) + 6}rem` };
 	const FONT = { sans: 'var(--font-sans)', serif: "ui-serif, Georgia, 'Times New Roman', serif" };
 	const LEADING = { tight: '1.5', normal: '1.7', loose: '1.95' };
 
@@ -113,7 +113,7 @@
 	}
 	.label { color: var(--ink-dim); margin-right: 0.25rem; }
 	.opt {
-		min-height: 2.25rem;
+		min-height: 2.75rem;
 		padding: 0 0.5rem;
 		color: var(--ink-dim);
 		text-transform: inherit;

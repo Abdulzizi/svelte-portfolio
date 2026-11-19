@@ -117,7 +117,7 @@ export function projectFormValues(form: FormData) {
 
 // --- Blog posts (v2.1) --- mirrors the project form helpers above.
 
-const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /**
  * Deterministic, pure slugifier: lowercase, trim, spaces/underscores → '-',

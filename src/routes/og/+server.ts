@@ -4,6 +4,8 @@ import regularDataUrl from '@fontsource/inter/files/inter-latin-500-normal.woff?
 import boldDataUrl from '@fontsource/inter/files/inter-latin-700-normal.woff?inline';
 import { getPostBySlug } from '$lib/server/posts';
 import { getProject } from '$lib/server/projects';
+import { UUID } from '$lib/uuid';
+import { SLUG_RE as SLUG } from '$lib/validation';
 import type { RequestHandler } from './$types';
 
 const STATIC: Record<string, { title: string; sub: string }> = {
@@ -12,12 +14,8 @@ const STATIC: Record<string, { title: string; sub: string }> = {
 	'/about': { title: 'About', sub: 'Full stack developer' },
 	'/connect': { title: 'Connect', sub: 'Email, GitHub, LinkedIn' },
 	'/blog': { title: 'Blog', sub: 'Notes and writing' },
-	'/cv': { title: 'CV', sub: 'Abdul Jawad Azizi' },
-	'/ripple': { title: 'Ripple', sub: 'WebGL demo' }
+	'/cv': { title: 'CV', sub: 'Abdul Jawad Azizi' }
 };
-
-const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const regular = Buffer.from(regularDataUrl.slice(regularDataUrl.indexOf(',') + 1), 'base64');
 const bold = Buffer.from(boldDataUrl.slice(boldDataUrl.indexOf(',') + 1), 'base64');

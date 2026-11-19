@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { loadTicker, ticker } from '$lib/ticker.svelte';
 
-	const TAGLINE = ['FULL STACK DEVELOPER', 'DATA SCIENCE', 'CLEAN INTERFACES', 'TYPE DESIGN', 'CLEAN ARCHITECTURE', 'ROBUST SYSTEM'];
+	const TAGLINE = ['FULL STACK DEVELOPER', 'DATA SCIENCE', 'CLEAN INTERFACES', 'TYPE DESIGN', 'RELIABLE SYSTEMS', 'ROBUST SYSTEM'];
 	const TIMEZONE = 'Asia/Jakarta';
 	const SPEED = 40; // px per second
 
@@ -14,7 +14,7 @@
 	let now = $state('');
 
 	const text = $derived(
-		` ${[...TAGLINE, ...(now ? [`${now} JAKARTA`] : []), ...(ticker.post ? [`NEW: ${ticker.post}`] : []), ...(ticker.github ? [ticker.github] : [])].join(' — ')} — `
+		` ${[...TAGLINE, ...(now ? [`${now} JAKARTA`] : []), ...(ticker.post ? [`NEW: ${ticker.post}`] : []), ...(ticker.github ? [ticker.github] : [])].join(' · ')} · `
 	);
 
 	function tick() {
