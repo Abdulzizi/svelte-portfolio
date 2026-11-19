@@ -28,21 +28,35 @@ function authHeader(): Record<string, string> {
 	return { apikey: key, Authorization: `Bearer ${key}` };
 }
 
+function sniffImageMime(bytes: Buffer): string | null {
+	if (bytes.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return 'image/jpeg';
+	if (bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return 'image/png';
+	const riff = bytes.subarray(0, 4).toString('latin1') === 'RIFF';
+	const webp = bytes.subarray(8, 12).toString('latin1') === 'WEBP';
+	return riff && webp ? 'image/webp' : null;
+}
+
 /**
  * Validate (mime + size), upload to Supabase Storage under a random filename, and
  * return the public URL to store in projects.imagePath.
  * Throws Error with a clear message on invalid input.
  */
 export async function saveImage(file: File): Promise<string> {
-	const ext = EXT_BY_MIME[file.type];
-	if (!ext) throw new Error('Image must be JPEG, PNG, or WebP.');
+	if (!EXT_BY_MIME[file.type]) throw new Error('Image must be JPEG, PNG, or WebP.');
 	if (file.size > MAX_IMAGE_BYTES) throw new Error('Image must be 4 MB or smaller.');
 
-	const filename = randomUUID() + ext;
+	const bytes = Buffer.from(await file.arrayBuffer());
+	const mime = sniffImageMime(bytes);
+	if (!mime) throw new Error('Image file is not a valid JPEG, PNG, or WebP.');
+	if (mime !== file.type) {
+		throw new Error(`Image content is ${mime} but the file was sent as ${file.type}.`);
+	}
+
+	const filename = randomUUID() + EXT_BY_MIME[mime];
 	const res = await fetch(objectUrl(filename), {
 		method: 'POST',
-		headers: { ...authHeader(), 'Content-Type': file.type },
-		body: Buffer.from(await file.arrayBuffer())
+		headers: { ...authHeader(), 'Content-Type': mime },
+		body: bytes
 	});
 	if (!res.ok) throw new Error(`Image upload failed (${res.status}).`);
 

@@ -1,5 +1,5 @@
 <svelte:head>
-	<title>Abdul Jawad Azizi — Full Stack Developer</title>
+	<title>Abdul Jawad Azizi: Full Stack Developer</title>
 	<meta name="description" content="Abdul Jawad Azizi, full stack developer. Work, contact, about and blog." />
 </svelte:head>
 

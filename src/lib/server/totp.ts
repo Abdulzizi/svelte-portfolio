@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes, randomInt } from 'node:crypto';
 import { hash, verify } from '@node-rs/argon2';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, isNull, lt, or, sql } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import * as OTPAuth from 'otpauth';
 import QRCode from 'qrcode';
@@ -9,6 +9,7 @@ import { adminSecurity } from './db/schema';
 
 const ISSUER = 'Portfolio Admin';
 const ID = 'admin';
+const PERIOD = 30;
 
 function totp(secret: string, label = 'admin') {
 	return new OTPAuth.TOTP({
@@ -16,7 +17,7 @@ function totp(secret: string, label = 'admin') {
 		label,
 		algorithm: 'SHA1',
 		digits: 6,
-		period: 30,
+		period: PERIOD,
 		secret: OTPAuth.Secret.fromBase32(secret)
 	});
 }
@@ -31,6 +32,17 @@ export function verifyCode(secret: string, code: string): boolean {
 		return totp(secret).validate({ token: code, window: 1 }) !== null;
 	} catch {
 		return false;
+	}
+}
+
+export function acceptedStep(secret: string, code: string): number | null {
+	if (!/^\d{6}$/.test(code)) return null;
+	try {
+		const now = Date.now();
+		const delta = totp(secret).validate({ token: code, timestamp: now, window: 1 });
+		return delta === null ? null : Math.floor(now / 1000 / PERIOD) + delta;
+	} catch {
+		return null;
 	}
 }
 
@@ -55,7 +67,7 @@ export function encryptionConfigured(): boolean {
 	return encKey() !== null;
 }
 
-function seal(secret: string): string {
+export function sealSecret(secret: string): string {
 	const key = encKey();
 	if (!key) return secret;
 	const iv = randomBytes(12);
@@ -64,7 +76,7 @@ function seal(secret: string): string {
 	return `${PREFIX}${iv.toString('base64')}:${cipher.getAuthTag().toString('base64')}:${ct.toString('base64')}`;
 }
 
-function unseal(stored: string): string | null {
+export function unsealSecret(stored: string): string | null {
 	if (!stored.startsWith(PREFIX)) return stored;
 	const key = encKey();
 	if (!key) {
@@ -82,12 +94,29 @@ function unseal(stored: string): string | null {
 	}
 }
 
-export async function getTotp(): Promise<{ enabled: boolean; secret: string | null; error: boolean }> {
+export async function getTotp(): Promise<{
+	enabled: boolean;
+	secret: string | null;
+	error: boolean;
+	lastStep: number | null;
+}> {
 	const [row] = await db.select().from(adminSecurity).where(eq(adminSecurity.id, ID));
+	const lastStep = row?.totpLastStep ?? null;
 	const enabled = !!row?.totpEnabled && !!row.totpSecret;
-	if (!enabled) return { enabled: false, secret: null, error: false };
-	const secret = unseal(row!.totpSecret!);
-	return { enabled: true, secret, error: secret === null };
+	if (!enabled) return { enabled: false, secret: null, error: false, lastStep };
+	const secret = unsealSecret(row!.totpSecret!);
+	return { enabled: true, secret, error: secret === null, lastStep };
+}
+
+export async function recordUsedStep(step: number): Promise<boolean> {
+	const won = await db
+		.update(adminSecurity)
+		.set({ totpLastStep: step })
+		.where(
+			and(eq(adminSecurity.id, ID), or(isNull(adminSecurity.totpLastStep), lt(adminSecurity.totpLastStep, step)))
+		)
+		.returning({ id: adminSecurity.id });
+	return won.length === 1;
 }
 
 function newCodes(): string[] {
@@ -105,11 +134,12 @@ async function hashCodes(codes: string[]): Promise<string[]> {
 	return Promise.all(codes.map((c) => hash(normalizeCode(c))));
 }
 
-export async function enableTotp(secret: string): Promise<string[]> {
+export async function enableTotp(secret: string, step: number): Promise<string[]> {
 	const codes = newCodes();
 	const set = {
-		totpSecret: seal(secret),
+		totpSecret: sealSecret(secret),
 		totpEnabled: true,
+		totpLastStep: step,
 		recoveryCodes: await hashCodes(codes),
 		updatedAt: new Date()
 	};
@@ -148,14 +178,15 @@ export async function consumeRecoveryCode(code: string): Promise<boolean> {
 	return false;
 }
 
-export async function verifySecondFactor(secret: string, code: string): Promise<boolean> {
-	if (/^\d{6}$/.test(code)) return verifyCode(secret, code);
+export async function verifySecondFactor(secret: string, code: string, lastStep: number | null): Promise<boolean> {
+	const step = acceptedStep(secret, code);
+	if (step !== null && (lastStep === null || step > lastStep) && (await recordUsedStep(step))) return true;
 	return consumeRecoveryCode(code);
 }
 
 export async function disableTotp(): Promise<void> {
 	await db
 		.update(adminSecurity)
-		.set({ totpSecret: null, totpEnabled: false, recoveryCodes: [], updatedAt: new Date() })
+		.set({ totpSecret: null, totpEnabled: false, totpLastStep: null, recoveryCodes: [], updatedAt: new Date() })
 		.where(eq(adminSecurity.id, ID));
 }

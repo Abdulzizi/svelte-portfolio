@@ -1,3 +1,4 @@
+export const SITE_URL = 'https://abdulzizi.xyz';
 export const EMAIL = 'jawadabdul307@gmail.com';
 export const GITHUB_URL = 'https://github.com/Abdulzizi';
 export const LINKEDIN_URL = 'https://www.linkedin.com/in/abduljawadazizi07/';

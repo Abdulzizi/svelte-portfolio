@@ -54,7 +54,9 @@
 </script>
 
 <div class="relative">
-	<AsciiBackdrop />
+	{#if !page.url.pathname.startsWith('/admin')}
+		<AsciiBackdrop />
+	{/if}
 	<Marquee axis="x" position="top" />
 	<Marquee axis="x" position="bottom" />
 	<Marquee axis="y" position="left" />

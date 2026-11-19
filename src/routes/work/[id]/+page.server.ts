@@ -1,11 +1,10 @@
 import { error } from '@sveltejs/kit';
 import { getProject, listByKind } from '$lib/server/projects';
 import { sanitizeBody } from '$lib/server/sanitize';
+import { UUID } from '$lib/uuid';
 import type { PageServerLoad } from './$types';
 
 export const prerender = false;
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const load: PageServerLoad = async ({ params, setHeaders }) => {
 	if (!UUID.test(params.id)) error(404, 'Project not found');

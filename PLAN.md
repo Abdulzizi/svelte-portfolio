@@ -25,7 +25,7 @@ The owner manages site content without touching code: log in at `/admin`, CRUD p
 | `@node-rs/argon2` | password and recovery-code hashing | server |
 | `zod` | admin form validation | server |
 | `gsap` (3.15.1), `lenis`, `ogl` | scroll motion, smooth scroll, WebGL ripple/backdrop | public, lazy-loaded |
-| `@fontsource/inter`, `@fontsource-variable/space-grotesk` (plus `@fontsource/space-grotesk`) | fonts | public |
+| `@fontsource/inter`, `@fontsource-variable/space-grotesk` | fonts | public |
 | `satori`, `@resvg/resvg-js` | `/og` cards | server |
 | `otpauth`, `qrcode` | admin TOTP 2FA | server |
 
@@ -48,14 +48,14 @@ No env var is read for the GitHub ticker; the user name is hard-coded in `src/ro
 - Foundation (steps 1-6, 8, 9): Vercel adapter, Drizzle schema and migrations, argon2 auth and sessions, project CRUD, TipTap + sanitize + Supabase Storage uploads, data-driven `/work` deck, docs reconcile through commit 97e8ff8.
 - v3 polish: GSAP motion foundation, view transitions, scroll reveals, micro-motion, reading progress, Zen reader.
 - v4 additions: Inter + Space Grotesk fonts, 40 px/s marquees, global motion switch, live ticker, command palette, glass cursor, Lenis, ogl effects, Projects | Experience tabs and `/work/[id]` case studies (0004), six-chapter `/about` with `story_chapters` and `/admin/story` (0005), email-first `/connect`, admin dashboard, inbox views, settings, CV upload, backup/restore, `rate_limits` and `site_settings` (0006), SEO surfaces (`/og`, sitemap, RSS, robots, error page, `/ripple`).
-- TOTP hardening: secret encryption (`TOTP_ENCRYPTION_KEY`, `enc:v1`), 8 single-use recovery codes with Regenerate (0007), `dompurify` admin preview, `/about` fully dynamic (`src/routes/about/+page.ts` removed). Details in `SPEC.md` Auth. These changes are in the working tree and not yet committed.
+- TOTP hardening: secret encryption (`TOTP_ENCRYPTION_KEY`, `enc:v1`), 8 single-use recovery codes with Regenerate (0007), `dompurify` admin preview, `/about` fully dynamic (`src/routes/about/+page.ts` removed). Details in `SPEC.md` Auth.
+- Hardening: `/og` resolves `path` server-side with Inter WOFF inlined at build, TOTP step replay guard (0008), spam index (0009), backup restores messages at a 4 MB cap, keepalive prunes spam after 30 days, inbox pages by 100, rate limits serialize under an advisory lock and fail closed, upload bytes sniffed, ticker fetches deduped.
 
 ## Open
 - [ ] **Seed real data** (old step 7): Freecause / Telkom Akses / Venturo as real projects with `featured` and `rank`, remove placeholder rows, and seed posts so `/blog` and `/work` show content. Not verified against the live DB.
 - [ ] Browser QA of the v4 surfaces and the new 2FA recovery flow.
-- [ ] Safari and Firefox cursor fallback untested; `/og` on Vercel untested (fonts read from `node_modules/@fontsource/inter/files` at runtime).
+- [ ] Safari and Firefox cursor fallback untested; the Vercel deploy itself is still unverified.
 - [ ] About chapters 4 (How I work) and 6 (Next) are placeholder copy.
-- [ ] No tests for rate limiting, TOTP or backup/restore (`tests/` has body images, contact, hooks guard, reading time, sanitize, session, uploads, work validation).
 - [ ] Whether "the rest" plane paginates if there are many non-featured projects (defer until it hurts).
 
 ## Deploy notes (Vercel)

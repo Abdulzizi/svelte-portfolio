@@ -19,7 +19,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.admin) throw redirect(303, '/admin/login');
 	const v = url.searchParams.get('view') as MessageView;
 	const view = VIEWS.includes(v) ? v : 'inbox';
-	return { view, ...(await listMessages(view)) };
+	const raw = Number(url.searchParams.get('page'));
+	const page = Number.isSafeInteger(raw) && raw > 0 ? Math.min(raw, 1_000_000) : 1;
+	return { view, ...(await listMessages(view, page)) };
 };
 
 function flag(setter: (id: string, value: boolean) => Promise<void>, field: string) {

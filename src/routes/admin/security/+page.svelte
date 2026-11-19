@@ -49,17 +49,41 @@
 			</div>
 		</div>
 	{:else if data.enabled}
+		{#if setup}
+			<div class="flex flex-col gap-3">
+				<h2 class="font-hand text-xl font-extrabold">Replace authenticator</h2>
+				<p class="text-sm">Scan this QR code with the new authenticator app, or enter the secret manually.</p>
+				<img src={setup.qr} alt="New authenticator QR code" width="220" height="220" />
+				<p class="font-mono text-sm break-all">{setup.secret}</p>
+				<form method="POST" action="?/enable" use:enhance class="flex flex-col gap-3">
+					<input type="hidden" name="secret" value={setup.secret} />
+					<label class="field">
+						<span>Current 6-digit code</span>
+						<input name="currentCode" autocomplete="one-time-code" maxlength="11" required />
+					</label>
+					<label class="field">
+						<span>New authenticator's 6-digit code</span>
+						<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required />
+					</label>
+					<button class="btn font-hand font-extrabold">Confirm and replace</button>
+				</form>
+			</div>
+		{:else}
+			<form method="POST" action="?/start" use:enhance>
+				<button class="btn font-hand font-extrabold">Replace authenticator</button>
+			</form>
+		{/if}
 		<form method="POST" action="?/regenerate" use:enhance class="flex flex-col gap-3">
 			<label class="field">
-				<span>Current 6-digit code (regenerate recovery codes)</span>
-				<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required />
+				<span>Current 6-digit code or recovery code (regenerate recovery codes)</span>
+				<input name="code" autocomplete="one-time-code" maxlength="11" required />
 			</label>
 			<button class="btn font-hand font-extrabold">Regenerate recovery codes</button>
 		</form>
 		<form method="POST" action="?/disable" use:enhance class="flex flex-col gap-3">
 			<label class="field">
-				<span>Current 6-digit code</span>
-				<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required />
+				<span>Current 6-digit code or recovery code</span>
+				<input name="code" autocomplete="one-time-code" maxlength="11" required />
 			</label>
 			<button class="btn font-hand font-extrabold">Disable</button>
 		</form>

@@ -18,10 +18,17 @@ const viewWhere = {
 };
 
 export async function listMessages(
-	view: MessageView = 'inbox'
-): Promise<{ messages: Message[]; counts: MessageCounts }> {
+	view: MessageView = 'inbox',
+	page = 1
+): Promise<{ messages: Message[]; counts: MessageCounts; hasMore: boolean; page: number }> {
 	const [rows, [c]] = await Promise.all([
-		db.select().from(messages).where(viewWhere[view]).orderBy(desc(messages.createdAt)),
+		db
+			.select()
+			.from(messages)
+			.where(viewWhere[view])
+			.orderBy(desc(messages.createdAt), desc(messages.id))
+			.limit(101)
+			.offset((page - 1) * 100),
 		db
 			.select({
 				inbox: sql<number>`count(*) filter (where not archived and not spam)::int`,
@@ -31,7 +38,8 @@ export async function listMessages(
 			})
 			.from(messages)
 	]);
-	return { messages: rows, counts: c };
+	const hasMore = rows.length > 100;
+	return { messages: hasMore ? rows.slice(0, 100) : rows, counts: c, hasMore, page };
 }
 
 export async function countUnread(): Promise<number> {

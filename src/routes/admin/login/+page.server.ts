@@ -30,7 +30,7 @@ export const actions: Actions = {
 			return fail(400, { error: 'Invalid credentials', email });
 		}
 
-		let totp: Awaited<ReturnType<typeof getTotp>> = { enabled: false, secret: null, error: false };
+		let totp: Awaited<ReturnType<typeof getTotp>> = { enabled: false, secret: null, error: false, lastStep: null };
 		try {
 			totp = await getTotp();
 		} catch {
@@ -42,7 +42,7 @@ export const actions: Actions = {
 		if (totp.enabled && totp.secret) {
 			const code = String(form.get('code') ?? '').trim();
 			if (!code) return fail(400, { needCode: true, email });
-			if (!(await verifySecondFactor(totp.secret, code))) {
+			if (!(await verifySecondFactor(totp.secret, code, totp.lastStep))) {
 				return fail(400, { needCode: true, error: 'Invalid credentials', email });
 			}
 		}

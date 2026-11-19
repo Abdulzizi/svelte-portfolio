@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { db } from './db';
 import { projects, posts, storyChapters, siteSettings, messages } from './db/schema';
 import { sanitizeBody } from './sanitize';
+import { LIMITS, httpsUrl, SLUG_RE } from '../validation';
+import { EMAIL_RE } from '../email';
 
 const id = z.string().uuid();
 const date = z.string().datetime({ offset: true }).transform((v) => new Date(v));
@@ -11,17 +13,17 @@ const nullText = (max: number) => z.string().max(max).nullable();
 
 const project = z.strictObject({
 	id,
-	title: text(200).min(1),
+	title: text(LIMITS.project.title).min(1),
 	kind: z.enum(['project', 'experience']),
-	company: nullText(200),
-	role: text(200).min(1),
-	year: text(40).min(1),
-	stack: z.array(text(80).min(1)).max(50),
-	impact: text(2000).min(1),
-	problem: text(5000),
-	result: text(5000),
-	body: nullText(200000),
-	imagePath: nullText(500),
+	company: nullText(LIMITS.project.company),
+	role: text(LIMITS.project.role).min(1),
+	year: text(LIMITS.project.year).min(1),
+	stack: z.array(text(LIMITS.project.stackItem).min(1)).max(LIMITS.project.stack),
+	impact: text(LIMITS.project.impact).min(1),
+	problem: text(LIMITS.project.problem),
+	result: text(LIMITS.project.result),
+	body: nullText(LIMITS.project.body),
+	imagePath: nullText(LIMITS.project.imagePath),
 	featured: z.boolean(),
 	rank: z.number().int(),
 	createdAt: date,
@@ -30,13 +32,13 @@ const project = z.strictObject({
 
 const post = z.strictObject({
 	id,
-	title: text(200).min(1),
-	slug: text(200)
+	title: text(LIMITS.post.title).min(1),
+	slug: text(LIMITS.post.slug)
 		.min(1)
-		.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-	excerpt: text(300).min(1),
-	body: nullText(200000),
-	coverImage: nullText(500),
+		.regex(SLUG_RE),
+	excerpt: text(LIMITS.post.excerpt).min(1),
+	body: nullText(LIMITS.post.body),
+	coverImage: nullText(LIMITS.post.coverImage),
 	published: z.boolean(),
 	publishedAt: nullDate,
 	createdAt: date,
@@ -45,9 +47,9 @@ const post = z.strictObject({
 
 const chapter = z.strictObject({
 	id,
-	kicker: text(40).min(1),
-	big: text(160).min(1),
-	body: text(600).min(1),
+	kicker: text(LIMITS.chapter.kicker).min(1),
+	big: text(LIMITS.chapter.big).min(1),
+	body: text(LIMITS.chapter.body).min(1),
 	variant: z.enum(['text', 'now', 'next']),
 	rank: z.number().int(),
 	createdAt: date,
@@ -56,18 +58,30 @@ const chapter = z.strictObject({
 
 const setting = z.strictObject({
 	id: text(40).min(1),
-	email: text(254).min(1).email(),
-	githubUrl: text(300).min(1),
-	linkedinUrl: text(300).min(1),
-	instagramUrl: text(300).min(1),
-	availability: text(80).min(1),
+	email: text(LIMITS.settings.email).min(1).email(),
+	githubUrl: httpsUrl,
+	linkedinUrl: httpsUrl,
+	instagramUrl: httpsUrl,
+	availability: text(LIMITS.settings.availability).min(1),
 	updatedAt: date
+});
+
+const message = z.strictObject({
+	id,
+	name: z.string().min(1).max(LIMITS.message.name),
+	email: z.string().min(1).max(LIMITS.message.email).regex(EMAIL_RE),
+	body: z.string().min(1).max(LIMITS.message.body),
+	read: z.boolean(),
+	archived: z.boolean(),
+	spam: z.boolean(),
+	createdAt: date
 });
 
 const sections = {
 	projects: project,
 	posts: post,
 	storyChapters: chapter,
+	messages: message,
 	siteSettings: setting
 } as const;
 
@@ -106,7 +120,7 @@ export function parseBackup(raw: string): { ok: true; data: { [K in BackupSectio
 	const obj = json as Record<string, unknown>;
 	const out: Record<string, unknown[]> = {};
 	for (const name of Object.keys(sections) as BackupSection[]) {
-		const rows = obj[name];
+		const rows = name === 'messages' && obj[name] === undefined ? [] : obj[name];
 		if (!Array.isArray(rows)) return { ok: false, error: `Section "${name}" must be an array.` };
 		const seen = new Set<string>();
 		const parsed: unknown[] = [];
@@ -140,6 +154,9 @@ export async function restoreMerge(data: Extract<ReturnType<typeof parseBackup>,
 		for (const { id: rid, ...row } of data.storyChapters) {
 			await tx.insert(storyChapters).values({ id: rid, ...row }).onConflictDoUpdate({ target: storyChapters.id, set: row });
 		}
+		for (const { id: rid, ...row } of data.messages) {
+			await tx.insert(messages).values({ id: rid, ...row }).onConflictDoUpdate({ target: messages.id, set: row });
+		}
 		for (const { id: rid, ...row } of data.siteSettings) {
 			await tx.insert(siteSettings).values({ id: rid, ...row }).onConflictDoUpdate({ target: siteSettings.id, set: row });
 		}
@@ -148,6 +165,7 @@ export async function restoreMerge(data: Extract<ReturnType<typeof parseBackup>,
 		projects: data.projects.length,
 		posts: data.posts.length,
 		storyChapters: data.storyChapters.length,
+		messages: data.messages.length,
 		siteSettings: data.siteSettings.length
 	};
 }

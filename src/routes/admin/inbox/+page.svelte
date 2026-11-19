@@ -13,13 +13,17 @@
 		['spam', 'Spam']
 	] as const;
 
+	function pageHref(p: number) {
+		return data.view === 'inbox' ? `/admin/inbox?page=${p}` : `/admin/inbox?view=${data.view}&page=${p}`;
+	}
+
 	function reply(m: PageData['messages'][number]) {
 		const quoted = m.body
 			.split('\n')
 			.map((l) => `> ${l}`)
 			.join('\n');
 		const body = `\n\nOn ${fmtDate(m.createdAt)}, ${m.name} wrote:\n${quoted}`;
-		return `mailto:${m.email}?subject=${encodeURIComponent('Re: your message')}&body=${encodeURIComponent(body)}`;
+		return `mailto:${encodeURIComponent(m.email)}?subject=${encodeURIComponent('Re: your message')}&body=${encodeURIComponent(body)}`;
 	}
 </script>
 
@@ -68,7 +72,7 @@
 						{/if}
 						<span class="name" class:unread={!m.read}>{m.name}</span>
 					</span>
-					<a href={`mailto:${m.email}`} class="meta font-mono">{m.email}</a>
+					<a href={`mailto:${encodeURIComponent(m.email)}`} class="meta font-mono">{m.email}</a>
 					<span class="meta font-mono">{fmtDate(m.createdAt)}</span>
 				</div>
 				<p class="body">{m.body}</p>
@@ -123,6 +127,21 @@
 	</ul>
 {/if}
 
+{#if data.hasMore || data.page > 1}
+	<div class="more">
+		{#if data.page > 1}
+			<a href={pageHref(data.page - 1)} class="act font-mono" data-sveltekit-replacestate>
+				Previous page
+			</a>
+		{/if}
+		{#if data.hasMore}
+			<a href={pageHref(data.page + 1)} class="act font-mono" data-sveltekit-replacestate>
+				Next page
+			</a>
+		{/if}
+	</div>
+{/if}
+
 <style>
 	.head {
 		margin-bottom: 2rem;
@@ -168,6 +187,12 @@
 		margin: 0;
 		padding: 0;
 		border-top: 1px solid var(--line);
+	}
+	.more {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem 1rem;
+		padding: 1rem 0.25rem;
 	}
 	.row {
 		padding: 1rem 0.25rem;

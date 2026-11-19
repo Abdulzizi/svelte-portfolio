@@ -33,9 +33,12 @@ export async function verifyAdmin(email: string, password: string): Promise<bool
 	}
 }
 
-function ttlDays(): number {
+const TTL_DAYS = (() => {
 	const n = Number(env.SESSION_TTL_DAYS);
 	return Number.isFinite(n) && n > 0 ? n : DEFAULT_TTL_DAYS;
+})();
+function ttlDays(): number {
+	return TTL_DAYS;
 }
 
 /** Delete all expired session rows. Cheap opportunistic sweep (one query) to keep

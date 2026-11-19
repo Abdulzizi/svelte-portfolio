@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { onMount, tick as flush } from 'svelte';
 	import DataField from '$lib/components/DataField.svelte';
+	import AsciiPortrait from '$lib/components/AsciiPortrait.svelte';
 	import { loadGsap } from '$lib/motion';
 	import { motionOff, motionPref } from '$lib/motion-pref.svelte';
 	import { useWide } from '$lib/wide.svelte';
+	import { loadTicker, ticker } from '$lib/ticker.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -19,7 +21,7 @@
 	let triggers: { start: number }[] = [];
 
 	let time = $state('--:--');
-	let commit = $state<string | null>(null);
+	const commit = $derived(ticker.github);
 
 	function tick() {
 		time = new Intl.DateTimeFormat('en-GB', {
@@ -32,13 +34,11 @@
 
 	onMount(() => {
 		tick();
-		const id = setInterval(tick, 60_000);
-		fetch('/api/ticker')
-			.then((r) => (r.ok ? r.json() : null))
-			.then((d) => {
-				if (d && typeof d.github === 'string') commit = d.github;
-			})
-			.catch(() => {});
+		loadTicker();
+		const id = setInterval(() => {
+			tick();
+			loadTicker();
+		}, 60_000);
 		return () => clearInterval(id);
 	});
 
@@ -112,6 +112,10 @@
 </svelte:head>
 
 <div class="backdrop" aria-hidden="true"><DataField {density} /></div>
+
+{#if wide.current}
+	<AsciiPortrait />
+{/if}
 
 <main id="main-content" bind:this={root} class="story relative text-[var(--ink)]" class:pinned>
 	<a href="/" class="back font-hand font-extrabold">Back</a>
