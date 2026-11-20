@@ -70,9 +70,10 @@
 							}
 						}
 					});
-					tl.from(el.querySelector('.big'), { opacity: 0, y: 48, duration: 1 })
-						.from(el.querySelector('.after'), { opacity: 0, y: 24, duration: 1 })
-						.to({}, { duration: 0.4 });
+					if (i > 0)
+						tl.from(el.querySelector('.big'), { opacity: 0, y: 48, duration: 1 })
+							.from(el.querySelector('.after'), { opacity: 0, y: 24, duration: 1 });
+					tl.to({}, { duration: 0.4 });
 					triggers.push(tl.scrollTrigger as { start: number });
 				});
 				ScrollTrigger.create({

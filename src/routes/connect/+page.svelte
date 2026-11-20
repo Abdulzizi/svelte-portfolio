@@ -185,7 +185,7 @@
 	.wrap { width: 100%; max-width: 78rem; margin: auto; display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
 	.title { font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
 	.mail {
-		font-size: clamp(1.25rem, 6vw, 7vw); line-height: 1.05; letter-spacing: -0.03em; text-align: left;
+		font-size: clamp(1.25rem, 4.5vw, 5rem); line-height: 1.05; letter-spacing: -0.03em; text-align: left;
 		min-height: 2.75rem; padding: 0.25rem 0; max-width: 100%; overflow-wrap: anywhere;
 		color: var(--ink); background: none; border: 0; border-bottom: 2px solid var(--line);
 		transition: color 0.2s ease, border-color 0.2s ease;

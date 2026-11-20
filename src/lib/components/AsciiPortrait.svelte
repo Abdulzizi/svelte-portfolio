@@ -3,7 +3,7 @@
 	import { motionOff } from '$lib/motion-pref.svelte';
 
 	const RAMP = ' .\'`^",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$';
-	const SRC = '/portrait.png';
+	const SRC = '/portrait.webp';
 	const ASPECT = 373 / 669;
 	const CELL = 4;
 
