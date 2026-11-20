@@ -85,8 +85,8 @@ const sections = {
 	siteSettings: setting
 } as const;
 
-export type BackupSection = keyof typeof sections;
-export type RestoreCounts = Record<BackupSection, number>;
+type BackupSection = keyof typeof sections;
+type RestoreCounts = Record<BackupSection, number>;
 
 export async function buildExport() {
 	const [p, po, sc, ss, m] = await Promise.all([

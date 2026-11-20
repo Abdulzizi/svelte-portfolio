@@ -71,7 +71,6 @@
 			<div class="draft font-mono">Draft preview: not published</div>
 		{/if}
 		<header class="masthead">
-			<span class="kicker font-mono">Writing</span>
 			<span class="date font-mono">{fmtDate(post.publishedAt ?? post.createdAt)}</span>
 			<span class="date font-mono">{data.minutes} min read</span>
 			<h1 class="headline font-hand font-extrabold" style="view-transition-name: post-{post.slug}">{post.title}</h1>
@@ -128,12 +127,6 @@
 	.masthead {
 		margin-bottom: 2.5rem;
 		animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-	}
-	.kicker {
-		font-size: 0.75rem;
-		letter-spacing: 0.2em;
-		text-transform: uppercase;
-		color: var(--accent);
 	}
 	.date {
 		margin-left: 1rem;

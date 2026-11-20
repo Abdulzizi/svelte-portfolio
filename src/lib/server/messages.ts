@@ -8,7 +8,7 @@ export async function createMessage(data: Pick<NewMessage, 'name' | 'email' | 'b
 }
 
 export type MessageView = 'inbox' | 'archived' | 'spam' | 'all';
-export type MessageCounts = { inbox: number; archived: number; spam: number; all: number };
+type MessageCounts = { inbox: number; archived: number; spam: number; all: number };
 
 const viewWhere = {
 	inbox: and(eq(messages.archived, false), eq(messages.spam, false)),

@@ -3,7 +3,7 @@ import { motionOff } from '$lib/motion-pref.svelte';
 
 type Gsap = typeof import('gsap').gsap;
 type ScrollTriggerPlugin = typeof import('gsap/ScrollTrigger').ScrollTrigger;
-export type Motion = { gsap: Gsap; ScrollTrigger: ScrollTriggerPlugin };
+type Motion = { gsap: Gsap; ScrollTrigger: ScrollTriggerPlugin };
 
 let cached: Promise<Motion | null> | undefined;
 

@@ -3,7 +3,7 @@ import { db } from './db';
 import { storyChapters, type StoryChapter } from './db/schema';
 import { chapters as defaults } from '../about-story';
 
-export type ChapterInput = Pick<StoryChapter, 'kicker' | 'big' | 'body' | 'variant'>;
+type ChapterInput = Pick<StoryChapter, 'kicker' | 'big' | 'body' | 'variant'>;
 
 export function listChapters(): Promise<StoryChapter[]> {
 	return db.select().from(storyChapters).orderBy(asc(storyChapters.rank), asc(storyChapters.createdAt));

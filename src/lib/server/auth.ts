@@ -6,7 +6,6 @@ import { env } from '$env/dynamic/private';
 import { dev } from '$app/environment';
 import { db } from './db';
 import { sessions, type Session } from './db/schema';
-import { DAY_MS } from './time';
 
 // Server-only. Never import into client code.
 
@@ -48,7 +47,7 @@ export async function sweepExpiredSessions(): Promise<void> {
 export async function createSession(): Promise<{ id: string; expiresAt: Date }> {
 	await sweepExpiredSessions();
 	const id = randomBytes(32).toString('hex');
-	const expiresAt = new Date(Date.now() + TTL_DAYS * DAY_MS);
+	const expiresAt = new Date(Date.now() + TTL_DAYS * 86_400_000);
 	await db.insert(sessions).values({ id, expiresAt });
 	return { id, expiresAt };
 }
@@ -63,8 +62,8 @@ export async function validateSession(
 		await destroySession(id);
 		return null;
 	}
-	if (row.expiresAt.getTime() - Date.now() < (TTL_DAYS * DAY_MS) / 2) {
-		const expiresAt = new Date(Date.now() + TTL_DAYS * DAY_MS);
+	if (row.expiresAt.getTime() - Date.now() < (TTL_DAYS * 86_400_000) / 2) {
+		const expiresAt = new Date(Date.now() + TTL_DAYS * 86_400_000);
 		await db.update(sessions).set({ expiresAt }).where(eq(sessions.id, id));
 		return { ...row, expiresAt, renewed: true };
 	}

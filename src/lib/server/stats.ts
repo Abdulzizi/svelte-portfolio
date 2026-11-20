@@ -3,8 +3,8 @@ import { env } from '$env/dynamic/private';
 import { db } from './db';
 import { messages, posts, projects, storyChapters } from './db/schema';
 
-export type Stat<T> = { ok: true; value: T } | { ok: false };
-export type Storage = { bytes: number; truncated: boolean };
+type Stat<T> = { ok: true; value: T } | { ok: false };
+type Storage = { bytes: number; truncated: boolean };
 
 const MAX_OBJECTS = 300;
 const PAGE = 100;

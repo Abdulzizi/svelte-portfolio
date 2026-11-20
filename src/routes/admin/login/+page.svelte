@@ -13,7 +13,6 @@
 
 <main id="main-content" class="wrap">
 	<div class="card">
-		<span class="idx font-mono">ADMIN</span>
 		<h1 class="font-hand text-3xl font-extrabold leading-none">Sign <span class="text-[var(--accent)]">in</span></h1>
 
 		<form
@@ -82,7 +81,6 @@
 <style>
 	.wrap { min-height: 100dvh; display: grid; place-items: center; padding: 2rem; }
 	.card { width: 100%; max-width: 22rem; }
-	.idx { display: block; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 0.5rem; }
 	.field { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem; color: var(--ink-dim); }
 	.field input {
 		background: transparent; color: var(--ink); border: 1px solid var(--line);

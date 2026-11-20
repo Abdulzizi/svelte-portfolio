@@ -2,7 +2,6 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { and, count, eq, gte, lt, sql } from 'drizzle-orm';
 import { db } from './db';
 import { rateLimits } from './db/schema';
-import { DAY_MS } from './time';
 
 export function clientKey(event: Pick<RequestEvent, 'getClientAddress' | 'request'>): string {
 	const forwarded = event.request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
@@ -35,7 +34,7 @@ export async function checkRateLimit(bucket: string, max: number, windowMs: numb
 	}
 	if (allowed) {
 		try {
-			await db.delete(rateLimits).where(lt(rateLimits.createdAt, new Date(Date.now() - DAY_MS)));
+			await db.delete(rateLimits).where(lt(rateLimits.createdAt, new Date(Date.now() - 86_400_000)));
 		} catch (e) {
 			console.error('rate-limit: cleanup error', e instanceof Error ? e.message : 'unknown');
 		}
