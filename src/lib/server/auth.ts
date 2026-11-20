@@ -6,13 +6,13 @@ import { env } from '$env/dynamic/private';
 import { dev } from '$app/environment';
 import { db } from './db';
 import { sessions, type Session } from './db/schema';
+import { DAY_MS } from './time';
 
 // Server-only. Never import into client code.
 
 export const SESSION_COOKIE = 'aj_session';
 
 const DEFAULT_TTL_DAYS = 7;
-const DAY_MS = 86_400_000;
 
 /**
  * True only when email matches ADMIN_EMAIL and the password verifies against
@@ -37,9 +37,6 @@ const TTL_DAYS = (() => {
 	const n = Number(env.SESSION_TTL_DAYS);
 	return Number.isFinite(n) && n > 0 ? n : DEFAULT_TTL_DAYS;
 })();
-function ttlDays(): number {
-	return TTL_DAYS;
-}
 
 /** Delete all expired session rows. Cheap opportunistic sweep (one query) to keep
  * the table bounded; called from createSession on login. */
@@ -51,7 +48,7 @@ export async function sweepExpiredSessions(): Promise<void> {
 export async function createSession(): Promise<{ id: string; expiresAt: Date }> {
 	await sweepExpiredSessions();
 	const id = randomBytes(32).toString('hex');
-	const expiresAt = new Date(Date.now() + ttlDays() * DAY_MS);
+	const expiresAt = new Date(Date.now() + TTL_DAYS * DAY_MS);
 	await db.insert(sessions).values({ id, expiresAt });
 	return { id, expiresAt };
 }
@@ -66,8 +63,8 @@ export async function validateSession(
 		await destroySession(id);
 		return null;
 	}
-	if (row.expiresAt.getTime() - Date.now() < (ttlDays() * DAY_MS) / 2) {
-		const expiresAt = new Date(Date.now() + ttlDays() * DAY_MS);
+	if (row.expiresAt.getTime() - Date.now() < (TTL_DAYS * DAY_MS) / 2) {
+		const expiresAt = new Date(Date.now() + TTL_DAYS * DAY_MS);
 		await db.update(sessions).set({ expiresAt }).where(eq(sessions.id, id));
 		return { ...row, expiresAt, renewed: true };
 	}

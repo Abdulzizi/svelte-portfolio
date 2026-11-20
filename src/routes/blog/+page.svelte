@@ -13,7 +13,7 @@
 
 <svelte:head>
 	<title>Blog | Abdul Jawad Azizi</title>
-	<meta name="description" content="Writing by Abdul Jawad Azizi — notes on building and shipping full-stack products." />
+	<meta name="description" content="Writing by Abdul Jawad Azizi, notes on building and shipping full-stack products." />
 </svelte:head>
 
 <main id="main-content" class="page text-[var(--ink)]">

@@ -117,7 +117,7 @@ import { reveal } from '$lib/actions/reveal';
 
 <svelte:head>
 	<title>Work | Abdul Jawad Azizi</title>
-	<meta name="description" content="Selected work by Abdul Jawad Azizi — platforms shipped, as spec sheets. The problem, the stack, the result." />
+	<meta name="description" content="Selected work by Abdul Jawad Azizi: platforms shipped, as spec sheets. The problem, the stack, the result." />
 </svelte:head>
 
 <svelte:window {onkeydown} />
@@ -292,7 +292,7 @@ import { reveal } from '$lib/actions/reveal';
 {/snippet}
 
 <style>
-	/* Wrapper mirrors SlidePage (/connect, /about): uniform 2.25rem gutters that
+	/* Wrapper mirrors the slide-page shell (/connect, /about): uniform 2.25rem gutters that
 	   clear the marquee frame, safe-area only ever ADDS to that floor. */
 	.page { padding: 4.5rem 2.25rem 4rem; min-height: 100dvh; padding-left: max(2.25rem, env(safe-area-inset-left)); padding-right: max(2.25rem, env(safe-area-inset-right)); padding-bottom: max(4rem, env(safe-area-inset-bottom)); }
 	/* Above the fixed marquee bars (z-10) and clear of the ~2rem rails. */

@@ -2,8 +2,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { and, count, eq, gte, lt, sql } from 'drizzle-orm';
 import { db } from './db';
 import { rateLimits } from './db/schema';
-
-const DAY_MS = 86_400_000;
+import { DAY_MS } from './time';
 
 export function clientKey(event: Pick<RequestEvent, 'getClientAddress' | 'request'>): string {
 	const forwarded = event.request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();

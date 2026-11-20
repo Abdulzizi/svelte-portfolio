@@ -9,3 +9,9 @@ DESIGN.md
 AGENTS.md
 SPEC.md
 .vercel
+.claude/
+.agents/
+.kiro/
+.vscode/
+docs/
+skills-lock.json

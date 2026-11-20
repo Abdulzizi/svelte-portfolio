@@ -8,3 +8,12 @@ export function fmtDate(value: Date | string | null): string {
 	if (Number.isNaN(d.getTime())) return '';
 	return `${d.getUTCFullYear()} · ${MONTHS[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, '0')}`;
 }
+
+export function jakartaTime(date = new Date()): string {
+	return new Intl.DateTimeFormat('en-GB', {
+		timeZone: 'Asia/Jakarta',
+		hour: '2-digit',
+		minute: '2-digit',
+		hourCycle: 'h23'
+	}).format(date);
+}

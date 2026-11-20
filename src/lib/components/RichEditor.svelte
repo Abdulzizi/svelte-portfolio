@@ -223,8 +223,9 @@
 		outline: none;
 		min-height: 8.5rem;
 	}
-	.content :global(.ProseMirror:focus) {
-		outline: none;
+	.content :global(.ProseMirror:focus-visible) {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
 	}
 	.content :global(a) {
 		color: var(--accent);

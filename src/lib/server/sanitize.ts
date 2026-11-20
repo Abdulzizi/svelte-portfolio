@@ -1,5 +1,6 @@
 import sanitizeHtml from 'sanitize-html';
 import { env } from '$env/dynamic/private';
+import { SANITIZE_TAGS, SANITIZE_ATTRS } from '$lib/sanitize-allowlist';
 
 // Server-only. Runs on EVERY body save before it touches the DB (stored-XSS guard).
 // Never import into client code.
@@ -7,11 +8,8 @@ import { env } from '$env/dynamic/private';
 // Conservative allowlist: inline emphasis + lists + h2/h3 + links only.
 // No script/style/img/iframe, no on* handlers, no inline styles.
 const OPTIONS: sanitizeHtml.IOptions = {
-	allowedTags: ['p', 'br', 'strong', 'em', 'b', 'i', 'ul', 'ol', 'li', 'h2', 'h3', 'a', 'img'],
-	allowedAttributes: {
-		a: ['href', 'target', 'rel'],
-		img: ['src', 'alt', 'loading']
-	},
+	allowedTags: [...SANITIZE_TAGS],
+	allowedAttributes: { a: [...SANITIZE_ATTRS.a], img: [...SANITIZE_ATTRS.img] },
 	allowedSchemesByTag: { img: ['https'] },
 	allowedSchemes: ['http', 'https', 'mailto'],
 	// Normalize links: force safe rel, drop everything else.

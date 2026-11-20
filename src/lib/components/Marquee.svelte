@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { loadTicker, ticker } from '$lib/ticker.svelte';
+	import { jakartaTime } from '$lib/date';
 
 	const TAGLINE = ['FULL STACK DEVELOPER', 'DATA SCIENCE', 'CLEAN INTERFACES', 'TYPE DESIGN', 'RELIABLE SYSTEMS', 'ROBUST SYSTEM'];
-	const TIMEZONE = 'Asia/Jakarta';
 	const SPEED = 40; // px per second
 
 	let { axis, position }: { axis: 'x' | 'y'; position: 'top' | 'bottom' | 'left' | 'right' } = $props();
@@ -18,7 +18,7 @@
 	);
 
 	function tick() {
-		now = new Intl.DateTimeFormat('en-GB', { timeZone: TIMEZONE, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date());
+		now = jakartaTime();
 	}
 
 	onMount(() => {

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { Snippet } from 'svelte';
+	import { SANITIZE_ATTRS, SANITIZE_TAGS } from '$lib/sanitize-allowlist';
 
 	let { children }: { children: Snippet } = $props();
 
@@ -40,8 +41,8 @@
 			});
 			purify = (html) =>
 				DOMPurify.sanitize(html, {
-					ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'b', 'i', 'ul', 'ol', 'li', 'h2', 'h3', 'a', 'img'],
-					ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'loading'],
+					ALLOWED_TAGS: [...SANITIZE_TAGS],
+					ALLOWED_ATTR: [...SANITIZE_ATTRS.a, ...SANITIZE_ATTRS.img] as string[],
 					ALLOWED_URI_REGEXP: /^(?:https?|mailto):/i,
 					ALLOW_DATA_ATTR: false
 				});

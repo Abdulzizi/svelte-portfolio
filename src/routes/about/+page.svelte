@@ -6,6 +6,7 @@
 	import { motionOff, motionPref } from '$lib/motion-pref.svelte';
 	import { useWide } from '$lib/wide.svelte';
 	import { loadTicker, ticker } from '$lib/ticker.svelte';
+	import { jakartaTime } from '$lib/date';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -24,12 +25,7 @@
 	const commit = $derived(ticker.github);
 
 	function tick() {
-		time = new Intl.DateTimeFormat('en-GB', {
-			timeZone: 'Asia/Jakarta',
-			hour: '2-digit',
-			minute: '2-digit',
-			hourCycle: 'h23'
-		}).format(new Date());
+		time = jakartaTime();
 	}
 
 	onMount(() => {

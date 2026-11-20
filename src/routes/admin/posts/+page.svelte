@@ -9,7 +9,7 @@
 
 	// Prefer publishedAt for published posts, else createdAt.
 	function fmtDate(value: string | Date | null): string {
-		if (!value) return '—';
+		if (!value) return '-';
 		const d = typeof value === 'string' ? new Date(value) : value;
 		return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 	}
