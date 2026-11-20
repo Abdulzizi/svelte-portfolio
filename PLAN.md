@@ -28,6 +28,7 @@ The owner manages site content without touching code: log in at `/admin`, CRUD p
 | `@fontsource/inter`, `@fontsource-variable/space-grotesk` | fonts | public |
 | `satori`, `@resvg/resvg-js` | `/og` cards | server |
 | `otpauth`, `qrcode` | admin TOTP 2FA | server |
+| `asciify-engine` | ASCII art backdrop/portrait and connect button loading | public, lazy-loaded |
 
 ## Env (keep `.env.example` in sync; never commit `.env`)
 ```
